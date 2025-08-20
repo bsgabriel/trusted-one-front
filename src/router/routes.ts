@@ -11,6 +11,29 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/IndexPage.vue'),
         meta: { requiresAuth: true },
       },
+      {
+        path: 'contacts',
+        name: 'Contatos',
+        component: () => import('pages/ContactsPage.vue'),
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'groups',
+        name: 'Grupos',
+        component: () => import('pages/IndexPage.vue'),
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'companies',
+        name: 'Empresas',
+        component: () => import('pages/IndexPage.vue'),
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'jobs',
+        name: 'Profissoes',
+        component: () => import('pages/IndexPage.vue'),
+      },
     ],
   },
   {

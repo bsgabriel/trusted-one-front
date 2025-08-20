@@ -21,7 +21,13 @@
         <q-separator class="q-mb-lg" />
 
         <q-list v-for="menu in sortedMenuOptions" :key="menu.id">
-          <q-item clickable v-ripple>
+          <q-item
+            clickable
+            v-ripple
+            @click="navigateToPage(menu.route)"
+            :active="$route.path === menu.route"
+            active-class="menu-item-active"
+          >
             <q-item-section avatar>
               <q-icon :name="menu.icon" />
             </q-item-section>
@@ -58,11 +64,12 @@ import { computed, ref } from 'vue';
 import { useAuth } from '../composables/useAuth';
 import { menuOptions } from '../types/menuOptions';
 import type { MenuOption } from '../types/menuOptions';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 
 const { currentUser, logout, isLoading } = useAuth();
 const leftDrawerOpen = ref(false);
 const router = useRouter();
+const $route = useRoute();
 
 const toggleLeftDrawer = () => {
   leftDrawerOpen.value = !leftDrawerOpen.value;
@@ -71,6 +78,13 @@ const toggleLeftDrawer = () => {
 const handleLogout = async () => {
   await logout();
   void router.push('/login');
+};
+
+const navigateToPage = (route: string) => {
+  void router.push(route);
+  if (window.innerWidth < 1024) {
+    leftDrawerOpen.value = false;
+  }
 };
 
 const sortedMenuOptions = computed<MenuOption[]>(() => {
@@ -84,5 +98,12 @@ const sortedMenuOptions = computed<MenuOption[]>(() => {
   bottom: 0;
   left: 0;
   right: 0;
+}
+
+:deep(.menu-item-active) {
+  color: var(--q-primary) !important;
+  border-right: 3px solid var(--q-primary);
+  transform: translateX(4px);
+  transition: transform 0.2s ease;
 }
 </style>
