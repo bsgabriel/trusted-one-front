@@ -7,27 +7,39 @@ export interface MenuOption {
 
 export const menuOptions: MenuOption[] = [
   {
-    id: 'contact-list',
-    icon: 'person',
-    description: 'Contatos',
-    route: '/contacts',
+    id: 'dashboard',
+    icon: 'show_chart',
+    description: 'Indicadores',
+    route: '/'
+  },
+  { 
+    id: 'historico-indicacoes',
+    icon: 'history',
+    description: 'Histórico de Indicações',
+    route: '/historico'
   },
   {
-    id: 'group-list',
+    id: 'listagem-parceiros',
+    icon: 'person',
+    description: 'Parceiros',
+    route: '/parceiros',
+  },
+  {
+    id: 'listagem-grupos',
     icon: 'groups',
     description: 'Grupos',
-    route: '/groups',
+    route: '/grupos',
   },
   {
-    id: 'company-list',
+    id: 'listagem-empresas',
     icon: 'domain',
     description: 'Empresas',
-    route: '/companies',
+    route: '/empresas',
   },
   {
-    id: 'job-list',
+    id: 'listagem-especializacoes',
     icon: 'work',
-    description: 'Profissões',
-    route: '/jobs',
+    description: 'Especializações',
+    route: '/especializacoes',
   },
 ];

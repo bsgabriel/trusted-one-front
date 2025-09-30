@@ -20,7 +20,7 @@
 
         <q-separator class="q-mb-lg" />
 
-        <q-list v-for="menu in sortedMenuOptions" :key="menu.id">
+        <q-list v-for="menu in menuOptions" :key="menu.id">
           <q-item
             clickable
             v-ripple
@@ -60,10 +60,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 import { useAuth } from '../composables/useAuth';
 import { menuOptions } from '../types/menuOptions';
-import type { MenuOption } from '../types/menuOptions';
 import { useRouter, useRoute } from 'vue-router';
 
 const { currentUser, logout, isLoading } = useAuth();
@@ -87,9 +86,6 @@ const navigateToPage = (route: string) => {
   }
 };
 
-const sortedMenuOptions = computed<MenuOption[]>(() => {
-  return menuOptions.sort((a, b) => a.description.localeCompare(b.description, 'pt-BR'));
-});
 </script>
 
 <style scoped>
