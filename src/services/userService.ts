@@ -1,5 +1,6 @@
 import { apiService } from './apiUtils';
-import type { AccountCreationDto, ApiResult, UserDto } from '../types/api';
+import type { AccountCreationDto, UserDto } from '../types/user';
+import type { ApiResult } from '../types/api';
 
 interface LoginRequest {
   email: string;
