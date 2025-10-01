@@ -1,6 +1,6 @@
 import { ref, computed, readonly } from 'vue';
 import { userService } from '../services/userService';
-import type { AccountCreationDto, UserDto } from 'src/types/api';
+import type { AccountCreationDto, UserDto } from 'src/types/user';
 
 const currentUser = ref<UserDto | null>(null);
 const isLoading = ref(false);
