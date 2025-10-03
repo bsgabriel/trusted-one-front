@@ -107,6 +107,7 @@ const searchQuery = ref('');
 let searchDebounceTimer: NodeJS.Timeout | null = null;
 
 const fetchPartners = () => {
+  partners.value = [];
   isLoading.value = true;
   error.value = null;
 
