@@ -41,6 +41,16 @@
         <ContactMethodsCard v-model="form.contactMethods" :has-error="contactMethodsError" />
       </q-expansion-item>
 
+      <!-- Especializações -->
+      <q-expansion-item
+        icon="school"
+        label="Especializações"
+        :caption="getSpecializationsCaption()"
+        header-class="bg-grey-3 text-h6"
+      >
+        <ExpertisesCard v-model="form.specializations" :has-error="specializationsError" />
+      </q-expansion-item>
+
       <!-- Botões de Ação -->
       <div class="row q-gutter-sm justify-end q-mt-lg">
         <q-btn label="Cancelar" color="grey-7" flat @click="onCancel" :disable="isSubmitting" />
@@ -56,6 +66,7 @@ import { useRouter, useRoute } from 'vue-router';
 import { useQuasar } from 'quasar';
 import BasicDataCard from './components/BasicDataCard.vue';
 import ContactMethodsCard from './components/ContactMethodsCard.vue';
+import ExpertisesCard from './components/ExpertisesCard.vue';
 import type { Group } from 'src/types/group';
 import type { Company } from 'src/types/company';
 import type { ContactMethod } from 'src/types/contactMethod';
@@ -120,6 +131,12 @@ const getContactMethodsCaption = () => {
   const count = form.value.contactMethods.length;
   if (count === 0) return 'Nenhum meio de contato adicionado';
   return `${count} ${count === 1 ? 'meio' : 'meios'} de contato adicionado${count === 1 ? '' : 's'}`;
+};
+
+const getSpecializationsCaption = () => {
+  const count = form.value.specializations.length;
+  if (count === 0) return 'Nenhuma especialização adicionada';
+  return `${count} especialização${count === 1 ? '' : 'ões'} adicionada${count === 1 ? '' : 's'}`;
 };
 
 const validateForm = (): boolean => {
