@@ -51,6 +51,16 @@
         <ExpertisesCard v-model="form.specializations" :has-error="specializationsError" />
       </q-expansion-item>
 
+      <!-- Perfil GAINS -->
+      <q-expansion-item
+        icon="psychology"
+        label="Perfil GAINS"
+        caption="Goals, Accomplishments, Interests, Networks, Skills"
+        header-class="bg-grey-3 text-h6"
+      >
+        <GainsProfileCard v-model="form.gainsProfile" />
+      </q-expansion-item>
+
       <!-- Botões de Ação -->
       <div class="row q-gutter-sm justify-end q-mt-lg">
         <q-btn label="Cancelar" color="grey-7" flat @click="onCancel" :disable="isSubmitting" />
@@ -67,6 +77,7 @@ import { useQuasar } from 'quasar';
 import BasicDataCard from './components/BasicDataCard.vue';
 import ContactMethodsCard from './components/ContactMethodsCard.vue';
 import ExpertisesCard from './components/ExpertisesCard.vue';
+import GainsProfileCard from './components/GainsProfileCard.vue';
 import type { Group } from 'src/types/group';
 import type { Company } from 'src/types/company';
 import type { ContactMethod } from 'src/types/contactMethod';
