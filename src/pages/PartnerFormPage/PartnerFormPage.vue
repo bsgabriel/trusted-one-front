@@ -31,6 +31,16 @@
         <BasicDataCard v-model="basicData" />
       </q-expansion-item>
 
+      <!-- Meios de Contato -->
+      <q-expansion-item
+        icon="contact_page"
+        label="Meios de Contato"
+        :caption="getContactMethodsCaption()"
+        header-class="bg-grey-3 text-h6"
+      >
+        <ContactMethodsCard v-model="form.contactMethods" :has-error="contactMethodsError" />
+      </q-expansion-item>
+
       <!-- Botões de Ação -->
       <div class="row q-gutter-sm justify-end q-mt-lg">
         <q-btn label="Cancelar" color="grey-7" flat @click="onCancel" :disable="isSubmitting" />
@@ -45,6 +55,7 @@ import { ref, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useQuasar } from 'quasar';
 import BasicDataCard from './components/BasicDataCard.vue';
+import ContactMethodsCard from './components/ContactMethodsCard.vue';
 import type { Group } from 'src/types/group';
 import type { Company } from 'src/types/company';
 import type { ContactMethod } from 'src/types/contactMethod';
@@ -104,6 +115,12 @@ const basicData = computed<BasicData>({
     form.value.company = value.company;
   },
 });
+
+const getContactMethodsCaption = () => {
+  const count = form.value.contactMethods.length;
+  if (count === 0) return 'Nenhum meio de contato adicionado';
+  return `${count} ${count === 1 ? 'meio' : 'meios'} de contato adicionado${count === 1 ? '' : 's'}`;
+};
 
 const validateForm = (): boolean => {
   contactMethodsError.value = form.value.contactMethods.length === 0;
