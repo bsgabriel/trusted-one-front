@@ -20,6 +20,17 @@
     </div>
 
     <q-form @submit="onSubmit" class="q-gutter-md">
+      <!-- Dados Básicos -->
+      <q-expansion-item
+        default-opened
+        icon="badge"
+        label="Dados Básicos"
+        caption="Nome, grupo e empresa"
+        header-class="bg-grey-3 text-h6"
+      >
+        <BasicDataCard v-model="basicData" />
+      </q-expansion-item>
+
       <!-- Botões de Ação -->
       <div class="row q-gutter-sm justify-end q-mt-lg">
         <q-btn label="Cancelar" color="grey-7" flat @click="onCancel" :disable="isSubmitting" />
@@ -33,11 +44,12 @@
 import { ref, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useQuasar } from 'quasar';
+import BasicDataCard from './components/BasicDataCard.vue';
 import type { Group } from 'src/types/group';
 import type { Company } from 'src/types/company';
 import type { ContactMethod } from 'src/types/contactMethod';
 import type { ExpertiseItem } from 'src/types/expertise';
-import type { AdditionalInfo, GainsProfile } from 'src/types/partner';
+import type { AdditionalInfo, BasicData, GainsProfile } from 'src/types/partner';
 
 interface PartnerForm {
   name: string;
@@ -79,6 +91,19 @@ const form = ref<PartnerForm>({
 
 const contactMethodsError = ref(false);
 const specializationsError = ref(false);
+
+const basicData = computed<BasicData>({
+  get: () => ({
+    name: form.value.name,
+    group: form.value.group,
+    company: form.value.company,
+  }),
+  set: (value: BasicData) => {
+    form.value.name = value.name;
+    form.value.group = value.group;
+    form.value.company = value.company;
+  },
+});
 
 const validateForm = (): boolean => {
   contactMethodsError.value = form.value.contactMethods.length === 0;
