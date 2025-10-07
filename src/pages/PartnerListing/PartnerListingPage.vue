@@ -34,15 +34,13 @@
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
 import PartnerList from './components/PartnerList.vue';
+import { useRouter } from 'vue-router';
 
 const $q = useQuasar();
+const router = useRouter();
 
 const showAddPartner = () => {
-  $q.notify({
-    message: 'Funcionalidade em desenvolvimento!',
-    color: 'info',
-    icon: 'info',
-  });
+  void router.push(`/parceiros/novo`);
 };
 </script>
 

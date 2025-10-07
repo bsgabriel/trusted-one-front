@@ -24,6 +24,12 @@ const routes: RouteRecordRaw[] = [
         meta: { requiresAuth: true },
       },
       {
+        path: 'parceiros/novo',
+        name: 'partner-creation',
+        component: () => import('pages/PartnerFormPage/PartnerFormPage.vue'),
+        meta: { requiresAuth: true },
+      },
+      {
         path: 'grupos',
         name: 'Grupos',
         component: () => import('pages/IndexPage.vue'),

@@ -1,4 +1,5 @@
 export interface Company {
-  companyId: string;
+  companyId: number | null;
   name: string;
+  isNew?: boolean;
 }
