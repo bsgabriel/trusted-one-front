@@ -61,6 +61,16 @@
         <GainsProfileCard v-model="form.gainsProfile" />
       </q-expansion-item>
 
+      <!-- Informações Adicionais -->
+      <q-expansion-item
+        icon="info"
+        label="Informações Adicionais"
+        caption="Produtos, cliente ideal e como iniciar conversa"
+        header-class="bg-grey-3 text-h6"
+      >
+        <AdditionalInfoCard v-model="form.additionalInfo" />
+      </q-expansion-item>
+
       <!-- Botões de Ação -->
       <div class="row q-gutter-sm justify-end q-mt-lg">
         <q-btn label="Cancelar" color="grey-7" flat @click="onCancel" :disable="isSubmitting" />
@@ -78,6 +88,7 @@ import BasicDataCard from './components/BasicDataCard.vue';
 import ContactMethodsCard from './components/ContactMethodsCard.vue';
 import ExpertisesCard from './components/ExpertisesCard.vue';
 import GainsProfileCard from './components/GainsProfileCard.vue';
+import AdditionalInfoCard from './components/AdditionalInfoCard.vue';
 import type { Group } from 'src/types/group';
 import type { Company } from 'src/types/company';
 import type { ContactMethod } from 'src/types/contactMethod';
