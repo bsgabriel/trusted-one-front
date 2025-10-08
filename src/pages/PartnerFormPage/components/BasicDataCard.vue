@@ -73,10 +73,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import type { Group } from 'src/types/group';
 import type { Company } from 'src/types/company';
 import type { BasicData } from 'src/types/partner';
+import { groupService } from 'src/services/groupService';
+import { includesNormalized } from 'src/utils/stringUtils';
+import { companyService } from 'src/services/companyService';
+import { useQuasar } from 'quasar';
 
 interface Props {
   modelValue: BasicData;
@@ -88,8 +92,12 @@ interface Emits {
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
+const $q = useQuasar();
 
+const fetchedGroups = ref<Group[]>([]);
 const groupOptions = ref<Group[]>([]);
+
+const fetchedCompanies = ref<Company[]>([]);
 const companyOptions = ref<Company[]>([]);
 
 const updateName = (value: string) => {
@@ -114,32 +122,18 @@ const updateCompany = (value: Company | undefined) => {
 };
 
 const filterGroups = (val: string, update: (fn: () => void) => void) => {
-  // TODO: Implementar busca na API
   update(() => {
-    if (val === '') {
-      groupOptions.value = [];
-    } else {
-      // Simulação - substituir por chamada real à API
-      groupOptions.value = [
-        { groupId: 1, name: 'Grupo A', isNew: false },
-        { groupId: 2, name: 'Grupo B', isNew: false },
-      ].filter((g) => g.name.toLowerCase().includes(val.toLowerCase()));
-    }
+    groupOptions.value = val
+      ? fetchedGroups.value.filter((group) => includesNormalized(group.name, val))
+      : fetchedGroups.value;
   });
 };
 
 const filterCompanies = (val: string, update: (fn: () => void) => void) => {
-  // TODO: Implementar busca na API
   update(() => {
-    if (val === '') {
-      companyOptions.value = [];
-    } else {
-      // Simulação - substituir por chamada real à API
-      companyOptions.value = [
-        { companyId: 1, name: 'Empresa A', isNew: false },
-        { companyId: 2, name: 'Empresa B', isNew: false },
-      ].filter((c) => c.name.toLowerCase().includes(val.toLowerCase()));
-    }
+    companyOptions.value = val
+      ? fetchedCompanies.value.filter((company) => includesNormalized(company.name, val))
+      : fetchedCompanies.value;
   });
 };
 
@@ -156,4 +150,43 @@ const createNewCompany = (
 ) => {
   done({ companyId: null, name: val, isNew: true }, 'add-unique');
 };
+
+onMounted(async () => {
+  try {
+    const [groupData, companyData] = await Promise.all([
+      groupService.getGroups(),
+      companyService.getCompanies(),
+    ]);
+
+    if (groupData.success) {
+      fetchedGroups.value = groupData.data;
+      groupOptions.value = groupData.data;
+    } else {
+      $q.notify({
+        type: 'negative',
+        message: 'Erro ao carregar grupos',
+        caption: groupData.message || 'Tente novamente mais tarde',
+      });
+    }
+
+    if (companyData.success) {
+      fetchedCompanies.value = companyData.data;
+      companyOptions.value = companyData.data;
+    } else {
+      $q.notify({
+        type: 'negative',
+        message: 'Erro ao carregar empresas',
+        caption: companyData.message || 'Tente novamente mais tarde',
+      });
+    }
+  } catch (error) {
+    console.error('Erro ao carregar dados:', error);
+    $q.notify({
+      type: 'negative',
+      message: 'Erro ao carregar dados',
+      caption: 'Verifique sua conexão e tente novamente',
+      timeout: 3000,
+    });
+  }
+});
 </script>
