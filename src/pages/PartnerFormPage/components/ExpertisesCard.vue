@@ -56,13 +56,13 @@
                 dense
                 use-input
                 input-debounce="300"
-                :options="spec.subspecializationOptions || []"
+                :options="spec.filteredSubspecializationOptions"
                 option-label="name"
                 option-value="subspecializationId"
                 @filter="(val, update) => filterSubspecializations(val, update, index)"
                 :disable="!spec.specialization"
                 new-value-mode="add-unique"
-                @new-value="(val, done) => createNewSubspecialization(val, done)"
+                @new-value="(val, done) => createNewSubspecialization(val, done, index)"
                 clearable
               >
                 <template v-slot:prepend>
@@ -115,8 +115,11 @@
 </template>
 
 <script setup lang="ts">
-import type { Specialization, Subspecialization, ExpertiseItem } from 'src/types/expertise';
-import { computed } from 'vue';
+import type { ExpertiseListing, ExpertiseItem } from 'src/types/expertise';
+import { computed, onMounted, ref } from 'vue';
+import { useQuasar } from 'quasar';
+import { expertiseService } from 'src/services/expertiseService';
+import { includesNormalized } from 'src/utils/stringUtils';
 
 interface Props {
   modelValue: ExpertiseItem[];
@@ -131,6 +134,9 @@ const emit = defineEmits<{
   'update:modelValue': [value: ExpertiseItem[]];
 }>();
 
+const $q = useQuasar();
+const fetchedSpecializations = ref<ExpertiseListing[]>([]);
+
 const specializations = computed({
   get: () => props.modelValue,
   set: (value) => emit('update:modelValue', value),
@@ -143,7 +149,8 @@ const addSpecialization = () => {
       specialization: null,
       subspecialization: null,
       availableForReferral: false,
-      specializationOptions: [],
+      specializationOptions: fetchedSpecializations.value,
+      filteredSubspecializationOptions: [],
       subspecializationOptions: [],
     },
   ];
@@ -155,52 +162,42 @@ const removeSpecialization = (index: number) => {
 
 const filterSpecializations = (val: string, update: (fn: () => void) => void, index: number) => {
   update(() => {
-    void (async () => {
-      try {
-        const results = await fetchSpecializations(val);
-
-        if (specializations.value[index]) {
-          specializations.value[index].specializationOptions = results;
-        }
-      } catch (error) {
-        console.error('Erro ao buscar especializações:', error);
-      }
-    })();
+    if (specializations.value[index]) {
+      specializations.value[index].specializationOptions = val
+        ? fetchedSpecializations.value.filter((s) => includesNormalized(s.name, val))
+        : fetchedSpecializations.value;
+    }
   });
 };
 
 const filterSubspecializations = (val: string, update: (fn: () => void) => void, index: number) => {
-  const specializationId = specializations.value[index]?.specialization?.specializationId;
+  const item = specializations.value[index];
 
-  if (!specializationId) {
-    if (specializations.value[index]) {
-      specializations.value[index].subspecializationOptions = [];
-    }
-    update(() => {});
+  if (!item) {
+    return;
+  }
+
+  if (!item.specialization?.expertiseId) {
+    update(() => {
+      item.filteredSubspecializationOptions = [];
+    });
     return;
   }
 
   update(() => {
-    void (async () => {
-      try {
-        const results = await fetchSubspecializations(specializationId, val);
+    const allSubs = item.subspecializationOptions || item.filteredSubspecializationOptions;
 
-        if (specializations.value[index]) {
-          specializations.value[index].subspecializationOptions = results;
-        }
-      } catch (error) {
-        console.error('Erro ao buscar sub-especializações:', error);
-      }
-    })();
+    item.filteredSubspecializationOptions = val
+      ? allSubs.filter((s) => includesNormalized(s.name, val))
+      : allSubs;
   });
 };
 
 const createNewSpecialization = (
   val: string,
-  done: (item: Specialization, mode: 'add' | 'add-unique' | 'toggle' | undefined) => void,
+  done: (item: ExpertiseListing, mode: 'add' | 'add-unique' | 'toggle' | undefined) => void,
 ) => {
-  const newSpec: Specialization = {
-    specializationId: null,
+  const newSpec: ExpertiseListing = {
     name: val,
     isNew: true,
   };
@@ -209,10 +206,13 @@ const createNewSpecialization = (
 
 const createNewSubspecialization = (
   val: string,
-  done: (item: Subspecialization, mode: 'add' | 'add-unique' | 'toggle' | undefined) => void,
+  done: (item: ExpertiseListing, mode: 'add' | 'add-unique' | 'toggle' | undefined) => void,
+  index: number,
 ) => {
-  const newSubspec: Subspecialization = {
-    subspecializationId: null,
+  const parentId = specializations.value[index]?.specialization?.expertiseId;
+
+  const newSubspec: ExpertiseListing = {
+    parentExpertiseId: parentId,
     name: val,
     isNew: true,
   };
@@ -220,76 +220,64 @@ const createNewSubspecialization = (
 };
 
 const onSpecializationChange = async (index: number) => {
-  if (specializations.value[index]) {
-    // 1. Limpa a sub-especialização atual
-    specializations.value[index].subspecialization = null;
+  const item = specializations.value[index];
+  if (!item) return;
 
-    const specializationId = specializations.value[index]?.specialization?.specializationId;
+  item.subspecialization = null;
+  item.filteredSubspecializationOptions = [];
+  const specializationId = item.specialization?.expertiseId;
 
-    if (specializationId) {
-      try {
-        // 2. Chama a busca para pré-carregar as opções (termo vazio)
-        const results = await fetchSubspecializations(specializationId, '');
+  if (!specializationId) return;
 
-        // 3. Atualiza as opções, que estarão prontas ao focar no campo
-        specializations.value[index].subspecializationOptions = results;
-      } catch (error) {
-        console.error('Erro ao carregar opções iniciais de sub-especialização:', error);
-        specializations.value[index].subspecializationOptions = [];
-      }
+  try {
+    const response = await expertiseService.getSubExpertises(specializationId);
+
+    if (response.success) {
+      item.filteredSubspecializationOptions = response.data;
+      item.subspecializationOptions = response.data;
     } else {
-      // Limpa as opções se a especialização principal for desmarcada
-      specializations.value[index].subspecializationOptions = [];
+      $q.notify({
+        type: 'negative',
+        message: 'Erro ao carregar sub-especializações',
+        caption: response.message || 'Tente novamente',
+      });
     }
+  } catch (error) {
+    console.log(error);
+    $q.notify({
+      type: 'negative',
+      message: 'Erro ao carregar sub-especializações',
+      caption: 'Erro inesperado',
+    });
   }
 };
 
-const fetchSpecializations = (searchTerm: string): Promise<Specialization[]> => {
-  // TODO: criar service para chamar API (vai receber o termo e trazer filtrado do back)
-  return new Promise((resolve) => {
-    const mockData: Specialization[] = [
-      { specializationId: '1', name: 'Tecnologia da Informação' },
-      { specializationId: '2', name: 'Recursos Humanos' },
-      { specializationId: '3', name: 'Marketing Digital' },
-      { specializationId: '4', name: 'Contabilidade' },
-      { specializationId: '5', name: 'Advocacia' },
-    ];
+onMounted(async () => {
+  try {
+    const response = await expertiseService.getParentExpertises();
 
-    const results = mockData.filter((s) => s.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    if (response.success) {
+      fetchedSpecializations.value = response.data;
 
-    // Simula o tempo de resposta da API
-    setTimeout(() => resolve(results), 300);
-  });
-};
-
-const fetchSubspecializations = (
-  specializationId: string,
-  searchTerm: string,
-): Promise<Subspecialization[]> => {
-  return new Promise((resolve) => {
-    let mockData: Subspecialization[] = [];
-
-    // TODO: criar service para chamar API (recebe )
-    if (specializationId === '1') {
-      mockData = [
-        { subspecializationId: '101', name: 'Desenvolvimento Web' },
-        { subspecializationId: '102', name: 'Análise de Dados' },
-        { subspecializationId: '103', name: 'Segurança da Informação' },
-      ];
-    } else if (specializationId === '3') {
-      mockData = [
-        { subspecializationId: '201', name: 'SEO e SEM' },
-        { subspecializationId: '202', name: 'Mídias Sociais' },
-        { subspecializationId: '203', name: 'E-mail Marketing' },
-      ];
+      specializations.value.forEach((item) => {
+        item.specializationOptions = fetchedSpecializations.value;
+      });
+    } else {
+      $q.notify({
+        type: 'negative',
+        message: 'Erro ao carregar especializações',
+        caption: response.message || 'Tente novamente mais tarde',
+      });
     }
-
-    const results = mockData.filter((s) => s.name.toLowerCase().includes(searchTerm.toLowerCase()));
-
-    // Simula o tempo de resposta da API
-    setTimeout(() => resolve(results), 300);
-  });
-};
+  } catch (error) {
+    console.error('Erro ao carregar especializações:', error);
+    $q.notify({
+      type: 'negative',
+      message: 'Erro ao carregar dados',
+      caption: 'Verifique sua conexão e tente novamente',
+    });
+  }
+});
 </script>
 
 <style scoped>

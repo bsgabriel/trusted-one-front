@@ -1,19 +1,15 @@
-export interface Specialization {
-  specializationId: string | null;
+export interface ExpertiseListing {
+  expertiseId?: number | undefined;
+  parentExpertiseId?: number | undefined;
   name: string;
-  isNew?: boolean;
-}
-
-export interface Subspecialization {
-  subspecializationId: string | null;
-  name: string;
-  isNew?: boolean;
+  isNew: boolean;
 }
 
 export interface ExpertiseItem {
-  specialization: Specialization | null;
-  subspecialization: Subspecialization | null;
+  specialization: ExpertiseListing | null;
+  subspecialization?: ExpertiseListing | null;
   availableForReferral: boolean;
-  specializationOptions?: Specialization[];
-  subspecializationOptions?: Subspecialization[];
+  specializationOptions: ExpertiseListing[];
+  subspecializationOptions: ExpertiseListing[];
+  filteredSubspecializationOptions: ExpertiseListing[];
 }
