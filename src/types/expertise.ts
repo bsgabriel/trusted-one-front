@@ -6,10 +6,10 @@ export interface ExpertiseListing {
 }
 
 export interface ExpertiseItem {
-  specialization: ExpertiseListing | null;
-  subspecialization?: ExpertiseListing | null;
+  expertise: ExpertiseListing | null;
+  subexpertise?: ExpertiseListing | null;
   availableForReferral: boolean;
-  specializationOptions: ExpertiseListing[];
-  subspecializationOptions: ExpertiseListing[];
-  filteredSubspecializationOptions: ExpertiseListing[];
+  expertiseOptions: ExpertiseListing[];
+  subexpertiseOptions: ExpertiseListing[];
+  filteredSubexpertiseOptions: ExpertiseListing[];
 }
