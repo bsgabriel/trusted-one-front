@@ -18,12 +18,13 @@
                 outlined
                 dense
                 use-input
-                input-debounce="300"
+                input-debounce="0"
                 :options="item.expertiseOptions || []"
                 option-label="name"
                 option-value="expertiseId"
                 @filter="(val, update) => filterExpertises(val, update, index)"
                 @update:model-value="onExpertiseChange(index)"
+                @input-value="(val) => onExpertiseInputChange(val, index)"
                 new-value-mode="add-unique"
                 @new-value="(val, done) => createNewExpertise(val, done)"
                 :rules="[(val) => !!val || 'Especialização é obrigatória']"
@@ -55,11 +56,12 @@
                 outlined
                 dense
                 use-input
-                input-debounce="300"
+                input-debounce="0"
                 :options="item.filteredSubexpertiseOptions"
                 option-label="name"
                 option-value="subexpertiseId"
                 @filter="(val, update) => filterSubexpertises(val, update, index)"
+                @input-value="(val) => onSubexpertiseInputChange(val, index)"
                 :disable="!item.expertise"
                 new-value-mode="add-unique"
                 @new-value="(val, done) => createNewSubexpertise(val, done, index)"
@@ -137,17 +139,14 @@ const expertiseItems = computed({
 });
 
 const addExpertise = () => {
-  expertiseItems.value = [
-    ...expertiseItems.value,
-    {
-      expertise: null,
-      subexpertise: null,
-      availableForReferral: false,
-      expertiseOptions: fetchedExpertises.value,
-      filteredSubexpertiseOptions: [],
-      subexpertiseOptions: [],
-    },
-  ];
+  expertiseItems.value.push({
+    expertise: null,
+    subexpertise: null,
+    availableForReferral: false,
+    expertiseOptions: fetchedExpertises.value,
+    filteredSubexpertiseOptions: [],
+    subexpertiseOptions: [],
+  });
 };
 
 const removeExpertise = (index: number) => {
@@ -162,6 +161,15 @@ const filterExpertises = (val: string, update: (fn: () => void) => void, index: 
         : fetchedExpertises.value;
     }
   });
+};
+
+const onExpertiseInputChange = (val: string, index: number) => {
+  const item = expertiseItems.value[index];
+  if (!item) return;
+
+  if (val && val !== item.expertise?.name) {
+    item.expertise = null;
+  }
 };
 
 const filterSubexpertises = (val: string, update: (fn: () => void) => void, index: number) => {
@@ -179,12 +187,21 @@ const filterSubexpertises = (val: string, update: (fn: () => void) => void, inde
   }
 
   update(() => {
-    const allSubs = item.subexpertiseOptions || item.filteredSubexpertiseOptions;
+    const allSubs = item.subexpertiseOptions || [];
 
     item.filteredSubexpertiseOptions = val
       ? allSubs.filter((s) => includesNormalized(s.name, val))
       : allSubs;
   });
+};
+
+const onSubexpertiseInputChange = (val: string, index: number) => {
+  const item = expertiseItems.value[index];
+  if (!item) return;
+
+  if (val && val !== item.subexpertise?.name) {
+    item.subexpertise = null;
+  }
 };
 
 const createNewExpertise = (
