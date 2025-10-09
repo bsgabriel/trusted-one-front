@@ -8,13 +8,13 @@ const routes: RouteRecordRaw[] = [
       {
         path: '',
         name: 'Indicadores',
-        component: () => import('pages/IndexPage.vue'),
+        component: () => import('pages/PageUnderConstruction.vue'),
         meta: { requiresAuth: true },
       },
       {
         path: 'historico',
         name: 'Histórico',
-        component: () => import('pages/IndexPage.vue'),
+        component: () => import('pages/PageUnderConstruction.vue'),
         meta: { requiresAuth: true },
       },
       {
@@ -26,19 +26,19 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'grupos',
         name: 'Grupos',
-        component: () => import('pages/IndexPage.vue'),
+        component: () => import('pages/PageUnderConstruction.vue'),
         meta: { requiresAuth: true },
       },
       {
         path: 'empresas',
         name: 'Empresas',
-        component: () => import('pages/IndexPage.vue'),
+        component: () => import('pages/PageUnderConstruction.vue'),
         meta: { requiresAuth: true },
       },
       {
         path: 'especializacoes',
         name: 'Especializações',
-        component: () => import('pages/IndexPage.vue'),
+        component: () => import('pages/PageUnderConstruction.vue'),
         meta: { requiresAuth: true },
       },
     ],
