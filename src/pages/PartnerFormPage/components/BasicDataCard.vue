@@ -20,7 +20,6 @@
               label="Grupo"
               outlined
               use-input
-              input-debounce="300"
               :options="groupOptions"
               option-label="name"
               option-value="groupId"
@@ -29,6 +28,7 @@
               new-value-mode="add-unique"
               hint="Digite para buscar ou criar novo"
               clearable
+              @input-value="(val) => onGroupInputChange(val)"
             >
               <template v-slot:no-option>
                 <q-item>
@@ -36,6 +36,11 @@
                     Digite para buscar ou criar novo grupo
                   </q-item-section>
                 </q-item>
+              </template>
+              <template v-slot:append>
+                <q-icon v-if="modelValue.group?.isNew" name="fiber_new" color="positive">
+                  <q-tooltip>Novo grupo</q-tooltip>
+                </q-icon>
               </template>
             </q-select>
           </div>
@@ -47,7 +52,6 @@
               label="Empresa"
               outlined
               use-input
-              input-debounce="300"
               :options="companyOptions"
               option-label="name"
               option-value="companyId"
@@ -56,6 +60,7 @@
               new-value-mode="add-unique"
               hint="Digite para buscar ou criar novo"
               clearable
+              @input-value="(val) => onCompanyInputChange(val)"
             >
               <template v-slot:no-option>
                 <q-item>
@@ -63,6 +68,11 @@
                     Digite para buscar ou criar nova empresa
                   </q-item-section>
                 </q-item>
+              </template>
+              <template v-slot:append>
+                <q-icon v-if="modelValue.company?.isNew" name="fiber_new" color="positive">
+                  <q-tooltip>Nova empresa</q-tooltip>
+                </q-icon>
               </template>
             </q-select>
           </div>
@@ -149,6 +159,26 @@ const createNewCompany = (
   done: (item: Company, mode?: 'add' | 'add-unique' | 'toggle') => void,
 ) => {
   done({ companyId: null, name: val, isNew: true }, 'add-unique');
+};
+
+const onGroupInputChange = (val: string) => {
+  if (!props.modelValue.group) {
+    return;
+  }
+
+  if (val && val !== props.modelValue.group.name) {
+    updateGroup(undefined);
+  }
+};
+
+const onCompanyInputChange = (val: string) => {
+  if (!props.modelValue.company) {
+    return;
+  }
+
+  if (val && val !== props.modelValue.company.name) {
+    updateCompany(undefined);
+  }
 };
 
 onMounted(async () => {

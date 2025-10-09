@@ -191,6 +191,7 @@ const onSubmit = async () => {
     return;
   }
 
+  console.log(form.value)
   isSubmitting.value = true;
 
   try {
