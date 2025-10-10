@@ -28,9 +28,9 @@ export const GAIN_PROFILE_FIELDS: Record<keyof GainsProfile, GainsFieldConfig> =
   },
   networks: {
     key: 'interests',
-    label: 'Interests (Interesses)',
-    caption: 'Áreas de interesse profissional',
-    hint: 'Descreva os principais interesses profissionais',
+    label: 'Networks (Conexões)',
+    caption: 'Rede de contatos e conexões profissionais',
+    hint: 'Descreva as principais redes e conexões relevantes',
   },
   skills: {
     key: 'skills',
