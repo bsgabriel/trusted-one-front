@@ -32,10 +32,10 @@ export interface BusinessProfile {
   conversationStarter: string;
 }
 
-export interface GainsProfile {
-  goals: string;
-  accomplishments: string;
-  interests: string;
-  networks: string;
-  skills: string;
+export enum GainsCategory {
+  GOAL = 'GOAL',
+  ACCOMPLISHMENT = 'ACCOMPLISHMENT',
+  INTEREST = 'INTEREST',
+  NETWORK = 'NETWORK',
+  SKILL = 'SKILL',
 }

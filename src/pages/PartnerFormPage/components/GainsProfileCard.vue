@@ -2,8 +2,8 @@
   <q-card>
     <q-card-section>
       <q-expansion-item
-        v-for="field in gainsFields"
-        :key="field.key"
+        v-for="field in GAIN_PROFILE_FIELDS"
+        :key="field.category"
         :label="field.label"
         :caption="field.caption"
         header-class="bg-grey-2"
@@ -11,16 +11,45 @@
       >
         <q-card>
           <q-card-section>
-            <q-input
-              :model-value="modelValue[field.key]"
-              @update:model-value="updateField(field.key, $event as string)"
-              type="textarea"
-              :label="field.label"
-              outlined
-              rows="4"
-              autogrow
-              :hint="field.hint"
-            />
+            <div
+              v-for="(item, index) in getItemsByCategory(field.category)"
+              :key="index"
+              class="q-mb-md"
+            >
+              <div class="row items-center q-col-gutter-sm">
+                <div class="col">
+                  <q-input
+                    :model-value="item.value"
+                    @update:model-value="updateItem(field.category, index, $event as string)"
+                    type="textarea"
+                    :label="`${field.fieldCaption} #${index + 1}`"
+                    outlined
+                    rows="3"
+                    autogrow
+                  />
+                </div>
+                <div class="col-auto col-md-1">
+                  <q-btn
+                    icon="delete"
+                    color="negative"
+                    flat
+                    size="md"
+                    @click="removeItem(field.category, index)"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="flex justify-end">
+              <q-btn
+                flat
+                color="primary"
+                icon="add"
+                :label="`Adicionar ${field.fieldCaption}`"
+                @click="addItem(field.category)"
+                class="q-mt-sm"
+              />
+            </div>
           </q-card-section>
         </q-card>
       </q-expansion-item>
@@ -29,25 +58,46 @@
 </template>
 
 <script setup lang="ts">
+import type { GainsCategory } from 'src/types/partner';
 import type { GainsProfileForm } from '../types/formData';
 import { GAIN_PROFILE_FIELDS } from '../constants/gainsProfileFields';
 
 interface Props {
-  modelValue: GainsProfileForm;
+  modelValue: GainsProfileForm[];
 }
 
 interface Emits {
-  (e: 'update:modelValue', value: GainsProfileForm): void;
+  (e: 'update:modelValue', value: GainsProfileForm[]): void;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
-const gainsFields = Object.values(GAIN_PROFILE_FIELDS);
 
-const updateField = (key: keyof GainsProfileForm, value: string) => {
-  emit('update:modelValue', {
-    ...props.modelValue,
-    [key]: value,
-  });
+const getItemsByCategory = (category: GainsCategory): GainsProfileForm[] => {
+  return props.modelValue.filter((item) => item.category === category);
+};
+
+const addItem = (category: GainsCategory) => {
+  const updatedArray = [...props.modelValue, { category, value: '' }];
+  emit('update:modelValue', updatedArray);
+};
+
+const removeItem = (category: GainsCategory, index: number) => {
+  const items = getItemsByCategory(category);
+  const itemToRemove = items[index];
+
+  const updatedArray = props.modelValue.filter((item) => item !== itemToRemove);
+  emit('update:modelValue', updatedArray);
+};
+
+const updateItem = (category: GainsCategory, index: number, value: string) => {
+  const items = getItemsByCategory(category);
+  const itemToUpdate = items[index];
+
+  const updatedArray = props.modelValue.map((item) =>
+    item === itemToUpdate ? { ...item, value } : item,
+  );
+
+  emit('update:modelValue', updatedArray);
 };
 </script>

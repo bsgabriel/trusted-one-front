@@ -104,13 +104,7 @@ const form = ref<PartnerForm>({
   },
   contactMethods: [],
   expertises: [],
-  gainsProfile: {
-    goals: '',
-    accomplishments: '',
-    interests: '',
-    networks: '',
-    skills: '',
-  },
+  gainsProfile: [],
   businessProfile: {
     mainProducts: '',
     uniqueProduct: '',
