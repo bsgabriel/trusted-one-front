@@ -105,12 +105,7 @@ const form = ref<PartnerForm>({
   contactMethods: [],
   expertises: [],
   gainsProfile: [],
-  businessProfile: {
-    mainProducts: '',
-    uniqueProduct: '',
-    idealClient: '',
-    conversationStarter: '',
-  },
+  businessProfile: [],
 });
 
 const contactMethodsError = ref(false);

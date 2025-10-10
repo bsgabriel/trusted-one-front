@@ -25,11 +25,12 @@ export interface ContactMethod {
   value: string;
 }
 
-export interface BusinessProfile {
-  mainProducts: string;
-  uniqueProduct: string;
-  idealClient: string;
-  conversationStarter: string;
+export enum BusinessProfileCategory {
+  CORE_PRODUCTS_SERVICES = 'CORE_PRODUCTS_SERVICES,',
+  UNIQUE_VALUE_PROPOSITION = 'UNIQUE_VALUE_PROPOSITION,',
+  TARGET_CLIENT_PROFILE = 'TARGET_CLIENT_PROFILE,',
+  CONVERSATION_STARTER = 'CONVERSATION_STARTER,',
+  OPPORTUNITY_SUGGESTIONS = 'OPPORTUNITY_SUGGESTIONS',
 }
 
 export enum GainsCategory {

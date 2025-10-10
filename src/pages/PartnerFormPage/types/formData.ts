@@ -1,5 +1,5 @@
 import type { ContactMethodType } from 'src/types/contactMethod';
-import type { GainsCategory } from 'src/types/partner';
+import type { BusinessProfileCategory, GainsCategory } from 'src/types/partner';
 
 export interface GroupForm {
   groupId: number | null;
@@ -46,10 +46,8 @@ export interface GainsProfileForm {
 }
 
 export interface BusinessProfileForm {
-  mainProducts?: string;
-  uniqueProduct?: string;
-  idealClient?: string;
-  conversationStarter?: string;
+  category: BusinessProfileCategory;
+  value: string;
 }
 
 export interface PartnerForm {
@@ -57,5 +55,5 @@ export interface PartnerForm {
   contactMethods: ContactMethodForm[];
   expertises: ExpertiseForm[];
   gainsProfile: GainsProfileForm[];
-  businessProfile: BusinessProfileForm;
+  businessProfile: BusinessProfileForm[];
 }

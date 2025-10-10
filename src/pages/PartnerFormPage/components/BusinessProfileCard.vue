@@ -3,7 +3,7 @@
     <q-card-section>
       <q-expansion-item
         v-for="field in businessProfileFields"
-        :key="field.key"
+        :key="field.category"
         :label="field.label"
         :caption="field.caption"
         header-class="bg-grey-2"
@@ -11,16 +11,45 @@
       >
         <q-card>
           <q-card-section>
-            <q-input
-              :model-value="modelValue[field.key]"
-              @update:model-value="updateField(field.key, $event as string)"
-              type="textarea"
-              :label="field.label"
-              outlined
-              rows="4"
-              autogrow
-              :hint="field.hint"
-            />
+            <div
+              v-for="(item, index) in getItemsByCategory(field.category)"
+              :key="index"
+              class="q-mb-md"
+            >
+              <div class="row items-center q-col-gutter-sm">
+                <div class="col">
+                  <q-input
+                    :model-value="item.value"
+                    @update:model-value="updateItem(field.category, index, $event as string)"
+                    type="textarea"
+                    :label="`${field.fieldCaption} #${index + 1}`"
+                    outlined
+                    rows="3"
+                    autogrow
+                  />
+                </div>
+                <div class="col-auto col-md-1">
+                  <q-btn
+                    icon="delete"
+                    color="negative"
+                    flat
+                    size="md"
+                    @click="removeItem(field.category, index)"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="flex justify-end">
+              <q-btn
+                flat
+                color="primary"
+                icon="add"
+                :label="`Adicionar ${field.fieldCaption}`"
+                @click="addItem(field.category)"
+                class="q-mt-sm"
+              />
+            </div>
           </q-card-section>
         </q-card>
       </q-expansion-item>
@@ -30,24 +59,46 @@
 
 <script setup lang="ts">
 import type { BusinessProfileForm } from '../types/formData';
-import { BUSINESS_PROFILE_FIELDS } from '../constants/businessProfileFields'; 
+import { BUSINESS_PROFILE_FIELDS } from '../constants/businessProfileFields';
+import type { BusinessProfileCategory } from 'src/types/partner';
 
 interface Props {
-  modelValue: BusinessProfileForm;
+  modelValue: BusinessProfileForm[];
 }
 
 interface Emits {
-  (e: 'update:modelValue', value: BusinessProfileForm): void;
+  (e: 'update:modelValue', value: BusinessProfileForm[]): void;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 const businessProfileFields = Object.values(BUSINESS_PROFILE_FIELDS);
 
-const updateField = (key: keyof BusinessProfileForm, value: string) => {
-  emit('update:modelValue', {
-    ...props.modelValue,
-    [key]: value,
-  });
+const getItemsByCategory = (category: BusinessProfileCategory): BusinessProfileForm[] => {
+  return props.modelValue.filter((item) => item.category === category);
+};
+
+const addItem = (category: BusinessProfileCategory) => {
+  const updatedArray = [...props.modelValue, { category, value: '' }];
+  emit('update:modelValue', updatedArray);
+};
+
+const removeItem = (category: BusinessProfileCategory, index: number) => {
+  const items = getItemsByCategory(category);
+  const itemToRemove = items[index];
+
+  const updatedArray = props.modelValue.filter((item) => item !== itemToRemove);
+  emit('update:modelValue', updatedArray);
+};
+
+const updateItem = (category: BusinessProfileCategory, index: number, value: string) => {
+  const items = getItemsByCategory(category);
+  const itemToUpdate = items[index];
+
+  const updatedArray = props.modelValue.map((item) =>
+    item === itemToUpdate ? { ...item, value } : item,
+  );
+
+  emit('update:modelValue', updatedArray);
 };
 </script>
