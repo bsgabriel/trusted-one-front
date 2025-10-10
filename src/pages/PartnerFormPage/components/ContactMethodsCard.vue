@@ -30,7 +30,7 @@
                 :rules="[(val) => !!val || 'Tipo é obrigatório']"
               >
                 <template v-slot:prepend>
-                  <q-icon :name="getContactIcon(contact.type)" />
+                  <q-icon :name="getContactIcon(contact.type as ContactMethodType)" />
                 </template>
               </q-select>
             </div>
@@ -38,12 +38,14 @@
             <div class="col-12 col-md-7">
               <q-input
                 v-model="contact.value"
-                :label="getContactLabel(contact.type)"
+                :label="getContactLabel(contact.type as ContactMethodType)"
                 outlined
                 dense
                 :rules="[
                   (val) => !!val || 'Valor é obrigatório',
-                  (val) => validateContactValue(contact.type, val) || 'Formato inválido',
+                  (val) =>
+                    validateContactValue(contact.type as ContactMethodType, val) ||
+                    'Formato inválido',
                 ]"
               />
             </div>
@@ -77,11 +79,13 @@
 </template>
 
 <script setup lang="ts">
-import type { ContactMethod } from 'src/types/partner';
+import type { ContactMethodType } from 'src/types/contactMethod';
+import { contactTypeConfigs, DEFAULT_CONTACT_CONFIG } from '../constants/contactMethodFields';
+import type { ContactMethodForm } from '../types/formData';
 import { computed } from 'vue';
 
 interface Props {
-  modelValue: ContactMethod[];
+  modelValue: ContactMethodForm[];
   hasError?: boolean;
 }
 
@@ -90,7 +94,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-  'update:modelValue': [value: ContactMethod[]];
+  'update:modelValue': [value: ContactMethodForm[]];
 }>();
 
 const contactMethods = computed({
@@ -98,67 +102,29 @@ const contactMethods = computed({
   set: (value) => emit('update:modelValue', value),
 });
 
-const contactTypeOptions = [
-  { value: 'email', label: 'E-mail' },
-  { value: 'phone', label: 'Telefone' },
-  { value: 'whatsapp', label: 'WhatsApp' },
-  { value: 'linkedin', label: 'LinkedIn' },
-  { value: 'instagram', label: 'Instagram' },
-  { value: 'website', label: 'Website' },
-  { value: 'other', label: 'Outro' },
-];
+const contactTypeOptions = Object.values(contactTypeConfigs);
 
 const addContactMethod = () => {
-  contactMethods.value = [...contactMethods.value, { type: '', value: '' }];
+  contactMethods.value.push({ type: contactTypeConfigs.phone.value, value: '' });
 };
 
 const removeContactMethod = (index: number) => {
   contactMethods.value = contactMethods.value.filter((_, i) => i !== index);
 };
 
-const getContactIcon = (type: string): string => {
-  const icons: Record<string, string> = {
-    email: 'email',
-    phone: 'phone',
-    whatsapp: 'chat',
-    linkedin: 'work',
-    instagram: 'photo_camera',
-    website: 'language',
-    other: 'contact_page',
-  };
-  return icons[type] || 'contact_page';
+const getContactIcon = (type: ContactMethodType): string => {
+  return contactTypeConfigs[type]?.icon ?? DEFAULT_CONTACT_CONFIG.icon;
 };
 
-const getContactLabel = (type: string): string => {
-  const labels: Record<string, string> = {
-    email: 'E-mail *',
-    phone: 'Telefone *',
-    whatsapp: 'WhatsApp *',
-    linkedin: 'URL do LinkedIn *',
-    instagram: 'Handle do Instagram *',
-    website: 'URL do Website *',
-    other: 'Valor *',
-  };
-  return labels[type] || 'Valor *';
+const getContactLabel = (type: ContactMethodType): string => {
+  return contactTypeConfigs[type]?.inputLabel ?? DEFAULT_CONTACT_CONFIG.inputLabel;
 };
 
-const validateContactValue = (type: string, value: string): boolean => {
-  if (!value) return false;
-
-  switch (type) {
-    case 'email':
-      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-    case 'phone':
-    case 'whatsapp':
-      return /^\+?[\d\s()-]{8,}$/.test(value);
-    case 'linkedin':
-    case 'website':
-      return /^https?:\/\/.+/.test(value) || /^www\..+/.test(value);
-    case 'instagram':
-      return /^@?[\w.]+$/.test(value);
-    default:
-      return value.length > 0;
+const validateContactValue = (type: ContactMethodType, value: string): boolean => {
+  if (!value) {
+    return false;
   }
+  return contactTypeConfigs[type]?.validate(value) ?? DEFAULT_CONTACT_CONFIG.validate(value);
 };
 </script>
 

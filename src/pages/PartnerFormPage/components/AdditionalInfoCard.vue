@@ -29,22 +29,22 @@
 </template>
 
 <script setup lang="ts">
-import type { AdditionalInfo } from 'src/types/partner';
+import type { AdditionalInfoForm } from '../types/formData';
 import { ADDITIONAL_INFO_FIELDS } from '../constants/additionalInfoFields';
 
 interface Props {
-  modelValue: AdditionalInfo;
+  modelValue: AdditionalInfoForm;
 }
 
 interface Emits {
-  (e: 'update:modelValue', value: AdditionalInfo): void;
+  (e: 'update:modelValue', value: AdditionalInfoForm): void;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 const additionalInfoFields = Object.values(ADDITIONAL_INFO_FIELDS);
 
-const updateField = (key: keyof AdditionalInfo, value: string) => {
+const updateField = (key: keyof AdditionalInfoForm, value: string) => {
   emit('update:modelValue', {
     ...props.modelValue,
     [key]: value,

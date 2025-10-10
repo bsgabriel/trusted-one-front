@@ -111,14 +111,15 @@
 </template>
 
 <script setup lang="ts">
-import type { ExpertiseListing, ExpertiseItem } from 'src/types/expertise';
+import type { ExpertiseListing } from 'src/types/expertise';
+import type { ExpertiseForm, ExpertiseItem } from '../types/formData';
 import { computed, onMounted, ref } from 'vue';
 import { useQuasar } from 'quasar';
 import { expertiseService } from 'src/services/expertiseService';
 import { includesNormalized } from 'src/utils/stringUtils';
 
 interface Props {
-  modelValue: ExpertiseItem[];
+  modelValue: ExpertiseForm[];
   hasError?: boolean;
 }
 
@@ -127,11 +128,11 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-  'update:modelValue': [value: ExpertiseItem[]];
+  'update:modelValue': [value: ExpertiseForm[]];
 }>();
 
 const $q = useQuasar();
-const fetchedExpertises = ref<ExpertiseListing[]>([]);
+const fetchedExpertises = ref<ExpertiseItem[]>([]);
 
 const expertiseItems = computed({
   get: () => props.modelValue,
@@ -140,8 +141,6 @@ const expertiseItems = computed({
 
 const addExpertise = () => {
   expertiseItems.value.push({
-    expertise: null,
-    subexpertise: null,
     availableForReferral: false,
     expertiseOptions: fetchedExpertises.value,
     filteredSubexpertiseOptions: [],
@@ -165,10 +164,12 @@ const filterExpertises = (val: string, update: (fn: () => void) => void, index: 
 
 const onExpertiseInputChange = (val: string, index: number) => {
   const item = expertiseItems.value[index];
-  if (!item) return;
+  if (!item) {
+    return;
+  }
 
   if (val && val !== item.expertise?.name) {
-    item.expertise = null;
+    item.expertise = undefined;
   }
 };
 
@@ -197,32 +198,36 @@ const filterSubexpertises = (val: string, update: (fn: () => void) => void, inde
 
 const onSubexpertiseInputChange = (val: string, index: number) => {
   const item = expertiseItems.value[index];
-  if (!item) return;
+  if (!item) {
+    return;
+  }
 
   if (val && val !== item.subexpertise?.name) {
-    item.subexpertise = null;
+    item.subexpertise = undefined;
   }
 };
 
 const createNewExpertise = (
   val: string,
-  done: (item: ExpertiseListing, mode: 'add' | 'add-unique' | 'toggle' | undefined) => void,
+  done: (item: ExpertiseItem, mode: 'add' | 'add-unique' | 'toggle' | undefined) => void,
 ) => {
-  const newSpec: ExpertiseListing = {
+  const newSpec: ExpertiseItem = {
     name: val,
     isNew: true,
   };
+  fetchedExpertises.value.push(newSpec);
+  fetchedExpertises.value.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
   done(newSpec, 'add-unique');
 };
 
 const createNewSubexpertise = (
   val: string,
-  done: (item: ExpertiseListing, mode: 'add' | 'add-unique' | 'toggle' | undefined) => void,
+  done: (item: ExpertiseItem, mode: 'add' | 'add-unique' | 'toggle' | undefined) => void,
   index: number,
 ) => {
   const parentId = expertiseItems.value[index]?.expertise?.expertiseId;
 
-  const newSubspec: ExpertiseListing = {
+  const newSubspec: ExpertiseItem = {
     parentExpertiseId: parentId,
     name: val,
     isNew: true,
@@ -232,20 +237,26 @@ const createNewSubexpertise = (
 
 const onExpertiseChange = async (index: number) => {
   const item = expertiseItems.value[index];
-  if (!item) return;
+  if (!item) {
+    return;
+  }
 
-  item.subexpertise = null;
+  item.subexpertise = undefined;
   item.filteredSubexpertiseOptions = [];
   const expertiseId = item.expertise?.expertiseId;
 
-  if (!expertiseId) return;
+  if (!expertiseId) {
+    return;
+  }
 
   try {
     const response = await expertiseService.getChildren(expertiseId);
 
     if (response.success) {
-      item.filteredSubexpertiseOptions = response.data;
-      item.subexpertiseOptions = response.data;
+      const arr = response.data.map(mapApiResponseToForm);
+
+      item.filteredSubexpertiseOptions = arr;
+      item.subexpertiseOptions = arr;
     } else {
       $q.notify({
         type: 'negative',
@@ -263,12 +274,21 @@ const onExpertiseChange = async (index: number) => {
   }
 };
 
+const mapApiResponseToForm = (apiResponse: ExpertiseListing): ExpertiseItem => {
+  return {
+    name: apiResponse.name,
+    expertiseId: apiResponse.expertiseId,
+    parentExpertiseId: apiResponse.parentExpertiseId,
+    isNew: false,
+  };
+};
+
 onMounted(async () => {
   try {
     const response = await expertiseService.getParentExpertises();
 
     if (response.success) {
-      fetchedExpertises.value = response.data;
+      fetchedExpertises.value = response.data.map(mapApiResponseToForm);
 
       expertiseItems.value.forEach((item) => {
         item.expertiseOptions = fetchedExpertises.value;

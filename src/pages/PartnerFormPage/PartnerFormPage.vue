@@ -45,10 +45,10 @@
       <q-expansion-item
         icon="school"
         label="Especializações"
-        :caption="getSpecializationsCaption()"
+        :caption="getExpertisesCaption()"
         header-class="bg-grey-3 text-h6"
       >
-        <ExpertisesCard v-model="form.specializations" :has-error="specializationsError" />
+        <ExpertisesCard v-model="form.expertises" :has-error="specializationsError" />
       </q-expansion-item>
 
       <!-- Perfil GAINS -->
@@ -89,21 +89,7 @@ import ContactMethodsCard from './components/ContactMethodsCard.vue';
 import ExpertisesCard from './components/ExpertisesCard.vue';
 import GainsProfileCard from './components/GainsProfileCard.vue';
 import AdditionalInfoCard from './components/AdditionalInfoCard.vue';
-import type { Group } from 'src/types/group';
-import type { Company } from 'src/types/company';
-import type { ContactMethod } from 'src/types/contactMethod';
-import type { ExpertiseItem } from 'src/types/expertise';
-import type { AdditionalInfo, BasicData, GainsProfile } from 'src/types/partner';
-
-interface PartnerForm {
-  name: string;
-  group: Group | undefined;
-  company: Company | undefined;
-  contactMethods: ContactMethod[];
-  specializations: ExpertiseItem[];
-  gainsProfile: GainsProfile;
-  additionalInfo: AdditionalInfo;
-}
+import type { BasicDataForm, PartnerForm } from './types/formData';
 
 const router = useRouter();
 const route = useRoute();
@@ -113,11 +99,11 @@ const isEditing = computed(() => !!route.params.id);
 const isSubmitting = ref(false);
 
 const form = ref<PartnerForm>({
-  name: '',
-  group: undefined,
-  company: undefined,
+  basicData: {
+    name: '',
+  },
   contactMethods: [],
-  specializations: [],
+  expertises: [],
   gainsProfile: {
     goals: '',
     accomplishments: '',
@@ -136,16 +122,16 @@ const form = ref<PartnerForm>({
 const contactMethodsError = ref(false);
 const specializationsError = ref(false);
 
-const basicData = computed<BasicData>({
+const basicData = computed<BasicDataForm>({
   get: () => ({
-    name: form.value.name,
-    group: form.value.group,
-    company: form.value.company,
+    name: form.value.basicData.name,
+    group: form.value.basicData.group,
+    company: form.value.basicData.company,
   }),
-  set: (value: BasicData) => {
-    form.value.name = value.name;
-    form.value.group = value.group;
-    form.value.company = value.company;
+  set: (value: BasicDataForm) => {
+    form.value.basicData.name = value.name;
+    form.value.basicData.group = value.group;
+    form.value.basicData.company = value.company;
   },
 });
 
@@ -155,15 +141,15 @@ const getContactMethodsCaption = () => {
   return `${count} ${count === 1 ? 'meio' : 'meios'} de contato adicionado${count === 1 ? '' : 's'}`;
 };
 
-const getSpecializationsCaption = () => {
-  const count = form.value.specializations.length;
+const getExpertisesCaption = () => {
+  const count = form.value.expertises.length;
   if (count === 0) return 'Nenhuma especialização adicionada';
   return `${count} especialização${count === 1 ? '' : 'ões'} adicionada${count === 1 ? '' : 's'}`;
 };
 
 const validateForm = (): boolean => {
   contactMethodsError.value = form.value.contactMethods.length === 0;
-  specializationsError.value = form.value.specializations.length === 0;
+  specializationsError.value = form.value.expertises.length === 0;
 
   if (contactMethodsError.value) {
     $q.notify({
@@ -191,7 +177,7 @@ const onSubmit = async () => {
     return;
   }
 
-  console.log(form.value)
+  console.log(form.value);
   isSubmitting.value = true;
 
   try {

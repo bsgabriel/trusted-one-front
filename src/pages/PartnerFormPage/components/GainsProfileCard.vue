@@ -29,22 +29,22 @@
 </template>
 
 <script setup lang="ts">
-import type { GainsProfile } from 'src/types/partner';
+import type { GainsProfileForm } from '../types/formData';
 import { GAIN_PROFILE_FIELDS } from '../constants/gainsProfileFields';
 
 interface Props {
-  modelValue: GainsProfile;
+  modelValue: GainsProfileForm;
 }
 
 interface Emits {
-  (e: 'update:modelValue', value: GainsProfile): void;
+  (e: 'update:modelValue', value: GainsProfileForm): void;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 const gainsFields = Object.values(GAIN_PROFILE_FIELDS);
 
-const updateField = (key: keyof GainsProfile, value: string) => {
+const updateField = (key: keyof GainsProfileForm, value: string) => {
   emit('update:modelValue', {
     ...props.modelValue,
     [key]: value,

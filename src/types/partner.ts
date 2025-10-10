@@ -20,12 +20,6 @@ export interface Partner {
   metrics: PartnerMetrics;
 }
 
-export interface BasicData {
-  name: string;
-  group: Group | undefined;
-  company: Company | undefined;
-}
-
 export interface ContactMethod {
   type: string;
   value: string;

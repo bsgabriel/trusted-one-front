@@ -84,31 +84,31 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import type { Group } from 'src/types/group';
-import type { Company } from 'src/types/company';
-import type { BasicData } from 'src/types/partner';
+import type { GroupForm } from '../types/formData';
+import type { CompanyForm } from '../types/formData';
+import type { BasicDataForm } from '../types/formData';
 import { groupService } from 'src/services/groupService';
 import { includesNormalized } from 'src/utils/stringUtils';
 import { companyService } from 'src/services/companyService';
 import { useQuasar } from 'quasar';
 
 interface Props {
-  modelValue: BasicData;
+  modelValue: BasicDataForm;
 }
 
 interface Emits {
-  (e: 'update:modelValue', value: BasicData): void;
+  (e: 'update:modelValue', value: BasicDataForm): void;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 const $q = useQuasar();
 
-const fetchedGroups = ref<Group[]>([]);
-const groupOptions = ref<Group[]>([]);
+const fetchedGroups = ref<GroupForm[]>([]);
+const groupOptions = ref<GroupForm[]>([]);
 
-const fetchedCompanies = ref<Company[]>([]);
-const companyOptions = ref<Company[]>([]);
+const fetchedCompanies = ref<CompanyForm[]>([]);
+const companyOptions = ref<CompanyForm[]>([]);
 
 const updateName = (value: string) => {
   emit('update:modelValue', {
@@ -117,14 +117,14 @@ const updateName = (value: string) => {
   });
 };
 
-const updateGroup = (value: Group | undefined) => {
+const updateGroup = (value?: GroupForm) => {
   emit('update:modelValue', {
     ...props.modelValue,
     group: value,
   });
 };
 
-const updateCompany = (value: Company | undefined) => {
+const updateCompany = (value?: CompanyForm) => {
   emit('update:modelValue', {
     ...props.modelValue,
     company: value,
@@ -149,14 +149,14 @@ const filterCompanies = (val: string, update: (fn: () => void) => void) => {
 
 const createNewGroup = (
   val: string,
-  done: (item: Group, mode?: 'add' | 'add-unique' | 'toggle') => void,
+  done: (item: GroupForm, mode?: 'add' | 'add-unique' | 'toggle') => void,
 ) => {
   done({ groupId: null, name: val, isNew: true }, 'add-unique');
 };
 
 const createNewCompany = (
   val: string,
-  done: (item: Company, mode?: 'add' | 'add-unique' | 'toggle') => void,
+  done: (item: CompanyForm, mode?: 'add' | 'add-unique' | 'toggle') => void,
 ) => {
   done({ companyId: null, name: val, isNew: true }, 'add-unique');
 };
