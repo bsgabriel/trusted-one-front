@@ -23,7 +23,7 @@
       <!-- Dados Básicos -->
       <q-expansion-item
         default-opened
-        icon="badge"
+        icon="account_box"
         label="Dados Básicos"
         caption="Nome, grupo e empresa"
         header-class="bg-grey-3 text-h6"
@@ -33,7 +33,7 @@
 
       <!-- Meios de Contato -->
       <q-expansion-item
-        icon="contact_page"
+        icon="contact_phone"
         label="Meios de Contato"
         :caption="getContactMethodsCaption()"
         header-class="bg-grey-3 text-h6"
@@ -61,14 +61,14 @@
         <GainsProfileCard v-model="form.gainsProfile" />
       </q-expansion-item>
 
-      <!-- Informações Adicionais -->
+      <!-- Perfil Profissional -->
       <q-expansion-item
-        icon="info"
-        label="Informações Adicionais"
+        icon="badge"
+        label="Perfil Profissional"
         caption="Produtos, cliente ideal e como iniciar conversa"
         header-class="bg-grey-3 text-h6"
       >
-        <AdditionalInfoCard v-model="form.additionalInfo" />
+        <BusinessProfileCard v-model="form.businessProfile" />
       </q-expansion-item>
 
       <!-- Botões de Ação -->
@@ -88,7 +88,7 @@ import BasicDataCard from './components/BasicDataCard.vue';
 import ContactMethodsCard from './components/ContactMethodsCard.vue';
 import ExpertisesCard from './components/ExpertisesCard.vue';
 import GainsProfileCard from './components/GainsProfileCard.vue';
-import AdditionalInfoCard from './components/AdditionalInfoCard.vue';
+import BusinessProfileCard from './components/BusinessProfileCard.vue';
 import type { BasicDataForm, PartnerForm } from './types/formData';
 
 const router = useRouter();
@@ -111,7 +111,7 @@ const form = ref<PartnerForm>({
     networks: '',
     skills: '',
   },
-  additionalInfo: {
+  businessProfile: {
     mainProducts: '',
     uniqueProduct: '',
     idealClient: '',
@@ -178,6 +178,7 @@ const onSubmit = async () => {
   }
 
   console.log(form.value);
+  // TODO: criar entidade (Partner) que reflete o que o back espera (talvez tenha que mexer lá). Em seguida, mapear de PartnerForm para Partner
   isSubmitting.value = true;
 
   try {

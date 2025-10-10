@@ -25,7 +25,7 @@ export interface ContactMethod {
   value: string;
 }
 
-export interface AdditionalInfo {
+export interface BusinessProfile {
   mainProducts: string;
   uniqueProduct: string;
   idealClient: string;

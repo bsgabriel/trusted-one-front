@@ -2,7 +2,7 @@
   <q-card>
     <q-card-section>
       <q-expansion-item
-        v-for="field in additionalInfoFields"
+        v-for="field in businessProfileFields"
         :key="field.key"
         :label="field.label"
         :caption="field.caption"
@@ -29,22 +29,22 @@
 </template>
 
 <script setup lang="ts">
-import type { AdditionalInfoForm } from '../types/formData';
-import { ADDITIONAL_INFO_FIELDS } from '../constants/additionalInfoFields';
+import type { BusinessProfileForm } from '../types/formData';
+import { BUSINESS_PROFILE_FIELDS } from '../constants/businessProfileFields'; 
 
 interface Props {
-  modelValue: AdditionalInfoForm;
+  modelValue: BusinessProfileForm;
 }
 
 interface Emits {
-  (e: 'update:modelValue', value: AdditionalInfoForm): void;
+  (e: 'update:modelValue', value: BusinessProfileForm): void;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
-const additionalInfoFields = Object.values(ADDITIONAL_INFO_FIELDS);
+const businessProfileFields = Object.values(BUSINESS_PROFILE_FIELDS);
 
-const updateField = (key: keyof AdditionalInfoForm, value: string) => {
+const updateField = (key: keyof BusinessProfileForm, value: string) => {
   emit('update:modelValue', {
     ...props.modelValue,
     [key]: value,

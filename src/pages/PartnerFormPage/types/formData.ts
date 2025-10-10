@@ -47,7 +47,7 @@ export interface GainsProfileForm {
   skills?: string;
 }
 
-export interface AdditionalInfoForm {
+export interface BusinessProfileForm {
   mainProducts?: string;
   uniqueProduct?: string;
   idealClient?: string;
@@ -59,5 +59,5 @@ export interface PartnerForm {
   contactMethods: ContactMethodForm[];
   expertises: ExpertiseForm[];
   gainsProfile: GainsProfileForm;
-  additionalInfo: AdditionalInfoForm;
+  businessProfile: BusinessProfileForm;
 }

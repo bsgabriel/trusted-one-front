@@ -1,13 +1,13 @@
-import type { AdditionalInfo } from 'src/types/partner';
+import type { BusinessProfile } from 'src/types/partner';
 
-export interface AdditionalInfoFieldConfig {
-  key: keyof AdditionalInfo;
+export interface BusinessProfileFieldConfig {
+  key: keyof BusinessProfile;
   label: string;
   caption: string;
   hint: string;
 }
 
-export const ADDITIONAL_INFO_FIELDS: Record<keyof AdditionalInfo, AdditionalInfoFieldConfig> = {
+export const BUSINESS_PROFILE_FIELDS: Record<keyof BusinessProfile, BusinessProfileFieldConfig> = {
   mainProducts: {
     key: 'mainProducts',
     label: 'Produtos/Serviços Mais Importantes',
