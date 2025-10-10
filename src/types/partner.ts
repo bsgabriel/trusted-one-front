@@ -33,9 +33,9 @@ export interface BusinessProfile {
 }
 
 export enum GainsCategory {
-  GOAL = 'GOAL',
-  ACCOMPLISHMENT = 'ACCOMPLISHMENT',
-  INTEREST = 'INTEREST',
-  NETWORK = 'NETWORK',
-  SKILL = 'SKILL',
+  GOALS = 'GOALS',
+  ACCOMPLISHMENTS = 'ACCOMPLISHMENTS',
+  INTERESTS = 'INTERESTS',
+  NETWORKS = 'NETWORKS',
+  SKILLS = 'SKILLS',
 }
