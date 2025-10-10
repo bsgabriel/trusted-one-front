@@ -41,11 +41,13 @@ export interface ExpertiseForm {
 }
 
 export interface GainsProfileForm {
+  gainsProfileId?: number;
   category: GainsCategory;
   value: string;
 }
 
 export interface BusinessProfileForm {
+  businessProfileId?: number;
   category: BusinessProfileCategory;
   value: string;
 }

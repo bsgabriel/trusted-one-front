@@ -13,14 +13,14 @@
           <q-card-section>
             <div
               v-for="(item, index) in getItemsByCategory(field.category)"
-              :key="index"
+              :key="item.gainsProfileId || `new-${index}`"
               class="q-mb-md"
             >
               <div class="row items-center q-col-gutter-sm">
                 <div class="col">
                   <q-input
                     :model-value="item.value"
-                    @update:model-value="updateItem(field.category, index, $event as string)"
+                    @update:model-value="updateItem(item, $event as string)"
                     type="textarea"
                     :label="`${field.fieldCaption} #${index + 1}`"
                     outlined
@@ -34,7 +34,7 @@
                     color="negative"
                     flat
                     size="md"
-                    @click="removeItem(field.category, index)"
+                    @click="removeItem(item)"
                   />
                 </div>
               </div>
@@ -78,22 +78,20 @@ const getItemsByCategory = (category: GainsCategory): GainsProfileForm[] => {
 };
 
 const addItem = (category: GainsCategory) => {
-  const updatedArray = [...props.modelValue, { category, value: '' }];
-  emit('update:modelValue', updatedArray);
+  const newItem: GainsProfileForm = {
+    category,
+    value: '',
+  };
+
+  emit('update:modelValue', [...props.modelValue, newItem]);
 };
 
-const removeItem = (category: GainsCategory, index: number) => {
-  const items = getItemsByCategory(category);
-  const itemToRemove = items[index];
-
+const removeItem = (itemToRemove: GainsProfileForm) => {
   const updatedArray = props.modelValue.filter((item) => item !== itemToRemove);
   emit('update:modelValue', updatedArray);
 };
 
-const updateItem = (category: GainsCategory, index: number, value: string) => {
-  const items = getItemsByCategory(category);
-  const itemToUpdate = items[index];
-
+const updateItem = (itemToUpdate: GainsProfileForm, value: string) => {
   const updatedArray = props.modelValue.map((item) =>
     item === itemToUpdate ? { ...item, value } : item,
   );

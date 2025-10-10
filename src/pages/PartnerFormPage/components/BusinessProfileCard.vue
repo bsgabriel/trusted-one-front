@@ -13,14 +13,14 @@
           <q-card-section>
             <div
               v-for="(item, index) in getItemsByCategory(field.category)"
-              :key="index"
+              :key="item.businessProfileId || `new-${index}`"
               class="q-mb-md"
             >
               <div class="row items-center q-col-gutter-sm">
                 <div class="col">
                   <q-input
                     :model-value="item.value"
-                    @update:model-value="updateItem(field.category, index, $event as string)"
+                    @update:model-value="updateItem(item, $event as string)"
                     type="textarea"
                     :label="`${field.fieldCaption} #${index + 1}`"
                     outlined
@@ -29,13 +29,7 @@
                   />
                 </div>
                 <div class="col-auto col-md-1">
-                  <q-btn
-                    icon="delete"
-                    color="negative"
-                    flat
-                    size="md"
-                    @click="removeItem(field.category, index)"
-                  />
+                  <q-btn icon="delete" color="negative" flat size="md" @click="removeItem(item)" />
                 </div>
               </div>
             </div>
@@ -79,22 +73,20 @@ const getItemsByCategory = (category: BusinessProfileCategory): BusinessProfileF
 };
 
 const addItem = (category: BusinessProfileCategory) => {
-  const updatedArray = [...props.modelValue, { category, value: '' }];
-  emit('update:modelValue', updatedArray);
+  const newItem: BusinessProfileForm = {
+    category,
+    value: '',
+  };
+
+  emit('update:modelValue', [...props.modelValue, newItem]);
 };
 
-const removeItem = (category: BusinessProfileCategory, index: number) => {
-  const items = getItemsByCategory(category);
-  const itemToRemove = items[index];
-
+const removeItem = (itemToRemove: BusinessProfileForm) => {
   const updatedArray = props.modelValue.filter((item) => item !== itemToRemove);
   emit('update:modelValue', updatedArray);
 };
 
-const updateItem = (category: BusinessProfileCategory, index: number, value: string) => {
-  const items = getItemsByCategory(category);
-  const itemToUpdate = items[index];
-
+const updateItem = (itemToUpdate: BusinessProfileForm, value: string) => {
   const updatedArray = props.modelValue.map((item) =>
     item === itemToUpdate ? { ...item, value } : item,
   );
