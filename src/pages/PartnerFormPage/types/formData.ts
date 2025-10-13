@@ -20,6 +20,7 @@ export interface BasicDataForm {
 }
 
 export interface ContactMethodForm {
+  contactMethodId?: number;
   type: ContactMethodType;
   value?: string;
 }

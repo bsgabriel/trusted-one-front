@@ -10,7 +10,7 @@
       <div v-else class="q-gutter-md">
         <q-card
           v-for="(contact, index) in contactMethods"
-          :key="index"
+          :key="contact.contactMethodId || `new-${index}`"
           flat
           bordered
           class="q-pa-md"
