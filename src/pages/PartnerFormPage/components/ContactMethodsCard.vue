@@ -37,7 +37,7 @@
 
             <div class="col-12 col-md-7">
               <q-input
-                v-model="contact.value"
+                v-model="contact.info"
                 :label="getContactLabel(contact.type as ContactMethodType)"
                 outlined
                 dense
@@ -105,7 +105,7 @@ const contactMethods = computed({
 const contactTypeOptions = Object.values(contactTypeConfigs);
 
 const addContactMethod = () => {
-  contactMethods.value.push({ type: contactTypeConfigs.phone.value, value: '' });
+  contactMethods.value.push({ type: contactTypeConfigs.PHONE.value, info: '' });
 };
 
 const removeContactMethod = (index: number) => {

@@ -1,11 +1,13 @@
 export interface ExpertiseListing {
-  expertiseId?: number | undefined;
-  parentExpertiseId?: number | undefined;
+  expertiseId?: number;
+  parentExpertiseId?: number;
   name: string;
 }
 
-export interface ExpertiseItem {
-  expertise: ExpertiseListing | null;
-  subexpertise?: ExpertiseListing | null;
+export interface Expertise {
+  expertiseId?: number;
+  name: string;
+  parentExpertiseId?: number;
+  parentExpertiseName?: string;
   availableForReferral: boolean;
 }

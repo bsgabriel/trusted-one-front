@@ -26,3 +26,25 @@ export const normalizeString = (str: string): string => {
 export const includesNormalized = (str: string, search: string): boolean => {
   return normalizeString(str).includes(normalizeString(search));
 };
+
+/**
+ * Compares two strings after normalizing them using locale-aware comparison.
+ *
+ * This function normalizes both input strings and then performs a locale-sensitive string comparison.
+ *
+ * @param {string} a - The first string to compare.
+ * @param {string} b - The second string to compare.
+ * @returns {number} A negative number if a comes before b, a positive number if a comes after b,
+ *                   or 0 if the strings are equal (after normalization).
+ *
+ * @example
+ * compareNormalized("apple", "banana"); // Returns a negative number (a comes before b)
+ * compareNormalized("Café", "cafe"); // Returns 0 (strings are equal after normalization)
+ *
+ * // Can be used with Array.sort()
+ * const words = ["zebra", "apple", "banana"];
+ * words.sort(compareNormalized);
+ */
+export const compareNormalized = (a: string, b: string): number => {
+  return normalizeString(a).localeCompare(normalizeString(b));
+};

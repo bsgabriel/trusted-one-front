@@ -19,7 +19,7 @@
               <div class="row items-center q-col-gutter-sm">
                 <div class="col">
                   <q-input
-                    :model-value="item.value"
+                    :model-value="item.info"
                     @update:model-value="updateItem(item, $event as string)"
                     type="textarea"
                     :label="`${field.fieldCaption} #${index + 1}`"
@@ -80,7 +80,7 @@ const getItemsByCategory = (category: GainsCategory): GainsProfileForm[] => {
 const addItem = (category: GainsCategory) => {
   const newItem: GainsProfileForm = {
     category,
-    value: '',
+    info: '',
   };
 
   emit('update:modelValue', [...props.modelValue, newItem]);
@@ -91,9 +91,9 @@ const removeItem = (itemToRemove: GainsProfileForm) => {
   emit('update:modelValue', updatedArray);
 };
 
-const updateItem = (itemToUpdate: GainsProfileForm, value: string) => {
+const updateItem = (itemToUpdate: GainsProfileForm, info: string) => {
   const updatedArray = props.modelValue.map((item) =>
-    item === itemToUpdate ? { ...item, value } : item,
+    item === itemToUpdate ? { ...item, info } : item,
   );
 
   emit('update:modelValue', updatedArray);

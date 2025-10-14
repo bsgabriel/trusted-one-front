@@ -1,3 +1,4 @@
+<!-- Template -->
 <template>
   <q-card :class="{ 'border-negative': hasError }">
     <q-card-section>
@@ -19,12 +20,11 @@
                 dense
                 use-input
                 input-debounce="0"
-                :options="item.expertiseOptions || []"
+                :options="filteredParentExpertises(index)"
                 option-label="name"
-                option-value="expertiseId"
-                @filter="(val, update) => filterExpertises(val, update, index)"
+                @filter="(val, update) => filterParentExpertises(val, update, index)"
                 @update:model-value="onExpertiseChange(index)"
-                @input-value="(val) => onExpertiseInputChange(val, index)"
+                @input-value="(val) => onParentInputChange(val, index)"
                 new-value-mode="add-unique"
                 @new-value="(val, done) => createNewExpertise(val, done)"
                 :rules="[(val) => !!val || 'Especialização é obrigatória']"
@@ -57,12 +57,11 @@
                 dense
                 use-input
                 input-debounce="0"
-                :options="item.filteredSubexpertiseOptions"
+                :options="getFilteredSubexpertises(index)"
                 option-label="name"
-                option-value="subexpertiseId"
                 @filter="(val, update) => filterSubexpertises(val, update, index)"
                 @input-value="(val) => onSubexpertiseInputChange(val, index)"
-                :disable="!item.expertise"
+                :disable="!item.expertise || item.expertise.isNew"
                 new-value-mode="add-unique"
                 @new-value="(val, done) => createNewSubexpertise(val, done, index)"
                 clearable
@@ -111,12 +110,12 @@
 </template>
 
 <script setup lang="ts">
-import type { ExpertiseListing } from 'src/types/expertise';
-import type { ExpertiseForm, ExpertiseItem } from '../types/formData';
 import { computed, onMounted, ref } from 'vue';
 import { useQuasar } from 'quasar';
 import { expertiseService } from 'src/services/expertiseService';
-import { includesNormalized } from 'src/utils/stringUtils';
+import { compareNormalized, includesNormalized } from 'src/utils/stringUtils';
+import type { ExpertiseItem, ExpertiseForm } from '../types/formData';
+import type { ExpertiseListing } from 'src/types/expertise';
 
 interface Props {
   modelValue: ExpertiseForm[];
@@ -133,36 +132,75 @@ const emit = defineEmits<{
 
 const $q = useQuasar();
 const fetchedExpertises = ref<ExpertiseItem[]>([]);
+const parentFilterInputs = ref<Record<number, string>>({});
+const subexpertiseFilters = ref<Record<number, Map<number, ExpertiseItem[]>>>({});
+const subexpertiseFilterInputs = ref<Record<number, string>>({});
 
 const expertiseItems = computed({
   get: () => props.modelValue,
   set: (value) => emit('update:modelValue', value),
 });
 
-const addExpertise = () => {
-  expertiseItems.value.push({
-    availableForReferral: false,
-    expertiseOptions: fetchedExpertises.value,
-    filteredSubexpertiseOptions: [],
-    subexpertiseOptions: [],
-  });
-};
+const loadSubexpertises = async (parentId: number) => {
+  if (subexpertiseFilters.value[parentId]) {
+    return;
+  }
 
-const removeExpertise = (index: number) => {
-  expertiseItems.value = expertiseItems.value.filter((_, i) => i !== index);
-};
+  try {
+    const response = await expertiseService.getChildren(parentId);
 
-const filterExpertises = (val: string, update: (fn: () => void) => void, index: number) => {
-  update(() => {
-    if (expertiseItems.value[index]) {
-      expertiseItems.value[index].expertiseOptions = val
-        ? fetchedExpertises.value.filter((s) => includesNormalized(s.name, val))
-        : fetchedExpertises.value;
+    if (response.success) {
+      const children = response.data.map(mapApiResponseToForm);
+      if (!subexpertiseFilters.value[parentId]) {
+        subexpertiseFilters.value[parentId] = new Map();
+      }
+      subexpertiseFilters.value[parentId].set(parentId, children);
+    } else {
+      $q.notify({
+        type: 'negative',
+        message: 'Erro ao carregar sub-especializações',
+        caption: response.message || 'Tente novamente',
+      });
     }
+  } catch (error) {
+    console.error('Erro ao carregar sub-especializações:', error);
+    $q.notify({
+      type: 'negative',
+      message: 'Erro ao carregar sub-especializações',
+      caption: 'Erro inesperado',
+    });
+  }
+};
+
+const filteredParentExpertises = computed(() => {
+  return (index: number) => {
+    const searchText = parentFilterInputs.value[index] || '';
+    return searchText
+      ? fetchedExpertises.value.filter((e) => includesNormalized(e.name, searchText))
+      : fetchedExpertises.value;
+  };
+});
+
+const getFilteredSubexpertises = (index: number): ExpertiseItem[] => {
+  const item = expertiseItems.value[index];
+  if (!item?.expertise?.expertiseId) {
+    return [];
+  }
+
+  const parentId = item.expertise.expertiseId;
+  const allSubs = subexpertiseFilters.value[parentId]?.get(parentId) || [];
+  const searchText = subexpertiseFilterInputs.value[index] || '';
+
+  return searchText ? allSubs.filter((s) => includesNormalized(s.name, searchText)) : allSubs;
+};
+
+const filterParentExpertises = (val: string, update: (fn: () => void) => void, index: number) => {
+  update(() => {
+    parentFilterInputs.value[index] = val;
   });
 };
 
-const onExpertiseInputChange = (val: string, index: number) => {
+const onParentInputChange = (val: string, index: number) => {
   const item = expertiseItems.value[index];
   if (!item) {
     return;
@@ -174,25 +212,8 @@ const onExpertiseInputChange = (val: string, index: number) => {
 };
 
 const filterSubexpertises = (val: string, update: (fn: () => void) => void, index: number) => {
-  const item = expertiseItems.value[index];
-
-  if (!item) {
-    return;
-  }
-
-  if (!item.expertise?.expertiseId) {
-    update(() => {
-      item.filteredSubexpertiseOptions = [];
-    });
-    return;
-  }
-
   update(() => {
-    const allSubs = item.subexpertiseOptions || [];
-
-    item.filteredSubexpertiseOptions = val
-      ? allSubs.filter((s) => includesNormalized(s.name, val))
-      : allSubs;
+    subexpertiseFilterInputs.value[index] = val;
   });
 };
 
@@ -207,6 +228,21 @@ const onSubexpertiseInputChange = (val: string, index: number) => {
   }
 };
 
+const onExpertiseChange = async (index: number) => {
+  const item = expertiseItems.value[index];
+  if (!item) return;
+
+  item.subexpertise = undefined;
+  subexpertiseFilterInputs.value[index] = '';
+
+  const expertiseId = item.expertise?.expertiseId;
+  if (!expertiseId || item.expertise?.isNew) {
+    return;
+  }
+
+  await loadSubexpertises(expertiseId);
+};
+
 const createNewExpertise = (
   val: string,
   done: (item: ExpertiseItem, mode: 'add' | 'add-unique' | 'toggle' | undefined) => void,
@@ -216,7 +252,7 @@ const createNewExpertise = (
     isNew: true,
   };
   fetchedExpertises.value.push(newSpec);
-  fetchedExpertises.value.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+  fetchedExpertises.value.sort((a, b) => compareNormalized(a.name, b.name));
   done(newSpec, 'add-unique');
 };
 
@@ -227,51 +263,22 @@ const createNewSubexpertise = (
 ) => {
   const parentId = expertiseItems.value[index]?.expertise?.expertiseId;
 
-  const newSubspec: ExpertiseItem = {
-    parentExpertiseId: parentId,
+  const newSubexpertise: ExpertiseItem = {
     name: val,
+    parentExpertiseId: parentId,
     isNew: true,
   };
-  done(newSubspec, 'add-unique');
+  done(newSubexpertise, 'add-unique');
 };
 
-const onExpertiseChange = async (index: number) => {
-  const item = expertiseItems.value[index];
-  if (!item) {
-    return;
-  }
+const addExpertise = () => {
+  expertiseItems.value.push({
+    availableForReferral: false,
+  });
+};
 
-  item.subexpertise = undefined;
-  item.filteredSubexpertiseOptions = [];
-  const expertiseId = item.expertise?.expertiseId;
-
-  if (!expertiseId) {
-    return;
-  }
-
-  try {
-    const response = await expertiseService.getChildren(expertiseId);
-
-    if (response.success) {
-      const arr = response.data.map(mapApiResponseToForm);
-
-      item.filteredSubexpertiseOptions = arr;
-      item.subexpertiseOptions = arr;
-    } else {
-      $q.notify({
-        type: 'negative',
-        message: 'Erro ao carregar sub-especializações',
-        caption: response.message || 'Tente novamente',
-      });
-    }
-  } catch (error) {
-    console.log(error);
-    $q.notify({
-      type: 'negative',
-      message: 'Erro ao carregar sub-especializações',
-      caption: 'Erro inesperado',
-    });
-  }
+const removeExpertise = (index: number) => {
+  expertiseItems.value = expertiseItems.value.filter((_, i) => i !== index);
 };
 
 const mapApiResponseToForm = (apiResponse: ExpertiseListing): ExpertiseItem => {
@@ -291,7 +298,9 @@ onMounted(async () => {
       fetchedExpertises.value = response.data.map(mapApiResponseToForm);
 
       expertiseItems.value.forEach((item) => {
-        item.expertiseOptions = fetchedExpertises.value;
+        if (item.expertise?.expertiseId && !subexpertiseFilters.value[item.expertise.expertiseId]) {
+          void loadSubexpertises(item.expertise.expertiseId);
+        }
       });
     } else {
       $q.notify({

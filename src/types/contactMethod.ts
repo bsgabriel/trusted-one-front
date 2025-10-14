@@ -1,13 +1,11 @@
 export type ContactMethodType =
-  | 'email'
-  | 'phone'
-  | 'whatsapp'
-  | 'linkedin'
-  | 'instagram'
-  | 'website'
-  | 'other';
+  | 'EMAIL'
+  | 'PHONE'
+  | 'LINKEDIN'
+  | 'OTHER'
 
 export interface ContactMethod {
+  contactMethodId?: number;
   type: ContactMethodType | '';
-  value: string;
+  info: string;
 }

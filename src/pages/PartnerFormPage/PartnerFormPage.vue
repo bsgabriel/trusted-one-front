@@ -89,7 +89,18 @@ import ContactMethodsCard from './components/ContactMethodsCard.vue';
 import ExpertisesCard from './components/ExpertisesCard.vue';
 import GainsProfileCard from './components/GainsProfileCard.vue';
 import BusinessProfileCard from './components/BusinessProfileCard.vue';
-import type { BasicDataForm, PartnerForm } from './types/formData';
+import type {
+  BasicDataForm,
+  BusinessProfileForm,
+  ContactMethodForm,
+  ExpertiseForm,
+  GainsProfileForm,
+  PartnerForm,
+} from './types/formData';
+import type { BusinessProfile, GainsProfile, Partner } from 'src/types/partner';
+import type { ContactMethod } from 'src/types/contactMethod';
+import type { Expertise } from 'src/types/expertise';
+import { partnerService } from 'src/services/partnerService';
 
 const router = useRouter();
 const route = useRoute();
@@ -161,19 +172,84 @@ const validateForm = (): boolean => {
   return true;
 };
 
+const createPartner = (formData: PartnerForm): Partner => {
+  const mapContactMethod = (form: ContactMethodForm): ContactMethod => {
+    return {
+      contactMethodId: form.contactMethodId,
+      type: form.type,
+      info: form.info,
+    };
+  };
+
+  const mapGainsProfile = (form: GainsProfileForm): GainsProfile => {
+    return {
+      gainsProfileId: form.gainsProfileId,
+      category: form.category,
+      info: form.info,
+    };
+  };
+
+  const mapBusinessProfile = (form: BusinessProfileForm): BusinessProfile => {
+    return {
+      businessProfileId: form.businessProfileId,
+      category: form.category,
+      info: form.info,
+    };
+  };
+
+  const mapExpertises = (form: ExpertiseForm): Expertise | undefined => {
+    if (!form.expertise) {
+      return undefined;
+    }
+
+    if (form.subexpertise) {
+      return {
+        expertiseId: form.subexpertise.expertiseId,
+        parentExpertiseId: form.expertise.expertiseId,
+        parentExpertiseName: form.expertise.name,
+        name: form.subexpertise.name,
+        availableForReferral: form.availableForReferral,
+      };
+    }
+
+    return {
+      expertiseId: form.expertise.expertiseId,
+      name: form.expertise.name,
+      availableForReferral: form.availableForReferral,
+    };
+  };
+
+  return {
+    partnerId: formData.partnerId,
+    name: formData.basicData.name,
+    company: formData.basicData.company?.name ? formData.basicData.company : undefined,
+    group: formData.basicData.group?.name ? formData.basicData.group : undefined,
+    contactMethods: formData.contactMethods.map(mapContactMethod),
+    gainsProfile: formData.gainsProfile.map(mapGainsProfile),
+    businessProfile: formData.businessProfile.map(mapBusinessProfile),
+    expertises: formData.expertises.map(mapExpertises).filter((expertise) => !!expertise),
+  };
+};
+
 const onSubmit = async () => {
   if (!validateForm()) {
     return;
   }
 
-  console.log(form.value);
-  // TODO: criar entidade (Partner) que reflete o que o back espera (talvez tenha que mexer lá). Em seguida, mapear de PartnerForm para Partner
+  console.log('formData', form.value);
+  const partner = createPartner(form.value);
+  console.log('partner', partner);
   isSubmitting.value = true;
 
   try {
-    // TODO: Implementar chamada à API
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
+    await partnerService.createPartner(partner).then((result) => {
+      if (result.success) {
+        console.log('parceiro criado', result.data);
+      } else {
+        console.log('erro', result);
+      }
+    });
+    
     $q.notify({
       message: isEditing.value
         ? 'Parceiro atualizado com sucesso!'
@@ -182,7 +258,7 @@ const onSubmit = async () => {
       icon: 'check',
     });
 
-    void router.push('/partners');
+    // void router.push('/partners');
   } catch (error) {
     console.log(error);
     $q.notify({

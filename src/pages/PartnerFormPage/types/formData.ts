@@ -22,7 +22,7 @@ export interface BasicDataForm {
 export interface ContactMethodForm {
   contactMethodId?: number;
   type: ContactMethodType;
-  value?: string;
+  info: string;
 }
 
 export interface ExpertiseItem {
@@ -36,24 +36,22 @@ export interface ExpertiseForm {
   expertise?: ExpertiseItem;
   subexpertise?: ExpertiseItem;
   availableForReferral: boolean;
-  expertiseOptions: ExpertiseItem[];
-  subexpertiseOptions: ExpertiseItem[];
-  filteredSubexpertiseOptions: ExpertiseItem[];
 }
 
 export interface GainsProfileForm {
   gainsProfileId?: number;
   category: GainsCategory;
-  value: string;
+  info: string;
 }
 
 export interface BusinessProfileForm {
   businessProfileId?: number;
   category: BusinessProfileCategory;
-  value: string;
+  info: string;
 }
 
 export interface PartnerForm {
+  partnerId?: number;
   basicData: BasicDataForm;
   contactMethods: ContactMethodForm[];
   expertises: ExpertiseForm[];

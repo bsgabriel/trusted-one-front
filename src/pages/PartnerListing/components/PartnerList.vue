@@ -92,11 +92,11 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { partnerService } from 'src/services/partnerService';
-import type { Partner } from 'src/types/partner';
+import type { PartnerListing } from 'src/types/partner';
 import PaginatedList from 'src/components/PaginatedList.vue';
 
 const router = useRouter();
-const partners = ref<Partner[]>([]);
+const partners = ref<PartnerListing[]>([]);
 const isLoading = ref(false);
 const error = ref<string | null>(null);
 const currentPage = ref(1);
@@ -178,7 +178,7 @@ const getInitials = (name: string): string => {
     .toUpperCase();
 };
 
-const hasReferrals = (partner: Partner): boolean => {
+const hasReferrals = (partner: PartnerListing): boolean => {
   return (
     partner.metrics.pendingReferrals > 0 ||
     partner.metrics.acceptedReferrals > 0 ||
@@ -186,7 +186,7 @@ const hasReferrals = (partner: Partner): boolean => {
   );
 };
 
-const goToPartnerDetails = (partnerId: string) => {
+const goToPartnerDetails = (partnerId: number) => {
   void router.push(`/partner/${partnerId}`);
 };
 
