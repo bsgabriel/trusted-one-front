@@ -2,7 +2,13 @@
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
       <q-toolbar>
-        <q-btn flat dense round icon="menu" aria-label="Menu" @click="toggleLeftDrawer" />
+        <q-btn
+          flat
+          dense
+          :icon="leftDrawerOpen ? 'keyboard_double_arrow_left' : 'menu'"
+          aria-label="Menu"
+          @click="toggleLeftDrawer"
+        />
         <q-toolbar-title> Agenda Profissional </q-toolbar-title>
       </q-toolbar>
     </q-header>
