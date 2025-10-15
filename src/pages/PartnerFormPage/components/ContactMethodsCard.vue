@@ -105,7 +105,7 @@ const contactMethods = computed({
 const contactTypeOptions = Object.values(contactTypeConfigs);
 
 const addContactMethod = () => {
-  contactMethods.value.push({ type: contactTypeConfigs.PHONE.value, info: '' });
+  contactMethods.value.push({ type: '', info: '' });
 };
 
 const removeContactMethod = (index: number) => {
