@@ -1,10 +1,10 @@
 import { apiService } from './apiUtils';
 import type { ApiResult } from '../types/api';
-import type { Partner, PartnerListParams } from '../types/partner';
+import type { Partner, PartnerListing, PartnerListParams } from '../types/partner';
 import type { PageResponse } from '../types/pageable';
 
 export class PartnerService {
-  async listPartners(params: PartnerListParams): Promise<ApiResult<PageResponse<Partner>>> {
+  async listPartners(params: PartnerListParams): Promise<ApiResult<PageResponse<PartnerListing>>> {
     const queryParams = new URLSearchParams();
     
     queryParams.append('page', params.page.toString());
@@ -14,7 +14,11 @@ export class PartnerService {
       queryParams.append('search', params.search);
     }
     
-    return apiService.get<PageResponse<Partner>>(`/partner/listing?${queryParams.toString()}`);
+    return apiService.get<PageResponse<PartnerListing>>(`/partner/listing?${queryParams.toString()}`);
+  }
+
+  async createPartner(partner: Partner): Promise<ApiResult<Partner>> {
+    return apiService.post<Partner, Partner>('/partner', partner);
   }
 }
 

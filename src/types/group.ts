@@ -1,4 +1,5 @@
 export interface Group {
-  groupdId: string;
+  groupId: number | null;
   name: string;
+  isNew?: boolean
 }

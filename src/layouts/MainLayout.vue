@@ -25,7 +25,7 @@
             clickable
             v-ripple
             @click="navigateToPage(menu.route)"
-            :active="$route.path === menu.route"
+            :active="isMenuActive(menu.route)"
             active-class="menu-item-active"
           >
             <q-item-section avatar>
@@ -86,6 +86,15 @@ const navigateToPage = (route: string) => {
   }
 };
 
+const isMenuActive = (menuRoute: string) => {
+  const currentPath = $route.path;
+
+  if (menuRoute === '/') {
+    return currentPath === '/';
+  }
+
+  return currentPath.startsWith(menuRoute);
+};
 </script>
 
 <style scoped>
