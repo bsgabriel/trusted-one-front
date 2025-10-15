@@ -33,6 +33,7 @@
 
       <!-- Meios de Contato -->
       <q-expansion-item
+        default-opened
         icon="contact_phone"
         label="Meios de Contato"
         :caption="getContactMethodsCaption()"
@@ -43,6 +44,7 @@
 
       <!-- Especializações -->
       <q-expansion-item
+        default-opened
         icon="school"
         label="Especializações"
         :caption="getExpertisesCaption()"
@@ -113,8 +115,8 @@ const form = ref<PartnerForm>({
   basicData: {
     name: '',
   },
-  contactMethods: [],
-  expertises: [],
+  contactMethods: [{ type: '', info: '' }],
+  expertises: [{ availableForReferral: false }],
   gainsProfile: [],
   businessProfile: [],
 });
@@ -249,7 +251,7 @@ const onSubmit = async () => {
         console.log('erro', result);
       }
     });
-    
+
     $q.notify({
       message: isEditing.value
         ? 'Parceiro atualizado com sucesso!'
