@@ -1,5 +1,5 @@
 <template>
-  <q-card :class="{ 'border-negative': hasError }">
+  <q-card>
     <q-card-section>
       <div v-if="contactMethods.length === 0" class="text-center q-py-md text-grey-6">
         <q-icon name="phone_disabled" size="3rem" color="grey-4" />
@@ -28,6 +28,7 @@
                 emit-value
                 map-options
                 :rules="[(val) => !!val || 'Tipo é obrigatório']"
+                lazy-rules
               >
                 <template v-slot:prepend>
                   <q-icon :name="getContactIcon(contact.type as ContactMethodType)" />
@@ -47,6 +48,7 @@
                     validateContactValue(contact.type as ContactMethodType, val) ||
                     'Formato inválido',
                 ]"
+                lazy-rules
               />
             </div>
 
@@ -86,12 +88,9 @@ import { computed } from 'vue';
 
 interface Props {
   modelValue: ContactMethodForm[];
-  hasError?: boolean;
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  hasError: false,
-});
+const props = defineProps<Props>();
 
 const emit = defineEmits<{
   'update:modelValue': [value: ContactMethodForm[]];
@@ -109,7 +108,13 @@ const addContactMethod = () => {
 };
 
 const removeContactMethod = (index: number) => {
-  contactMethods.value = contactMethods.value.filter((_, i) => i !== index);
+  const filtered = contactMethods.value.filter((_, i) => i !== index);
+
+  if (filtered.length === 0) {
+    contactMethods.value = [{ type: '', info: '' }];
+  } else {
+    contactMethods.value = filtered;
+  }
 };
 
 const getContactIcon = (type: ContactMethodType): string => {

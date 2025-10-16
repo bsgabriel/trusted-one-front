@@ -39,7 +39,7 @@
         :caption="getContactMethodsCaption()"
         header-class="bg-grey-3 text-h6"
       >
-        <ContactMethodsCard v-model="form.contactMethods" :has-error="contactMethodsError" />
+        <ContactMethodsCard v-model="form.contactMethods" />
       </q-expansion-item>
 
       <!-- Especializações -->
@@ -50,7 +50,7 @@
         :caption="getExpertisesCaption()"
         header-class="bg-grey-3 text-h6"
       >
-        <ExpertisesCard v-model="form.expertises" :has-error="specializationsError" />
+        <ExpertisesCard v-model="form.expertises" />
       </q-expansion-item>
 
       <!-- Perfil GAINS -->
@@ -121,9 +121,6 @@ const form = ref<PartnerForm>({
   businessProfile: [],
 });
 
-const contactMethodsError = ref(false);
-const specializationsError = ref(false);
-
 const basicData = computed<BasicDataForm>({
   get: () => ({
     name: form.value.basicData.name,
@@ -147,31 +144,6 @@ const getExpertisesCaption = () => {
   const count = form.value.expertises.length;
   if (count === 0) return 'Nenhuma especialização adicionada';
   return `${count} especialização${count === 1 ? '' : 'ões'} adicionada${count === 1 ? '' : 's'}`;
-};
-
-const validateForm = (): boolean => {
-  contactMethodsError.value = form.value.contactMethods.length === 0;
-  specializationsError.value = form.value.expertises.length === 0;
-
-  if (contactMethodsError.value) {
-    $q.notify({
-      message: 'Adicione pelo menos um meio de contato',
-      color: 'negative',
-      icon: 'warning',
-    });
-    return false;
-  }
-
-  if (specializationsError.value) {
-    $q.notify({
-      message: 'Adicione pelo menos uma especialização',
-      color: 'negative',
-      icon: 'warning',
-    });
-    return false;
-  }
-
-  return true;
 };
 
 const createPartner = (formData: PartnerForm): Partner => {
@@ -234,13 +206,7 @@ const createPartner = (formData: PartnerForm): Partner => {
 };
 
 const onSubmit = async () => {
-  if (!validateForm()) {
-    return;
-  }
-
-  console.log('formData', form.value);
   const partner = createPartner(form.value);
-  console.log('partner', partner);
   isSubmitting.value = true;
 
   try {
