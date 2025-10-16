@@ -143,7 +143,7 @@ const getContactMethodsCaption = () => {
 const getExpertisesCaption = () => {
   const count = form.value.expertises.length;
   if (count === 0) return 'Nenhuma especialização adicionada';
-  return `${count} especialização${count === 1 ? '' : 'ões'} adicionada${count === 1 ? '' : 's'}`;
+  return `${count} especializaç${count === 1 ? 'ão' : 'ões'} adicionada${count === 1 ? '' : 's'}`;
 };
 
 const createPartner = (formData: PartnerForm): Partner => {
