@@ -61,7 +61,7 @@
                 option-label="name"
                 @filter="(val, update) => filterSubexpertises(val, update, index)"
                 @input-value="(val) => onSubexpertiseInputChange(val, index)"
-                :disable="!item.expertise || item.expertise.isNew"
+                :disable="!item.expertise"
                 new-value-mode="add-unique"
                 @new-value="(val, done) => createNewSubexpertise(val, done, index)"
                 clearable
