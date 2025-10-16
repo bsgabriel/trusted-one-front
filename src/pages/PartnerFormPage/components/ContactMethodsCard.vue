@@ -35,7 +35,7 @@
               </q-select>
             </div>
 
-            <div class="col-12 col-md-7">
+            <div class="col-12 col-md-6">
               <q-input
                 v-model="contact.info"
                 :label="getContactLabel(contact.type as ContactMethodType)"
