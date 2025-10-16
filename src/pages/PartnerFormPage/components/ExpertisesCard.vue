@@ -1,6 +1,6 @@
 <!-- Template -->
 <template>
-  <q-card :class="{ 'border-negative': hasError }">
+  <q-card>
     <q-card-section>
       <div v-if="expertiseItems.length === 0" class="text-center q-py-md text-grey-6">
         <q-icon name="school" size="3rem" color="grey-4" />
@@ -29,6 +29,7 @@
                 @new-value="(val, done) => createNewExpertise(val, done)"
                 :rules="[(val) => !!val || 'Especialização é obrigatória']"
                 clearable
+                lazy-rules
               >
                 <template v-slot:prepend>
                   <q-icon name="school" />
@@ -61,7 +62,7 @@
                 option-label="name"
                 @filter="(val, update) => filterSubexpertises(val, update, index)"
                 @input-value="(val) => onSubexpertiseInputChange(val, index)"
-                :disable="!item.expertise || item.expertise.isNew"
+                :disable="!item.expertise"
                 new-value-mode="add-unique"
                 @new-value="(val, done) => createNewSubexpertise(val, done, index)"
                 clearable
@@ -119,12 +120,9 @@ import type { ExpertiseListing } from 'src/types/expertise';
 
 interface Props {
   modelValue: ExpertiseForm[];
-  hasError?: boolean;
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  hasError: false,
-});
+const props = defineProps<Props>();
 
 const emit = defineEmits<{
   'update:modelValue': [value: ExpertiseForm[]];
@@ -278,7 +276,13 @@ const addExpertise = () => {
 };
 
 const removeExpertise = (index: number) => {
-  expertiseItems.value = expertiseItems.value.filter((_, i) => i !== index);
+  const filtered = expertiseItems.value.filter((_, i) => i !== index);
+
+  if (filtered.length === 0) {
+    expertiseItems.value = [{ availableForReferral: false }];
+  } else {
+    expertiseItems.value = filtered;
+  }
 };
 
 const mapApiResponseToForm = (apiResponse: ExpertiseListing): ExpertiseItem => {
