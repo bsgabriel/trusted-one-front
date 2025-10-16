@@ -260,7 +260,7 @@ const onSubmit = async () => {
       icon: 'check',
     });
 
-    // void router.push('/partners');
+    void router.push('/parceiros');
   } catch (error) {
     console.log(error);
     $q.notify({
