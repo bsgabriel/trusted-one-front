@@ -19,7 +19,7 @@
       </div>
     </div>
 
-    <q-form @submit="onSubmit" class="q-gutter-md">
+    <q-form @submit="onSubmit" class="q-gutter-md" greedy>
       <!-- Dados Básicos -->
       <q-expansion-item
         default-opened
