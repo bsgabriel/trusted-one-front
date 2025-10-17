@@ -187,7 +187,7 @@ const hasReferrals = (partner: PartnerListing): boolean => {
 };
 
 const goToPartnerDetails = (partnerId: number) => {
-  void router.push(`/partner/${partnerId}`);
+  void router.push(`/parceiros/${partnerId}`);
 };
 
 onMounted(() => {

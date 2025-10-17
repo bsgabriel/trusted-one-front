@@ -83,7 +83,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useQuasar } from 'quasar';
 import BasicDataCard from './components/BasicDataCard.vue';
@@ -242,4 +242,74 @@ const onSubmit = async () => {
 const onCancel = () => {
   router.back();
 };
+
+const loadFormData = (partner: Partner) => {
+  const toFormExpertise = (expertise: Expertise): ExpertiseForm => {
+    return {
+      expertise: {
+        expertiseId: expertise.parentExpertiseId || expertise.expertiseId,
+        name: expertise.parentExpertiseName || expertise.name,
+        isNew: false,
+      },
+      subexpertise: expertise.parentExpertiseId
+        ? {
+            expertiseId: expertise.expertiseId,
+            name: expertise.name,
+            isNew: false,
+          }
+        : undefined,
+      availableForReferral: expertise.availableForReferral,
+    };
+  };
+
+  const mapContactMethod = (contactMethod: ContactMethod): ContactMethodForm => {
+    return {
+      contactMethodId: contactMethod.contactMethodId,
+      type: contactMethod.type,
+      info: contactMethod.info,
+    };
+  };
+
+  const mapGainsPRofile = (profile: GainsProfile): GainsProfileForm => {
+    return {
+      gainsProfileId: profile.gainsProfileId,
+      category: profile.category,
+      info: profile.info,
+    };
+  };
+
+  const mapBusinessProfile = (profile: BusinessProfile): BusinessProfileForm => {
+    return {
+      businessProfileId: profile.businessProfileId,
+      category: profile.category,
+      info: profile.info,
+    };
+  };
+  
+  form.value.basicData.name = partner.name;
+  form.value.basicData.company = partner.company || { companyId: 0, name: '' };
+  form.value.basicData.group = partner.group || { groupId: 0, name: '' };
+  form.value.contactMethods = partner.contactMethods.map(mapContactMethod);
+  form.value.expertises = partner.expertises.map(toFormExpertise);
+  form.value.gainsProfile = partner.gainsProfile.map(mapGainsPRofile);
+  form.value.businessProfile = partner.businessProfile.map(mapBusinessProfile);
+};
+onMounted(() => {
+  if (isEditing.value) {
+    const partnerId = Number(route.params.id);
+    void partnerService.getPartnerById(partnerId).then((result) => {
+      if (result.success && result.data) {
+        loadFormData(result.data);
+      } else {
+        console.log('erro', result);
+        $q.notify({
+          message: 'Parceiro não encontrado',
+          color: 'negative',
+          icon: 'error',
+        });
+        void router.push('/parceiros');
+      }
+    });
+  }
+});
 </script>
