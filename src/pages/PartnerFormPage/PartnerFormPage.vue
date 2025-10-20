@@ -74,9 +74,13 @@
       </q-expansion-item>
 
       <!-- Botões de Ação -->
-      <div class="row q-gutter-sm justify-end q-mt-lg">
-        <q-btn label="Cancelar" color="grey-7" flat @click="onCancel" :disable="isSubmitting" />
-        <q-btn label="Salvar" type="submit" color="primary" :loading="isSubmitting" unelevated />
+      <div class="row items-center q-mt-lg">
+        <q-btn v-if="isEditing" label="Excluir Contato" color="negative" @click="deletePartner" />
+        <q-space />
+        <div class="row q-gutter-sm">
+          <q-btn label="Cancelar" color="grey-7" flat @click="onCancel" :disable="isSubmitting" />
+          <q-btn label="Salvar" type="submit" color="primary" :loading="isSubmitting" unelevated />
+        </div>
       </div>
     </q-form>
   </q-page>
@@ -234,6 +238,27 @@ const updatePartner = async () => {
     }
   });
 };
+
+const deletePartner = async () => {
+  if (!form.value.partnerId) {
+    return;
+  }
+
+  await partnerService.deletePartner(form.value.partnerId).then((result) => {
+    if (!result.success) {
+      console.log('erro', result);
+    } else {
+      $q.notify({
+        message: 'Parceiro excluído com sucesso!',
+        color: 'positive',
+        icon: 'check',
+      });
+
+      void router.push('/parceiros');
+    }
+  });
+};
+
 const onSubmit = async () => {
   isSubmitting.value = true;
 
