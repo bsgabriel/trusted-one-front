@@ -24,6 +24,10 @@ export class PartnerService {
   async getPartnerById(id: number): Promise<ApiResult<Partner>> {
     return apiService.get<Partner>(`/partner/${id}`);
   }
+
+  async updatePartner(partner: Partner): Promise<ApiResult<Partner>> {
+    return apiService.put<Partner, Partner>(`/partner/${partner.partnerId}`, partner);
+  }
 }
 
 export const partnerService = new PartnerService();

@@ -146,7 +146,7 @@ const getExpertisesCaption = () => {
   return `${count} especializaç${count === 1 ? 'ão' : 'ões'} adicionada${count === 1 ? '' : 's'}`;
 };
 
-const createPartner = (formData: PartnerForm): Partner => {
+const formToPartner = (formData: PartnerForm): Partner => {
   const mapContactMethod = (form: ContactMethodForm): ContactMethod => {
     return {
       contactMethodId: form.contactMethodId,
@@ -205,27 +205,44 @@ const createPartner = (formData: PartnerForm): Partner => {
   };
 };
 
+const createParnter = async () => {
+  const partner = formToPartner(form.value);
+  await partnerService.createPartner(partner).then((result) => {
+    if (!result.success) {
+      console.log('erro', result);
+    } else {
+      $q.notify({
+        message: 'Parceiro cadastrado com sucesso!',
+        color: 'positive',
+        icon: 'check',
+      });
+    }
+  });
+};
+
+const updatePartner = async () => {
+  const partner = formToPartner(form.value);
+  await partnerService.updatePartner(partner).then((result) => {
+    if (!result.success) {
+      console.log('erro', result);
+    } else {
+      $q.notify({
+        message: 'Parceiro atualizado com sucesso!',
+        color: 'positive',
+        icon: 'check',
+      });
+    }
+  });
+};
 const onSubmit = async () => {
-  const partner = createPartner(form.value);
   isSubmitting.value = true;
 
   try {
-    await partnerService.createPartner(partner).then((result) => {
-      if (result.success) {
-        console.log('parceiro criado', result.data);
-      } else {
-        console.log('erro', result);
-      }
-    });
-
-    $q.notify({
-      message: isEditing.value
-        ? 'Parceiro atualizado com sucesso!'
-        : 'Parceiro cadastrado com sucesso!',
-      color: 'positive',
-      icon: 'check',
-    });
-
+    if (isEditing.value) {
+      await updatePartner();
+    } else {
+      await createParnter();
+    }
     void router.push('/parceiros');
   } catch (error) {
     console.log(error);
@@ -285,10 +302,11 @@ const loadFormData = (partner: Partner) => {
       info: profile.info,
     };
   };
-  
+
+  form.value.partnerId = partner.partnerId;
   form.value.basicData.name = partner.name;
-  form.value.basicData.company = partner.company || { companyId: 0, name: '' };
-  form.value.basicData.group = partner.group || { groupId: 0, name: '' };
+  form.value.basicData.company = partner.company;
+  form.value.basicData.group = partner.group;
   form.value.contactMethods = partner.contactMethods.map(mapContactMethod);
   form.value.expertises = partner.expertises.map(toFormExpertise);
   form.value.gainsProfile = partner.gainsProfile.map(mapGainsPRofile);
