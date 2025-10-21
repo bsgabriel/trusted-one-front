@@ -20,6 +20,18 @@ export class PartnerService {
   async createPartner(partner: Partner): Promise<ApiResult<Partner>> {
     return apiService.post<Partner, Partner>('/partner', partner);
   }
+
+  async getPartnerById(id: number): Promise<ApiResult<Partner>> {
+    return apiService.get<Partner>(`/partner/${id}`);
+  }
+
+  async updatePartner(partner: Partner): Promise<ApiResult<Partner>> {
+    return apiService.put<Partner, Partner>(`/partner/${partner.partnerId}`, partner);
+  }
+
+  async deletePartner(id: number): Promise<ApiResult<void>> {
+    return apiService.delete<void>(`/partner/${id}`);
+  }
 }
 
 export const partnerService = new PartnerService();
