@@ -21,15 +21,19 @@
 
     <q-form @submit="onSubmit" class="q-gutter-md" greedy>
       <!-- Dados Básicos -->
-      <q-expansion-item
-        default-opened
-        icon="account_box"
-        label="Dados Básicos"
-        caption="Nome, grupo e empresa"
-        header-class="bg-grey-3 text-h6"
-      >
-        <BasicDataCard v-model="basicData" />
-      </q-expansion-item>
+      <div>
+        <q-item class="bg-grey-3 q-mb-md">
+          <q-item-section avatar>
+            <q-icon name="account_box" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-h6">Dados Básicos</q-item-label>
+            <q-item-label caption>Nome, grupo e empresa</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <BasicDataCard v-model="basicData" flat />
+      </div>
 
       <!-- Meios de Contato -->
       <q-expansion-item
