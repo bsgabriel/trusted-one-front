@@ -2,6 +2,7 @@ import { apiService } from './apiUtils';
 import type { ApiResult } from '../types/api';
 import type { Partner, PartnerListing, PartnerListParams } from '../types/partner';
 import type { PageResponse } from '../types/pageable';
+import type { Expertise } from 'src/types/expertise';
 
 export class PartnerService {
   async listPartners(params: PartnerListParams): Promise<ApiResult<PageResponse<PartnerListing>>> {
@@ -31,6 +32,10 @@ export class PartnerService {
 
   async deletePartner(id: number): Promise<ApiResult<void>> {
     return apiService.delete<void>(`/partner/${id}`);
+  }
+
+  async findfindRecommendableExpertises(partnerId: number): Promise<ApiResult<Expertise[]>> {
+    return apiService.get<Expertise[]>(`/partner/${partnerId}/recommendable-expertises`);
   }
 }
 
