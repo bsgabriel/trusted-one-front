@@ -52,7 +52,7 @@
         >
           <template v-slot:no-option>
             <q-item>
-              <q-item-section class="text-grey"> Digite para buscar</q-item-section>
+              <q-item-section class="text-grey">Digite para buscar</q-item-section>
             </q-item>
           </template>
         </q-select>
@@ -101,11 +101,11 @@ const isLoading = ref<boolean>(false);
 const expertises = ref<Expertise[]>([]);
 
 const expertiseOptions = computed(() => {
-  return expertises.value.map(expertise => ({
-    label: expertise.parentExpertiseName 
+  return expertises.value.map((expertise) => ({
+    label: expertise.parentExpertiseName
       ? `${expertise.name} (${expertise.parentExpertiseName})`
       : expertise.name,
-    value: expertise.expertiseId
+    value: expertise.expertiseId,
   }));
 });
 
@@ -133,17 +133,13 @@ const updatePartner = (value?: PartnerListing) => {
 
 const filterPartners = (val: string, update: (fn: () => void) => void) => {
   update(() => {
-    if (!val) {
-      partnerOptions.value = [];
-      return;
-    }
-
     isLoading.value = true;
     partnerService
       .listPartners({
         page: 0,
         size: 30,
         search: val,
+        fullSearch: false,
       })
       .then((result) => {
         if (result.success) {

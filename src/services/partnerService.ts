@@ -14,6 +14,10 @@ export class PartnerService {
     if (params.search) {
       queryParams.append('search', params.search);
     }
+
+    if (params.fullSearch === false) {
+      queryParams.append('fullSearch', 'false');
+    }
     
     return apiService.get<PageResponse<PartnerListing>>(`/partner/listing?${queryParams.toString()}`);
   }
