@@ -63,7 +63,7 @@
         <div v-if="expertises.length > 0">
           <q-item class="bg-grey-3 q-mb-md">
             <q-item-section>
-              <q-item-label class="text-h6">Para qual área ele será indicado?</q-item-label>
+              <q-item-label class="text-h6">Qual será a área de indicação?</q-item-label>
             </q-item-section>
           </q-item>
 
@@ -126,14 +126,23 @@ const updatePartner = (value?: PartnerListing) => {
     .findfindRecommendableExpertises(value.partnerId)
     .then((result) => {
       if (result.success) {
-        console.log('Especializações recomendáveis:', result.data);
         expertises.value = result.data;
       } else {
-        console.error('Erro ao buscar especializações recomendáveis:', result.message);
+        console.log('Erro ao buscar especializações', result);
+        $q.notify({
+          message: 'Erro ao buscar especializações',
+          color: 'negativa',
+          icon: 'check',
+        });
       }
     })
     .catch((err) => {
-      console.error('Erro ao buscar especializações recomendáveis:', err);
+      console.log('Erro ao buscar especializações', err);
+      $q.notify({
+        message: 'Erro ao buscar especializações',
+        color: 'negativa',
+        icon: 'check',
+      });
     });
 };
 
@@ -153,10 +162,21 @@ const filterPartners = (val: string, update: (fn: () => void) => void) => {
           partnerOptions.value = result.data.content;
         } else {
           partnerOptions.value = [];
+          console.error('Erro ao buscar parceiros', result);
+          $q.notify({
+            message: 'Erro ao buscar parceiros',
+            color: 'negativa',
+            icon: 'check',
+          });
         }
       })
       .catch((err) => {
-        console.error('Erro ao buscar parceiros:', err);
+        console.error('Erro ao buscar parceiros', err);
+        $q.notify({
+          message: 'Erro ao buscar parceiros',
+          color: 'negativa',
+          icon: 'check',
+        });
       })
       .finally(() => {
         isLoading.value = false;
