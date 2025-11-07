@@ -92,20 +92,26 @@
 import type { PartnerListing } from 'src/types/partner';
 import type { FormData } from './types/formData';
 import type { Expertise } from 'src/types/expertise';
+import type { ReferralCreateParams } from 'src/types/referral';
 import { computed, ref } from 'vue';
 import { partnerService } from 'src/services/partnerService';
+import { referralService } from 'src/services/referralService';
+import { useQuasar } from 'quasar';
+import { useRouter } from 'vue-router';
 
 const form = ref<FormData>({});
 const partnerOptions = ref<PartnerListing[]>([]);
 const isLoading = ref<boolean>(false);
 const expertises = ref<Expertise[]>([]);
+const $q = useQuasar();
+const router = useRouter();
 
 const expertiseOptions = computed(() => {
   return expertises.value.map((expertise) => ({
     label: expertise.parentExpertiseName
       ? `${expertise.name} (${expertise.parentExpertiseName})`
       : expertise.name,
-    value: expertise.expertiseId,
+    value: expertise,
   }));
 });
 
@@ -169,7 +175,42 @@ const onPartnerInputChange = (val: string) => {
 };
 
 const onSubmit = () => {
-  // TODO: realizar ação de indicação
-  console.log('Formulário submetido:', form.value);
+  const createReferralParams = (form: FormData): ReferralCreateParams => {
+    return {
+      partnerId: form.partner!.partnerId,
+      expertiseId: form.expertise!.expertiseId!,
+      referredTo: form.name!,
+    };
+  };
+
+  const params = createReferralParams(form.value);
+  referralService
+    .createReferral(params)
+    .then((result) => {
+      if (result.success) {
+        $q.notify({
+          message: 'Indicação realizada com sucesso!',
+          color: 'positive',
+          icon: 'check',
+        });
+
+        void router.push('/parceiros'); // TODO: ajustar rota para histórico de indicações (quando tiver feita)
+      } else {
+        console.error('Erro ao criar indicação:', result);
+        $q.notify({
+          message: 'Erro ao criar indicação',
+          color: 'negativa',
+          icon: 'check',
+        });
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      $q.notify({
+        message: 'Erro desconhecido ao criar indicação',
+        color: 'negativa',
+        icon: 'check',
+      });
+    });
 };
 </script>
