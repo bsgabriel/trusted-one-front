@@ -23,7 +23,6 @@ export class ReferralService {
     }
 
     if (params.sortBy) {
-      console.log('Sorting by:', params.sortBy);
       queryParams.append('sortBy', params.sortBy);
     }
 
