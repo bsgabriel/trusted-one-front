@@ -27,14 +27,12 @@
       empty-hint="Faça sua primeira indicação!"
       item-key="referralId"
       entity-name="indicação"
-      entity-name-plural="indicações"
-      @update:page-size="onPageSizeChange"
-      @update:current-page="onPageChange"
+      @page-size-change="loadReferrals"
       @retry="loadReferrals"
     >
       <!-- Filtros -->
       <template #filters>
-        <div class="col-12 col-md-4">
+        <div class="col-12 col-md-7">
           <q-input
             v-model="filters.search"
             outlined
@@ -49,7 +47,7 @@
           </q-input>
         </div>
 
-        <div class="col-12 col-md-3">
+        <div class="col-12 col-md-2">
           <q-select
             v-model="filters.status"
             label="Status"
@@ -82,20 +80,6 @@
               <q-icon name="sort" />
             </template>
           </q-select>
-        </div>
-      </template>
-
-      <!-- Items per page reposicionado -->
-      <template #items-per-page>
-        <div class="col-12 col-md-2">
-          <q-select
-            :model-value="pageSize"
-            @update:model-value="$emit('update:pageSize', $event)"
-            :options="[10, 20, 50]"
-            outlined
-            dense
-            label="Por página"
-          />
         </div>
       </template>
 
@@ -294,17 +278,6 @@ const loadReferrals = () => {
     .finally(() => {
       isLoading.value = false;
     });
-};
-
-const onPageChange = (page: number) => {
-  currentPage.value = page;
-  loadReferrals();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-};
-
-const onPageSizeChange = () => {
-  currentPage.value = 1;
-  loadReferrals();
 };
 
 const onSearchChange = () => {

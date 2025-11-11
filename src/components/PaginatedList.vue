@@ -1,31 +1,26 @@
 <template>
   <q-card>
-    <!-- Área de filtros -->
-    <q-card-section v-if="$slots.filters || $slots['items-per-page']" class="q-pb-none">
-      <div class="row q-col-gutter-md q-mb-md">
-        <!-- Slot para filtros customizados -->
+    <q-card-section class="q-pb-none">
+      <!-- Filtros -->
+      <div v-if="$slots.filters" class="row q-col-gutter-md q-mb-md">
         <slot name="filters"></slot>
-
-        <!-- Slot para items-per-page (default à direita) -->
-        <slot name="items-per-page">
-          <div class="col-12 col-md-3">
-            <q-select
-              :model-value="pageSize"
-              @update:model-value="$emit('update:pageSize', $event)"
-              :options="pageSizeOptions"
-              outlined
-              dense
-              label="Itens por página"
-            />
-          </div>
-        </slot>
       </div>
 
-      <!-- Informações do header -->
-      <div class="row items-center justify-between q-mt-md">
+      <div class="row items-center justify-between">
         <div class="col">
           <div class="text-h6">{{ title }}</div>
           <div class="text-caption text-grey-6">{{ paginationInfo }}</div>
+        </div>
+        <div class="col-auto">
+          <q-select
+            :model-value="pageSize"
+            @update:model-value="handlePageSizeChange"
+            :options="pageSizeOptions"
+            outlined
+            dense
+            label="Itens por página"
+            style="min-width: 160px"
+          />
         </div>
       </div>
     </q-card-section>
@@ -123,9 +118,10 @@ const props = withDefaults(defineProps<Props>(), {
   entityName: 'item',
 });
 
-defineEmits<{
+const emit = defineEmits<{
   'update:pageSize': [value: number];
   'update:currentPage': [value: number];
+  pageSizeChange: [];
   retry: [];
 }>();
 
@@ -140,5 +136,11 @@ const paginationInfo = computed(() => {
 
 const getItemKey = (item: T): string | number => {
   return item[props.itemKey] as string | number;
+};
+
+const handlePageSizeChange = (newSize: number) => {
+  emit('update:pageSize', newSize);
+  emit('update:currentPage', 1);
+  emit('pageSizeChange');
 };
 </script>

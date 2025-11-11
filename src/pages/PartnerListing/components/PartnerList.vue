@@ -21,7 +21,7 @@
   >
     <template #filters>
       <!-- Busca -->
-      <div class="col-12 col-md-6">
+      <div class="col-12">
         <q-input
           v-model="searchQuery"
           outlined
@@ -35,20 +35,6 @@
             <q-icon name="search" />
           </template>
         </q-input>
-      </div>
-    </template>
-
-    <!-- Reposicionar items-per-page (opcional) -->
-    <template #items-per-page>
-      <div class="col-12 col-md-2">
-        <q-select
-          :model-value="pageSize"
-          @update:model-value="$emit('update:pageSize', $event)"
-          :options="[10, 20, 50, 100]"
-          outlined
-          dense
-          label="Por página"
-        />
       </div>
     </template>
 
