@@ -14,13 +14,13 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'indicar',
         name: 'Indicar',
-        component: () => import('pages/IndicationPage/IndicationPage.vue'),
+        component: () => import('pages/Referral/ReferralPage.vue'),
         meta: { requiresAuth: true },
       },
       {
         path: 'historico',
         name: 'Histórico',
-        component: () => import('pages/PageUnderConstruction.vue'),
+        component: () => import('pages/ReferralHistory/ReferralHistory.vue'),
         meta: { requiresAuth: true },
       },
       {

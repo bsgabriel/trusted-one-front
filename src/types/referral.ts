@@ -1,7 +1,17 @@
+import type { BasePageableParams } from "./pageable";
+
+export type ReferralStatus = 'PENDING' | 'ACCEPTED' | 'DECLINED';
+
 export interface ReferralCreateParams {
   partnerId: number;
   expertiseId: number;
   referredTo: string;
+}
+
+export interface ReferralListParams extends BasePageableParams {
+  search?: string;
+  status?: ReferralStatus | null;
+  sortBy?: string;
 }
 
 export interface Referral {
@@ -10,7 +20,7 @@ export interface Referral {
   expertise: string;
   specialization: string;
   referredTo: string;
-  status: 'PENDING' | 'ACCEPTED' | 'REJECTED';
+  status: ReferralStatus;
   createdAt: Date;
   updatedAt: Date;
 }
