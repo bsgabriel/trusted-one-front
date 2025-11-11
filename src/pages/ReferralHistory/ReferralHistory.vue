@@ -42,7 +42,6 @@
             placeholder="Nome do parceiro ou indicado"
             clearable
             @update:model-value="onSearchChange"
-            @clear="clearSearch"
           >
             <template #prepend>
               <q-icon name="search" />
@@ -320,12 +319,6 @@ const onSearchChange = () => {
 };
 
 const onFilterChange = () => {
-  currentPage.value = 1;
-  loadReferrals();
-};
-
-const clearSearch = () => {
-  filters.value.search = '';
   currentPage.value = 1;
   loadReferrals();
 };
