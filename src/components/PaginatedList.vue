@@ -71,7 +71,7 @@
         <div class="row justify-center">
           <q-pagination
             :model-value="currentPage"
-            @update:model-value="$emit('update:currentPage', $event)"
+            @update:model-value="handlePageChange"
             :max="totalPages"
             :max-pages="5"
             direction-links
@@ -122,6 +122,7 @@ const emit = defineEmits<{
   'update:pageSize': [value: number];
   'update:currentPage': [value: number];
   pageSizeChange: [];
+  pageChange: [];
   retry: [];
 }>();
 
@@ -142,5 +143,10 @@ const handlePageSizeChange = (newSize: number) => {
   emit('update:pageSize', newSize);
   emit('update:currentPage', 1);
   emit('pageSizeChange');
+};
+
+const handlePageChange = (newPage: number) => {
+  emit('update:currentPage', newPage);
+  emit('pageChange');
 };
 </script>

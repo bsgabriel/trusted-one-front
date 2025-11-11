@@ -28,6 +28,7 @@
       item-key="referralId"
       entity-name="indicação"
       @page-size-change="loadReferrals"
+      @page-change="loadReferrals"
       @retry="loadReferrals"
     >
       <!-- Filtros -->
