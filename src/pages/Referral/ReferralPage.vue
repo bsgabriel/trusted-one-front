@@ -214,7 +214,7 @@ const onSubmit = () => {
           icon: 'check',
         });
 
-        void router.push('/parceiros'); // TODO: ajustar rota para histórico de indicações (quando tiver feita)
+        void router.push('/historico');
       } else {
         console.error('Erro ao criar indicação:', result);
         $q.notify({
