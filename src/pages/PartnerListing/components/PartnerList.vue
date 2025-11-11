@@ -1,6 +1,5 @@
 <template>
   <PaginatedList
-    v-model:search-query="searchQuery"
     v-model:page-size="pageSize"
     v-model:current-page="currentPage"
     :items="partners"
@@ -9,22 +8,51 @@
     :total-pages="totalPages"
     :total-elements="totalElements"
     title="Lista de Parceiros"
-    search-placeholder="Buscar parceiros..."
     loading-text="Carregando parceiros..."
     error-title="Erro ao carregar parceiros"
     empty-icon="person_add"
     empty-text="Nenhum parceiro cadastrado"
     empty-hint="Clique em 'Novo Parceiro' para começar"
-    empty-search-text="Nenhum parceiro encontrado"
-    empty-search-hint="Tente buscar com outros termos"
     item-key="partnerId"
     entity-name="parceiro"
-    @update:search-query="onSearchChange"
     @update:page-size="onPageSizeChange"
     @update:current-page="onPageChange"
-    @clear-search="clearSearch"
     @retry="fetchPartners"
   >
+    <template #filters>
+      <!-- Busca -->
+      <div class="col-12 col-md-6">
+        <q-input
+          v-model="searchQuery"
+          outlined
+          dense
+          placeholder="Buscar parceiros..."
+          clearable
+          @update:model-value="onSearchChange"
+          @clear="clearSearch"
+        >
+          <template #prepend>
+            <q-icon name="search" />
+          </template>
+        </q-input>
+      </div>
+    </template>
+
+    <!-- Reposicionar items-per-page (opcional) -->
+    <template #items-per-page>
+      <div class="col-12 col-md-2">
+        <q-select
+          :model-value="pageSize"
+          @update:model-value="$emit('update:pageSize', $event)"
+          :options="[10, 20, 50, 100]"
+          outlined
+          dense
+          label="Por página"
+        />
+      </div>
+    </template>
+
+    <!-- Item do parceiro -->
     <template #item="{ item }">
       <q-item clickable v-ripple @click="goToPartnerDetails(item.partnerId)" class="q-py-md">
         <q-item-section avatar>
