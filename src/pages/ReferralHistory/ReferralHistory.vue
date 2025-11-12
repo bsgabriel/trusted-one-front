@@ -126,7 +126,7 @@
 
     <!-- Dialog de detalhes -->
     <q-dialog v-model="showDetailsDialog">
-      <q-card style="min-width: 400px">
+      <q-card style="min-width: 460px">
         <q-card-section class="row items-center q-pb-none">
           <div class="text-h6">Detalhes da Indicação</div>
           <q-space />
@@ -160,37 +160,63 @@
 
             <q-item>
               <q-item-section>
-                <q-item-label caption>Status</q-item-label>
-                <q-chip
-                  :color="getStatusColor(selectedReferral.status)"
-                  text-color="white"
-                  size="md"
-                >
-                  {{ getStatusLabel(selectedReferral.status) }}
-                </q-chip>
-              </q-item-section>
-            </q-item>
-
-            <q-item>
-              <q-item-section>
                 <q-item-label caption>Data de Criação</q-item-label>
-                <q-item-label>{{
-                  selectedReferral.createdAt.toLocaleString('pt-BR')
-                }}</q-item-label>
+                <q-item-label>
+                  {{ selectedReferral.createdAt.toLocaleString('pt-BR') }}
+                </q-item-label>
               </q-item-section>
             </q-item>
 
-            <q-item
-              v-if="selectedReferral.updatedAt.getTime() !== selectedReferral.createdAt.getTime()"
-            >
+            <q-item v-if="selectedReferral.status !== 'PENDING'">
               <q-item-section>
                 <q-item-label caption>Última Atualização</q-item-label>
-                <q-item-label>{{
-                  selectedReferral.updatedAt.toLocaleString('pt-BR')
-                }}</q-item-label>
+                <q-item-label>
+                  {{ selectedReferral.updatedAt.toLocaleString('pt-BR') }}
+                </q-item-label>
               </q-item-section>
             </q-item>
           </q-list>
+
+          <!-- Ações de atualização de status -->
+          <template v-if="selectedReferral.status === 'PENDING'">
+            <q-separator class="q-my-md" />
+
+            <div class="text-caption text-grey-7 q-mb-sm">Atualizar Status:</div>
+
+            <div class="row q-gutter-sm">
+              <q-btn
+                label="Aceitar Indicação"
+                color="green"
+                icon="check_circle"
+                :loading="updatingStatus"
+                :disable="updatingStatus"
+                @click="updateStatus('ACCEPTED')"
+                class="col"
+              />
+
+              <q-btn
+                label="Recusar Indicação"
+                color="red"
+                icon="cancel"
+                :loading="updatingStatus"
+                :disable="updatingStatus"
+                @click="updateStatus('DECLINED')"
+                class="col"
+              />
+            </div>
+          </template>
+
+          <q-banner v-else class="bg-grey-2 q-mt-md" dense rounded>
+            <template #avatar>
+              <q-icon
+                :name="getStatusIcon(selectedReferral.status)"
+                :color="getStatusColor(selectedReferral.status)"
+              />
+            </template>
+            Esta indicação já foi
+            {{ selectedReferral.status === 'ACCEPTED' ? 'aceita' : 'recusada' }} e não pode mais ser
+            alterada.
+          </q-banner>
         </q-card-section>
 
         <q-card-actions align="right">
@@ -204,11 +230,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useQuasar } from 'quasar';
 import { referralService } from 'src/services/referralService';
 import type { Referral, ReferralStatus } from 'src/types/referral';
 import PaginatedList from 'src/components/PaginatedList.vue';
 
 const router = useRouter();
+const $q = useQuasar();
 
 const referrals = ref<Referral[]>([]);
 const isLoading = ref(false);
@@ -219,6 +247,7 @@ const totalPages = ref(0);
 const totalElements = ref(0);
 const showDetailsDialog = ref(false);
 const selectedReferral = ref<Referral | null>(null);
+const updatingStatus = ref(false);
 
 const filters = ref({
   search: '',
@@ -279,6 +308,58 @@ const loadReferrals = () => {
     .finally(() => {
       isLoading.value = false;
     });
+};
+
+const updateStatus = async (newStatus: ReferralStatus) => {
+  if (!selectedReferral.value) {
+    return;
+  }
+
+  updatingStatus.value = true;
+
+  try {
+    const result = await referralService.updateReferralStatus(
+      selectedReferral.value.referralId,
+      newStatus,
+    );
+
+    if (result.success) {
+      selectedReferral.value.status = result.data.status;
+      selectedReferral.value.updatedAt = new Date(result.data.updatedAt);
+
+      const index = referrals.value.findIndex(
+        (r) => r.referralId === selectedReferral.value!.referralId,
+      );
+
+      if (index !== -1) {
+        referrals.value[index] = { ...selectedReferral.value };
+      }
+
+      $q.notify({
+        type: 'positive',
+        message: 'Status atualizado com sucesso!',
+        icon: 'check_circle',
+        position: 'top',
+      });
+    } else {
+      $q.notify({
+        type: 'negative',
+        message: result.message || 'Erro ao atualizar status',
+        icon: 'error',
+        position: 'top',
+      });
+    }
+  } catch (err) {
+    console.error('Erro ao atualizar status:', err);
+    $q.notify({
+      type: 'negative',
+      message: 'Erro ao conectar com o servidor',
+      icon: 'error',
+      position: 'top',
+    });
+  } finally {
+    updatingStatus.value = false;
+  }
 };
 
 const onSearchChange = () => {

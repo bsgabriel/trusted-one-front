@@ -1,6 +1,6 @@
 import { apiService } from './apiUtils';
 import type { ApiResult } from '../types/api';
-import type { Referral, ReferralCreateParams, ReferralListParams } from 'src/types/referral';
+import type { Referral, ReferralCreateParams, ReferralListParams, ReferralStatus } from 'src/types/referral';
 import type { PageResponse } from 'src/types/pageable';
 
 export class ReferralService {
@@ -27,6 +27,10 @@ export class ReferralService {
     }
 
     return apiService.get<PageResponse<Referral>>(`/referral?${queryParams.toString()}`);
+  }
+
+  async updateReferralStatus(referralId: number, status: ReferralStatus): Promise<ApiResult<Referral>> {
+    return apiService.put<Referral, ReferralStatus>(`/referral/${referralId}/status`, status);
   }
 }
 
