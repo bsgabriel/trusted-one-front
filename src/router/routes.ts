@@ -8,7 +8,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: '',
         name: 'Indicadores',
-        component: () => import('pages/PageUnderConstruction.vue'),
+        component: () => import('pages/Dashboard/DashboardPage.vue'),
         meta: { requiresAuth: true },
       },
       {

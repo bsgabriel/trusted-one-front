@@ -1,4 +1,4 @@
-import type { BasePageableParams } from "./pageable";
+import type { BasePageableParams } from './pageable';
 
 export type ReferralStatus = 'PENDING' | 'ACCEPTED' | 'DECLINED';
 
@@ -23,4 +23,20 @@ export interface Referral {
   status: ReferralStatus;
   createdAt: Date;
   updatedAt: Date;
+}
+
+interface MonthlyStats {
+  created: number;
+  responses: number;
+  accepted: number;
+  declined: number;
+}
+
+export interface ReferralStats {
+  total: number;
+  accepted: number;
+  declined: number;
+  pending: number;
+  currentMonth: MonthlyStats;
+  previousMonth: MonthlyStats;
 }
