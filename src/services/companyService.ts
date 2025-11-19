@@ -1,9 +1,8 @@
 import { apiService } from './apiUtils';
-import type { ApiResult } from '../types/api';
 import type { Company } from 'src/types/company';
 
 export class CompanyService {
-  async getCompanies(): Promise<ApiResult<Company[]>> {
+  async getCompanies(): Promise<Company[]> {
     return apiService.get<Company[]>('/company');
   }
 }

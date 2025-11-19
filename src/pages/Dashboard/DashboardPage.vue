@@ -75,9 +75,9 @@ import { referralService } from 'src/services/referralService';
 import { ref, onMounted } from 'vue';
 import StatsCard from './components/StatsCard.vue';
 import MonthlyStatsCard from './components/MonthlyStatsCard.vue';
-import { useQuasar } from 'quasar';
+import { useApiError } from 'src/composables/useApiError';
 
-const $q = useQuasar();
+const { notifyError } = useApiError();
 const isLoading = ref(false);
 
 const stats = ref<ReferralStats>({
@@ -99,36 +99,17 @@ const stats = ref<ReferralStats>({
   },
 });
 
-const loadStats = async () => {
+const loadStats = () => {
   isLoading.value = true;
 
-  await referralService
+  referralService
     .getStats()
-    .then((result) => {
-      if (result.success) {
-        stats.value = result.data;
-      } else {
-        $q.notify({
-          message: 'Erro ao buscar as estatísticas',
-          color: 'negativa',
-          icon: 'check',
-        });
-      }
-    })
-    .catch((err) => {
-      console.error('Erro ao buscar as estatísticas:', err);
-      $q.notify({
-        message: 'ro ao buscar as estatísticas',
-        color: 'negativa',
-        icon: 'check',
-      });
-    })
-    .finally(() => {
-      isLoading.value = false;
-    });
+    .then((data) => (stats.value = data))
+    .catch(notifyError)
+    .finally(() => (isLoading.value = false));
 };
 
 onMounted(() => {
-  void loadStats();
+  loadStats();
 });
 </script>

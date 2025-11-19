@@ -1,11 +1,10 @@
 import { apiService } from './apiUtils';
-import type { ApiResult } from '../types/api';
 import type { Partner, PartnerListing, PartnerListParams } from '../types/partner';
 import type { PageResponse } from '../types/pageable';
 import type { Expertise } from 'src/types/expertise';
 
 export class PartnerService {
-  async listPartners(params: PartnerListParams): Promise<ApiResult<PageResponse<PartnerListing>>> {
+  async listPartners(params: PartnerListParams): Promise<PageResponse<PartnerListing>> {
     const queryParams = new URLSearchParams();
     
     queryParams.append('page', params.page.toString());
@@ -22,23 +21,23 @@ export class PartnerService {
     return apiService.get<PageResponse<PartnerListing>>(`/partner/listing?${queryParams.toString()}`);
   }
 
-  async createPartner(partner: Partner): Promise<ApiResult<Partner>> {
+  async createPartner(partner: Partner): Promise<Partner> {
     return apiService.post<Partner, Partner>('/partner', partner);
   }
 
-  async getPartnerById(id: number): Promise<ApiResult<Partner>> {
+  async getPartnerById(id: number): Promise<Partner> {
     return apiService.get<Partner>(`/partner/${id}`);
   }
 
-  async updatePartner(partner: Partner): Promise<ApiResult<Partner>> {
+  async updatePartner(partner: Partner): Promise<Partner> {
     return apiService.put<Partner, Partner>(`/partner/${partner.partnerId}`, partner);
   }
 
-  async deletePartner(id: number): Promise<ApiResult<void>> {
+  async deletePartner(id: number): Promise<void> {
     return apiService.delete<void>(`/partner/${id}`);
   }
 
-  async findfindRecommendableExpertises(partnerId: number): Promise<ApiResult<Expertise[]>> {
+  async findfindRecommendableExpertises(partnerId: number): Promise<Expertise[]> {
     return apiService.get<Expertise[]>(`/partner/${partnerId}/recommendable-expertises`);
   }
 }

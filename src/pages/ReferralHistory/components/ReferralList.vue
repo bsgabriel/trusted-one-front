@@ -184,6 +184,7 @@ import { ref, onMounted } from 'vue';
 import { referralService } from 'src/services/referralService';
 import type { Referral, ReferralStatus } from 'src/types/referral';
 import PaginatedList from 'src/components/PaginatedList.vue';
+import { useApiError } from 'src/composables/useApiError';
 
 const referrals = ref<Referral[]>([]);
 const isLoading = ref(false);
@@ -194,6 +195,7 @@ const totalPages = ref(0);
 const totalElements = ref(0);
 const showDetailsDialog = ref(false);
 const selectedReferral = ref<Referral | null>(null);
+const { notifyError } = useApiError();
 
 const filters = ref({
   search: '',
@@ -229,27 +231,20 @@ const loadReferrals = () => {
       sortBy: filters.value.sortBy,
     })
     .then((result) => {
-      if (result.success) {
-        referrals.value = result.data.content.map((r) => ({
-          ...r,
-          createdAt: new Date(r.createdAt),
-          updatedAt: new Date(r.updatedAt),
-        }));
-        totalPages.value = result.data.totalPages;
-        totalElements.value = result.data.totalElements;
-      } else {
-        error.value = result.message || 'Erro ao carregar indicações';
-        referrals.value = [];
-        totalPages.value = 0;
-        totalElements.value = 0;
-      }
+      referrals.value = result.content.map((r) => ({
+        ...r,
+        createdAt: new Date(r.createdAt),
+        updatedAt: new Date(r.updatedAt),
+      }));
+      totalPages.value = result.totalPages;
+      totalElements.value = result.totalElements;
     })
     .catch((err) => {
-      error.value = 'Erro ao conectar com o servidor';
+      error.value = err.detail;
       referrals.value = [];
       totalPages.value = 0;
       totalElements.value = 0;
-      console.error('Erro ao buscar indicações:', err);
+      notifyError(err);
     })
     .finally(() => {
       isLoading.value = false;
