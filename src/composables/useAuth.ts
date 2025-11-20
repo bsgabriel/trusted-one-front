@@ -1,48 +1,45 @@
 import { ref, computed, readonly } from 'vue';
 import { userService } from '../services/userService';
 import type { AccountCreationDto, UserDto } from 'src/types/user';
+import { useApiError } from './useApiError';
 
 const currentUser = ref<UserDto | null>(null);
 const isLoading = ref(false);
 const isInitialized = ref(false);
 
 export function useAuth() {
+  const { notifyError } = useApiError();
   const isAuthenticated = computed(() => !!currentUser.value);
 
-  const checkAuth = async (): Promise<void> => {
-    if (isInitialized.value) return;
-
-    try {
-      isLoading.value = true;
-      const result = await userService.getProfile();
-
-      if (result.success) {
-        currentUser.value = result.data;
-      } else {
-        currentUser.value = null;
-      }
-    } catch (error) {
-      console.error('Erro ao verificar autenticação:', error);
-      currentUser.value = null;
-    } finally {
-      isLoading.value = false;
-      isInitialized.value = true;
+  const checkAuth = () => {
+    if (isInitialized.value) {
+      return;
     }
+
+    userService
+      .getProfile()
+      .then((result) => (currentUser.value = result))
+      .catch((error) => {
+        currentUser.value = null;
+        notifyError(error);
+      })
+      .finally(() => {
+        isLoading.value = false;
+        isInitialized.value = true;
+      });
   };
 
   const register = async (userData: AccountCreationDto) => {
     isLoading.value = true;
 
     try {
-      const result = await userService.createAccount(userData);
-
-      if (result.success) {
-        return await login(userData.email, userData.password);
-      }
-
+      await userService.createAccount(userData);
+      return await login(userData.email, userData.password);
+    } catch (error) {
+      notifyError(error);
       return {
         success: false,
-        message: result.message,
+        message: 'Erro ao registrar usuário',
       };
     } finally {
       isLoading.value = false;
@@ -53,25 +50,15 @@ export function useAuth() {
     isLoading.value = true;
 
     try {
-      const loginResult = await userService.login({ email, password });
-      if (!loginResult.success) {
-        return {
-          success: false,
-          message: loginResult.message,
-        };
-      }
-
-      const profileResult = await userService.getProfile();
-
-      if (profileResult.success) {
-        currentUser.value = profileResult.data;
-        return { success: true, message: '' };
-      } else {
-        return {
-          success: false,
-          message: 'Login realizado, mas erro ao carregar dados do usuário',
-        };
-      }
+      await userService.login({ email, password });
+      currentUser.value = await userService.getProfile();
+      return { success: true, message: '' };
+    } catch (error) {
+      notifyError(error);
+      return {
+        success: false,
+        message: 'Erro ao fazer login. Verifique suas credenciais.',
+      };
     } finally {
       isLoading.value = false;
     }
@@ -90,9 +77,9 @@ export function useAuth() {
     }
   };
 
-  const initAuth = async (): Promise<void> => {
+  const initAuth = () => {
     if (!isInitialized.value) {
-      await checkAuth();
+      checkAuth();
     }
   };
 

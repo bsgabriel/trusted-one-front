@@ -22,11 +22,7 @@ export default defineRouter(function (/* { store, ssrContext } */) {
 
   Router.beforeEach(async (to, from, next) => {
     const { useAuth } = await import('../composables/useAuth');
-    const { isAuthenticated, checkAuth, isInitialized } = useAuth();
-
-    if (!isInitialized.value) {
-      await checkAuth();
-    }
+    const { isAuthenticated } = useAuth();
 
     const requiresAuth = to.meta?.requiresAuth;
     const redirectIfAuth = to.meta?.redirectIfAuth;

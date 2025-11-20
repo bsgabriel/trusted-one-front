@@ -20,7 +20,7 @@ const { checkAuth, isInitialized } = useAuth();
 
 const showInitLoading = computed(() => !isInitialized.value);
 
-onMounted(async () => {
-  await checkAuth();
+onMounted(() => {
+  checkAuth();
 });
 </script>

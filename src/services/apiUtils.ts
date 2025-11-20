@@ -28,7 +28,7 @@ class ApiService {
         throw new ApiError({
           title: 'Erro de Conexão',
           status: 0,
-          detail: 'Não foi possível conectar ao servidor. Verifique sua conexão com a internet',
+          detail: 'Não foi possível conectar ao servidor. Tente novamente mais tarde',
         });
       }
     }
