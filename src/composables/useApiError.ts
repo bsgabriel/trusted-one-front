@@ -1,11 +1,11 @@
-import type { ProblemDetail } from 'src/types/api';
+import type { ApiError } from 'src/types/erros';
 import { useQuasar } from 'quasar';
 
 export function useApiError() {
   const $q = useQuasar();
 
   const notifyError = (error: unknown, defaultMessage?: string) => {
-    const problem = error as ProblemDetail;
+    const problem = (error as ApiError).problem;
 
     if (problem.status === 401) {
       return;
@@ -30,7 +30,7 @@ export function useApiError() {
         });
       });
     }
-    console.error('API Error:', error);
+    console.error('API Error:', problem);
   };
 
   return { notifyError };
