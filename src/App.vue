@@ -13,14 +13,32 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed } from 'vue';
+import { onMounted, computed, onUnmounted } from 'vue';
 import { useAuth } from './composables/useAuth';
+import { useRouter } from 'vue-router';
+import { useQuasar } from 'quasar';
 
 const { checkAuth, isInitialized } = useAuth();
-
 const showInitLoading = computed(() => !isInitialized.value);
+const router = useRouter();
+const $q = useQuasar();
+
+const handleSessionExpired = () => {
+  $q.notify({
+    type: 'negative',
+    message: 'Sua sessão expirou. Por favor, faça login novamente.',
+  });
+  void useAuth()
+    .logout()
+    .then(() => void router.push({ name: 'login' }));
+};
 
 onMounted(() => {
+  window.addEventListener('session-expired', handleSessionExpired);
   checkAuth();
+});
+
+onUnmounted(() => {
+  window.removeEventListener('session-expired', handleSessionExpired);
 });
 </script>
