@@ -93,7 +93,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { useQuasar } from 'quasar';
 import BasicDataCard from './components/BasicDataCard.vue';
 import ContactMethodsCard from './components/ContactMethodsCard.vue';
 import ExpertisesCard from './components/ExpertisesCard.vue';
@@ -112,11 +111,12 @@ import type { ContactMethod } from 'src/types/contactMethod';
 import type { Expertise } from 'src/types/expertise';
 import { partnerService } from 'src/services/partnerService';
 import { useApiError } from 'src/composables/useApiError';
+import { useNotification } from 'src/composables/useNotification';
 
 const { notifyError } = useApiError();
 const router = useRouter();
 const route = useRoute();
-const $q = useQuasar();
+const { showSuccess } = useNotification();
 
 const isEditing = computed(() => !!route.params.id);
 const isSubmitting = ref(false);
@@ -222,11 +222,7 @@ const createParnter = () => {
   partnerService
     .createPartner(partner)
     .then(() => {
-      $q.notify({
-        message: 'Parceiro criado com sucesso!',
-        color: 'positive',
-        icon: 'check',
-      });
+      showSuccess('Parceiro criado com sucesso!');
       void router.push('/parceiros');
     })
     .catch(notifyError)
@@ -240,11 +236,7 @@ const updatePartner = () => {
   partnerService
     .updatePartner(partner)
     .then(() => {
-      $q.notify({
-        message: 'Parceiro atualizado com sucesso!',
-        color: 'positive',
-        icon: 'check',
-      });
+      showSuccess('Parceiro atualizado com sucesso!');
       void router.push('/parceiros');
     })
     .catch(notifyError)
@@ -259,12 +251,7 @@ const deletePartner = () => {
   partnerService
     .deletePartner(form.value.partnerId)
     .then(() => {
-      $q.notify({
-        message: 'Parceiro excluído com sucesso!',
-        color: 'positive',
-        icon: 'check',
-      });
-
+      showSuccess('Parceiro excluído com sucesso!');
       void router.push('/parceiros');
     })
     .catch(notifyError);

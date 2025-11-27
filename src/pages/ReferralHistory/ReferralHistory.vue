@@ -230,15 +230,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useQuasar } from 'quasar';
 import { referralService } from 'src/services/referralService';
 import type { Referral, ReferralStatus } from 'src/types/referral';
 import PaginatedList from 'src/components/PaginatedList.vue';
 import { useApiError } from 'src/composables/useApiError';
+import { useNotification } from 'src/composables/useNotification';
 
 const router = useRouter();
-const $q = useQuasar();
-
 const referrals = ref<Referral[]>([]);
 const isLoading = ref(false);
 const error = ref<string | null>(null);
@@ -250,6 +248,7 @@ const showDetailsDialog = ref(false);
 const selectedReferral = ref<Referral | null>(null);
 const updatingStatus = ref(false);
 const { notifyError } = useApiError();
+const { showSuccess } = useNotification();
 
 const filters = ref({
   search: '',
@@ -325,13 +324,7 @@ const updateStatus = (newStatus: ReferralStatus) => {
       if (index !== -1) {
         referrals.value[index] = { ...referral };
       }
-
-      $q.notify({
-        type: 'positive',
-        message: 'Status atualizado com sucesso!',
-        icon: 'check_circle',
-        position: 'top',
-      });
+      showSuccess('Status atualizado com sucesso!');
     })
     .catch(notifyError)
     .finally(() => (updatingStatus.value = false));

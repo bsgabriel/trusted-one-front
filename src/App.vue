@@ -16,18 +16,15 @@
 import { onMounted, computed, onUnmounted } from 'vue';
 import { useAuth } from './composables/useAuth';
 import { useRouter } from 'vue-router';
-import { useQuasar } from 'quasar';
+import { useNotification } from './composables/useNotification';
 
 const { checkAuth, isInitialized } = useAuth();
 const showInitLoading = computed(() => !isInitialized.value);
 const router = useRouter();
-const $q = useQuasar();
+const { showError } = useNotification();
 
 const handleSessionExpired = () => {
-  $q.notify({
-    type: 'negative',
-    message: 'Sua sessão expirou. Por favor, faça login novamente.',
-  });
+  showError('Sua sessão expirou. Por favor, faça login novamente.');
   void useAuth()
     .logout()
     .then(() => void router.push({ name: 'login' }));

@@ -96,17 +96,17 @@ import type { ReferralCreateParams } from 'src/types/referral';
 import { computed, ref } from 'vue';
 import { partnerService } from 'src/services/partnerService';
 import { referralService } from 'src/services/referralService';
-import { useQuasar } from 'quasar';
 import { useRouter } from 'vue-router';
 import { useApiError } from 'src/composables/useApiError';
+import { useNotification } from 'src/composables/useNotification';
 
 const form = ref<FormData>({});
 const partnerOptions = ref<PartnerListing[]>([]);
 const isLoading = ref<boolean>(false);
 const expertises = ref<Expertise[]>([]);
-const $q = useQuasar();
 const router = useRouter();
 const { notifyError } = useApiError();
+const { showSuccess } = useNotification();
 
 const expertiseOptions = computed(() => {
   return expertises.value.map((expertise) => ({
@@ -169,12 +169,7 @@ const onSubmit = () => {
   referralService
     .createReferral(params)
     .then(() => {
-      $q.notify({
-        message: 'Indicação realizada com sucesso!',
-        color: 'positive',
-        icon: 'check',
-      });
-
+      showSuccess('Indicação realizada com sucesso!');
       void router.push('/historico');
     })
     .catch(notifyError);

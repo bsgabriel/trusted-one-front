@@ -1,8 +1,8 @@
 import type { ApiError } from 'src/types/erros';
-import { useQuasar } from 'quasar';
+import { useNotification } from './useNotification';
 
 export function useApiError() {
-  const $q = useQuasar();
+  const { showError, showWarning } = useNotification();
 
   const notifyError = (error: unknown, defaultMessage?: string) => {
     const problem = (error as ApiError).problem;
@@ -11,24 +11,10 @@ export function useApiError() {
       return;
     }
 
-    $q.notify({
-      type: 'negative',
-      message: problem.title || defaultMessage || 'Ocorreu um erro',
-      caption: problem.detail,
-      position: 'top-right',
-      timeout: 5000,
-      actions: [{ icon: 'close', color: 'white' }],
-    });
+    showError(problem.title || defaultMessage || 'Ocorreu um erro', problem.detail);
 
     if (problem.errors && problem.errors.length > 0) {
-      problem.errors.forEach((err) => {
-        $q.notify({
-          type: 'warning',
-          message: err,
-          position: 'top-right',
-          timeout: 3000,
-        });
-      });
+      problem.errors.forEach((err) => showWarning(err));
     }
     console.error('API Error:', problem);
   };
