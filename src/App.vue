@@ -15,24 +15,12 @@
 <script setup lang="ts">
 import { onMounted, computed, onUnmounted } from 'vue';
 import { useAuth } from './composables/useAuth';
-import { useRouter } from 'vue-router';
-import { useNotification } from './composables/useNotification';
 
-const { checkAuth, isInitialized } = useAuth();
+const { isInitialized, handleSessionExpired } = useAuth();
 const showInitLoading = computed(() => !isInitialized.value);
-const router = useRouter();
-const { showError } = useNotification();
-
-const handleSessionExpired = () => {
-  showError('Sua sessão expirou. Por favor, faça login novamente.');
-  void useAuth()
-    .logout()
-    .then(() => void router.push({ name: 'login' }));
-};
 
 onMounted(() => {
   window.addEventListener('session-expired', handleSessionExpired);
-  checkAuth();
 });
 
 onUnmounted(() => {

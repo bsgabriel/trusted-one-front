@@ -292,12 +292,11 @@ const loadReferrals = () => {
       totalPages.value = result.totalPages;
       totalElements.value = result.totalElements;
     })
-    .catch((err) => {
+    .catch(() => {
       error.value = 'Erro ao conectar com o servidor';
       referrals.value = [];
       totalPages.value = 0;
       totalElements.value = 0;
-      notifyError(err);
     })
     .finally(() => {
       isLoading.value = false;

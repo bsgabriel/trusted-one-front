@@ -156,20 +156,14 @@ const toggleMode = () => {
 const handleSubmit = async () => {
   clearMessages();
 
-  let result;
   if (isLogin.value) {
-    result = await login(formData.email, formData.password);
+    await login(formData.email, formData.password);
   } else {
-    result = await register({
+    await register({
       name: formData.name,
       email: formData.email,
       password: formData.password,
     });
-  }
-
-  if (!result.success) {
-    errorMessage.value = result.message;
-    return;
   }
   void router.push('/');
 };

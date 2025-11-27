@@ -3,4 +3,5 @@ export interface ProblemDetail {
   detail: string;
   errors?: string[];
   status?: number;
+  errorCode?: string;
 }

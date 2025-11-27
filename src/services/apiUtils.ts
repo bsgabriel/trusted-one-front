@@ -10,6 +10,10 @@ class ApiService {
 
   private handleError(error: unknown): never {
     if (this.isAxiosError(error)) {
+      if (error.response?.status === 401) {
+        throw error;
+      }
+
       if (error.response?.data) {
         const data = error.response.data;
 

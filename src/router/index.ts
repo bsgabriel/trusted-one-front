@@ -1,4 +1,4 @@
-import { defineRouter } from '#q-app/wrappers';
+import { route } from 'quasar/wrappers';
 import {
   createMemoryHistory,
   createRouter,
@@ -6,8 +6,9 @@ import {
   createWebHistory,
 } from 'vue-router';
 import routes from './routes';
+import { useAuth } from 'src/composables/useAuth';
 
-export default defineRouter(function (/* { store, ssrContext } */) {
+export default route(function (/* { store, ssrContext } */) {
   const createHistory = process.env.SERVER
     ? createMemoryHistory
     : process.env.VUE_ROUTER_MODE === 'history'
@@ -21,20 +22,18 @@ export default defineRouter(function (/* { store, ssrContext } */) {
   });
 
   Router.beforeEach(async (to, from, next) => {
-    const { useAuth } = await import('../composables/useAuth');
-    const { isAuthenticated } = useAuth();
+    const { checkAuth, isAuthenticated } = useAuth();
 
-    const requiresAuth = to.meta?.requiresAuth;
-    const redirectIfAuth = to.meta?.redirectIfAuth;
+    if (to.meta.requiresAuth) {
+      await checkAuth();
 
-    if (requiresAuth && !isAuthenticated.value) {
-      next({ name: 'login' });
-      return;
+      if (!isAuthenticated.value) {
+        return next({ name: 'login' });
+      }
     }
 
-    if (redirectIfAuth && isAuthenticated.value) {
-      next({ name: 'home' });
-      return;
+    if (to.name === 'login' && isAuthenticated.value) {
+      return next({ path: '/' });
     }
 
     next();
