@@ -27,8 +27,9 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
+      const problemDetail = error.response?.data;
 
-      if (error.response?.errorCode === 'INVALID_CREDENTIALS') {
+      if (problemDetail?.errorCode === 'INVALID_CREDENTIALS') {
         return Promise.reject(error as Error);
       }
 
