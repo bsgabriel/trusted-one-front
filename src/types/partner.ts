@@ -5,7 +5,8 @@ import type { Group } from './group';
 import type { BasePageableParams } from './pageable';
 
 export interface PartnerListParams extends BasePageableParams {
-  search?: string | undefined;
+  search?: string;
+  fullSearch?: boolean;
 }
 
 export interface PartnerMetrics {

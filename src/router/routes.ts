@@ -8,13 +8,19 @@ const routes: RouteRecordRaw[] = [
       {
         path: '',
         name: 'Indicadores',
-        component: () => import('pages/PageUnderConstruction.vue'),
+        component: () => import('pages/Dashboard/DashboardPage.vue'),
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'indicar',
+        name: 'Indicar',
+        component: () => import('pages/Referral/ReferralPage.vue'),
         meta: { requiresAuth: true },
       },
       {
         path: 'historico',
         name: 'Histórico',
-        component: () => import('pages/PageUnderConstruction.vue'),
+        component: () => import('pages/ReferralHistory/ReferralHistory.vue'),
         meta: { requiresAuth: true },
       },
       {

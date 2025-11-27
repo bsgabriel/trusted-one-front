@@ -12,6 +12,12 @@ export const menuOptions: MenuOption[] = [
     description: 'Indicadores',
     route: '/'
   },
+  {
+    id: 'indicar-parceiro',
+    icon: 'handshake',
+    description: 'Indicar Parceiro',
+    route: '/indicar',
+  },
   { 
     id: 'historico-indicacoes',
     icon: 'history',
