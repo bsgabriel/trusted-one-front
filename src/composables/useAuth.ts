@@ -83,11 +83,7 @@ export function useAuth() {
 
     currentUser.value = null;
     isInitialized.value = false;
-    try {
-      showError('Sua sessão expirou. Por favor, faça login novamente.');
-    } catch (error) {
-      console.log('Porra deu nem pra notificar samerda', error)
-    }
+    showError('Sua sessão expirou. Por favor, faça login novamente.');
     void router.push({ name: 'login' });
   };
 
