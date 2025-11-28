@@ -22,14 +22,14 @@ export default route(function (/* { store, ssrContext } */) {
   });
 
   Router.beforeEach(async (to, from, next) => {
-    const { checkAuth, isAuthenticated } = useAuth();
+    const { checkAuth, isAuthenticated, isInitialized } = useAuth();
 
-    if (to.meta.requiresAuth) {
+    if (!isInitialized.value) {
       await checkAuth();
+    }
 
-      if (!isAuthenticated.value) {
-        return next({ name: 'login' });
-      }
+    if (to.meta.requiresAuth && !isAuthenticated.value) {
+      return next({ name: 'login' });
     }
 
     if (to.name === 'login' && isAuthenticated.value) {
