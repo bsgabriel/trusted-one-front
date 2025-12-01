@@ -90,7 +90,7 @@ import type { BasicDataForm } from '../types/formData';
 import { groupService } from 'src/services/groupService';
 import { includesNormalized } from 'src/utils/stringUtils';
 import { companyService } from 'src/services/companyService';
-import { useQuasar } from 'quasar';
+import { useApiError } from 'src/composables/useApiError';
 
 interface Props {
   modelValue: BasicDataForm;
@@ -102,7 +102,7 @@ interface Emits {
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
-const $q = useQuasar();
+const { notifyError } = useApiError();
 
 const fetchedGroups = ref<GroupForm[]>([]);
 const groupOptions = ref<GroupForm[]>([]);
@@ -181,42 +181,19 @@ const onCompanyInputChange = (val: string) => {
   }
 };
 
-onMounted(async () => {
-  try {
-    const [groupData, companyData] = await Promise.all([
-      groupService.getGroups(),
-      companyService.getCompanies(),
-    ]);
+const loadInitialData = () => {
+  Promise.all([groupService.getGroups(), companyService.getCompanies()])
+    .then(([groupData, companyData]) => {
+      fetchedGroups.value = groupData;
+      groupOptions.value = groupData;
 
-    if (groupData.success) {
-      fetchedGroups.value = groupData.data;
-      groupOptions.value = groupData.data;
-    } else {
-      $q.notify({
-        type: 'negative',
-        message: 'Erro ao carregar grupos',
-        caption: groupData.message || 'Tente novamente mais tarde',
-      });
-    }
+      fetchedCompanies.value = companyData;
+      companyOptions.value = companyData;
+    })
+    .catch(notifyError);
+};
 
-    if (companyData.success) {
-      fetchedCompanies.value = companyData.data;
-      companyOptions.value = companyData.data;
-    } else {
-      $q.notify({
-        type: 'negative',
-        message: 'Erro ao carregar empresas',
-        caption: companyData.message || 'Tente novamente mais tarde',
-      });
-    }
-  } catch (error) {
-    console.error('Erro ao carregar dados:', error);
-    $q.notify({
-      type: 'negative',
-      message: 'Erro ao carregar dados',
-      caption: 'Verifique sua conexão e tente novamente',
-      timeout: 3000,
-    });
-  }
+onMounted(() => {
+  loadInitialData();
 });
 </script>

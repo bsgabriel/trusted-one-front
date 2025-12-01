@@ -230,14 +230,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useQuasar } from 'quasar';
 import { referralService } from 'src/services/referralService';
 import type { Referral, ReferralStatus } from 'src/types/referral';
 import PaginatedList from 'src/components/PaginatedList.vue';
+import { useApiError } from 'src/composables/useApiError';
+import { useNotification } from 'src/composables/useNotification';
 
 const router = useRouter();
-const $q = useQuasar();
-
 const referrals = ref<Referral[]>([]);
 const isLoading = ref(false);
 const error = ref<string | null>(null);
@@ -248,6 +247,8 @@ const totalElements = ref(0);
 const showDetailsDialog = ref(false);
 const selectedReferral = ref<Referral | null>(null);
 const updatingStatus = ref(false);
+const { notifyError } = useApiError();
+const { showSuccess } = useNotification();
 
 const filters = ref({
   search: '',
@@ -283,83 +284,49 @@ const loadReferrals = () => {
       sortBy: filters.value.sortBy,
     })
     .then((result) => {
-      if (result.success) {
-        referrals.value = result.data.content.map((r) => ({
-          ...r,
-          createdAt: new Date(r.createdAt),
-          updatedAt: new Date(r.updatedAt),
-        }));
-        totalPages.value = result.data.totalPages;
-        totalElements.value = result.data.totalElements;
-      } else {
-        error.value = result.message || 'Erro ao carregar indicações';
-        referrals.value = [];
-        totalPages.value = 0;
-        totalElements.value = 0;
-      }
+      referrals.value = result.content.map((r) => ({
+        ...r,
+        createdAt: new Date(r.createdAt),
+        updatedAt: new Date(r.updatedAt),
+      }));
+      totalPages.value = result.totalPages;
+      totalElements.value = result.totalElements;
     })
-    .catch((err) => {
+    .catch(() => {
       error.value = 'Erro ao conectar com o servidor';
       referrals.value = [];
       totalPages.value = 0;
       totalElements.value = 0;
-      console.error('Erro ao buscar indicações:', err);
     })
     .finally(() => {
       isLoading.value = false;
     });
 };
 
-const updateStatus = async (newStatus: ReferralStatus) => {
-  if (!selectedReferral.value) {
+const updateStatus = (newStatus: ReferralStatus) => {
+  const referral = selectedReferral.value;
+
+  if (!referral) {
     return;
   }
 
   updatingStatus.value = true;
 
-  try {
-    const result = await referralService.updateReferralStatus(
-      selectedReferral.value.referralId,
-      newStatus,
-    );
+  referralService
+    .updateReferralStatus(referral.referralId, newStatus)
+    .then((result) => {
+      referral.status = result.status;
+      referral.updatedAt = new Date(result.updatedAt);
 
-    if (result.success) {
-      selectedReferral.value.status = result.data.status;
-      selectedReferral.value.updatedAt = new Date(result.data.updatedAt);
-
-      const index = referrals.value.findIndex(
-        (r) => r.referralId === selectedReferral.value!.referralId,
-      );
+      const index = referrals.value.findIndex((r) => r.referralId === referral.referralId);
 
       if (index !== -1) {
-        referrals.value[index] = { ...selectedReferral.value };
+        referrals.value[index] = { ...referral };
       }
-
-      $q.notify({
-        type: 'positive',
-        message: 'Status atualizado com sucesso!',
-        icon: 'check_circle',
-        position: 'top',
-      });
-    } else {
-      $q.notify({
-        type: 'negative',
-        message: result.message || 'Erro ao atualizar status',
-        icon: 'error',
-        position: 'top',
-      });
-    }
-  } catch (err) {
-    console.error('Erro ao atualizar status:', err);
-    $q.notify({
-      type: 'negative',
-      message: 'Erro ao conectar com o servidor',
-      icon: 'error',
-      position: 'top',
-    });
-  } finally {
-    updatingStatus.value = false;
-  }
+      showSuccess('Status atualizado com sucesso!');
+    })
+    .catch(notifyError)
+    .finally(() => (updatingStatus.value = false));
 };
 
 const onSearchChange = () => {

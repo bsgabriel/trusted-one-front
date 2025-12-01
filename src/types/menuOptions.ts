@@ -8,7 +8,7 @@ export interface MenuOption {
 export const menuOptions: MenuOption[] = [
   {
     id: 'dashboard',
-    icon: 'show_chart',
+    icon: 'dashboard',
     description: 'Indicadores',
     route: '/'
   },
@@ -26,7 +26,7 @@ export const menuOptions: MenuOption[] = [
   },
   {
     id: 'listagem-parceiros',
-    icon: 'person',
+    icon: 'people',
     description: 'Parceiros',
     route: '/parceiros',
   },

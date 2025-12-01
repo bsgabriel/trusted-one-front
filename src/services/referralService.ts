@@ -1,14 +1,13 @@
 import { apiService } from './apiUtils';
-import type { ApiResult } from '../types/api';
 import type { Referral, ReferralCreateParams, ReferralListParams, ReferralStats, ReferralStatus } from 'src/types/referral';
 import type { PageResponse } from 'src/types/pageable';
 
 export class ReferralService {
-  async createReferral(params: ReferralCreateParams): Promise<ApiResult<void>> {
+  async createReferral(params: ReferralCreateParams): Promise<void> {
     return apiService.post<void, ReferralCreateParams>('/referral', params);
   }
 
-  async listReferrals(params: ReferralListParams): Promise<ApiResult<PageResponse<Referral>>> {
+  async listReferrals(params: ReferralListParams): Promise<PageResponse<Referral>> {
     const queryParams = new URLSearchParams();
 
     queryParams.append('page', params.page.toString());
@@ -29,11 +28,11 @@ export class ReferralService {
     return apiService.get<PageResponse<Referral>>(`/referral?${queryParams.toString()}`);
   }
 
-  async updateReferralStatus(referralId: number, status: ReferralStatus): Promise<ApiResult<Referral>> {
+  async updateReferralStatus(referralId: number, status: ReferralStatus): Promise<Referral> {
     return apiService.put<Referral, ReferralStatus>(`/referral/${referralId}/status`, status);
   }
 
-  async getStats(): Promise<ApiResult<ReferralStats>> {
+  async getStats(): Promise<ReferralStats> {
     return apiService.get<ReferralStats>('/referral/stats');
   }
 }

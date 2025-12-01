@@ -108,6 +108,7 @@ import { useRouter } from 'vue-router';
 import { partnerService } from 'src/services/partnerService';
 import type { PartnerListing } from 'src/types/partner';
 import PaginatedList from 'src/components/PaginatedList.vue';
+import { useApiError } from 'src/composables/useApiError';
 
 const router = useRouter();
 const partners = ref<PartnerListing[]>([]);
@@ -118,6 +119,8 @@ const pageSize = ref(20);
 const totalPages = ref(0);
 const totalElements = ref(0);
 const searchQuery = ref('');
+const { notifyError } = useApiError();
+
 let searchDebounceTimer: NodeJS.Timeout | null = null;
 
 const fetchPartners = () => {
@@ -132,27 +135,18 @@ const fetchPartners = () => {
       search: searchQuery.value || undefined,
     })
     .then((result) => {
-      if (result.success) {
-        partners.value = result.data.content;
-        totalPages.value = result.data.totalPages;
-        totalElements.value = result.data.totalElements;
-      } else {
-        error.value = result.message || 'Erro ao carregar parceiros';
-        partners.value = [];
-        totalPages.value = 0;
-        totalElements.value = 0;
-      }
+      partners.value = result.content;
+      totalPages.value = result.totalPages;
+      totalElements.value = result.totalElements;
     })
     .catch((err) => {
-      error.value = 'Erro ao conectar com o servidor';
+      error.value = 'Erro ao carregar parceiros';
       partners.value = [];
       totalPages.value = 0;
       totalElements.value = 0;
-      console.error('Erro ao buscar parceiros:', err);
+      notifyError(err);
     })
-    .finally(() => {
-      isLoading.value = false;
-    });
+    .finally(() => (isLoading.value = false));
 };
 
 const onPageChange = (page: number) => {

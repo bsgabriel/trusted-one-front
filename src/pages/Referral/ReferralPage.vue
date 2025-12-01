@@ -96,15 +96,17 @@ import type { ReferralCreateParams } from 'src/types/referral';
 import { computed, ref } from 'vue';
 import { partnerService } from 'src/services/partnerService';
 import { referralService } from 'src/services/referralService';
-import { useQuasar } from 'quasar';
 import { useRouter } from 'vue-router';
+import { useApiError } from 'src/composables/useApiError';
+import { useNotification } from 'src/composables/useNotification';
 
 const form = ref<FormData>({});
 const partnerOptions = ref<PartnerListing[]>([]);
 const isLoading = ref<boolean>(false);
 const expertises = ref<Expertise[]>([]);
-const $q = useQuasar();
 const router = useRouter();
+const { notifyError } = useApiError();
+const { showSuccess } = useNotification();
 
 const expertiseOptions = computed(() => {
   return expertises.value.map((expertise) => ({
@@ -124,26 +126,8 @@ const updatePartner = (value?: PartnerListing) => {
 
   partnerService
     .findfindRecommendableExpertises(value.partnerId)
-    .then((result) => {
-      if (result.success) {
-        expertises.value = result.data;
-      } else {
-        console.log('Erro ao buscar especializações', result);
-        $q.notify({
-          message: 'Erro ao buscar especializações',
-          color: 'negativa',
-          icon: 'check',
-        });
-      }
-    })
-    .catch((err) => {
-      console.log('Erro ao buscar especializações', err);
-      $q.notify({
-        message: 'Erro ao buscar especializações',
-        color: 'negativa',
-        icon: 'check',
-      });
-    });
+    .then((result) => (expertises.value = result))
+    .catch(notifyError);
 };
 
 const filterPartners = (val: string, update: (fn: () => void) => void) => {
@@ -156,31 +140,9 @@ const filterPartners = (val: string, update: (fn: () => void) => void) => {
         search: val,
         fullSearch: false,
       })
-      .then((result) => {
-        if (result.success) {
-          console.log('result.data.content', result.data.content);
-          partnerOptions.value = result.data.content;
-        } else {
-          partnerOptions.value = [];
-          console.error('Erro ao buscar parceiros', result);
-          $q.notify({
-            message: 'Erro ao buscar parceiros',
-            color: 'negativa',
-            icon: 'check',
-          });
-        }
-      })
-      .catch((err) => {
-        console.error('Erro ao buscar parceiros', err);
-        $q.notify({
-          message: 'Erro ao buscar parceiros',
-          color: 'negativa',
-          icon: 'check',
-        });
-      })
-      .finally(() => {
-        isLoading.value = false;
-      });
+      .then((result) => (partnerOptions.value = result.content))
+      .catch(notifyError)
+      .finally(() => (isLoading.value = false));
   });
 };
 
@@ -206,31 +168,10 @@ const onSubmit = () => {
   const params = createReferralParams(form.value);
   referralService
     .createReferral(params)
-    .then((result) => {
-      if (result.success) {
-        $q.notify({
-          message: 'Indicação realizada com sucesso!',
-          color: 'positive',
-          icon: 'check',
-        });
-
-        void router.push('/historico');
-      } else {
-        console.error('Erro ao criar indicação:', result);
-        $q.notify({
-          message: 'Erro ao criar indicação',
-          color: 'negativa',
-          icon: 'check',
-        });
-      }
+    .then(() => {
+      showSuccess('Indicação realizada com sucesso!');
+      void router.push('/historico');
     })
-    .catch((err) => {
-      console.error(err);
-      $q.notify({
-        message: 'Erro desconhecido ao criar indicação',
-        color: 'negativa',
-        icon: 'check',
-      });
-    });
+    .catch(notifyError);
 };
 </script>

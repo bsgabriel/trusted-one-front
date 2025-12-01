@@ -112,11 +112,11 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
-import { useQuasar } from 'quasar';
 import { expertiseService } from 'src/services/expertiseService';
 import { compareNormalized, includesNormalized } from 'src/utils/stringUtils';
 import type { ExpertiseItem, ExpertiseForm } from '../types/formData';
 import type { ExpertiseListing } from 'src/types/expertise';
+import { useApiError } from 'src/composables/useApiError';
 
 interface Props {
   modelValue: ExpertiseForm[];
@@ -128,7 +128,7 @@ const emit = defineEmits<{
   'update:modelValue': [value: ExpertiseForm[]];
 }>();
 
-const $q = useQuasar();
+const { notifyError } = useApiError();
 const fetchedExpertises = ref<ExpertiseItem[]>([]);
 const parentFilterInputs = ref<Record<number, string>>({});
 const subexpertiseFilters = ref<Record<number, Map<number, ExpertiseItem[]>>>({});
@@ -139,35 +139,18 @@ const expertiseItems = computed({
   set: (value) => emit('update:modelValue', value),
 });
 
-const loadSubexpertises = async (parentId: number) => {
+const loadSubexpertises = (parentId: number) => {
   if (subexpertiseFilters.value[parentId]) {
     return;
   }
 
-  try {
-    const response = await expertiseService.getChildren(parentId);
-
-    if (response.success) {
-      const children = response.data.map(mapApiResponseToForm);
-      if (!subexpertiseFilters.value[parentId]) {
-        subexpertiseFilters.value[parentId] = new Map();
-      }
-      subexpertiseFilters.value[parentId].set(parentId, children);
-    } else {
-      $q.notify({
-        type: 'negative',
-        message: 'Erro ao carregar sub-especializações',
-        caption: response.message || 'Tente novamente',
-      });
-    }
-  } catch (error) {
-    console.error('Erro ao carregar sub-especializações:', error);
-    $q.notify({
-      type: 'negative',
-      message: 'Erro ao carregar sub-especializações',
-      caption: 'Erro inesperado',
-    });
-  }
+  expertiseService
+    .getChildren(parentId)
+    .then((response) => {
+      const children = response.map(mapApiResponseToForm);
+      subexpertiseFilters.value[parentId] = new Map([[parentId, children]]);
+    })
+    .catch(notifyError);
 };
 
 const filteredParentExpertises = computed(() => {
@@ -226,7 +209,7 @@ const onSubexpertiseInputChange = (val: string, index: number) => {
   }
 };
 
-const onExpertiseChange = async (index: number) => {
+const onExpertiseChange = (index: number) => {
   const item = expertiseItems.value[index];
   if (!item) return;
 
@@ -238,7 +221,7 @@ const onExpertiseChange = async (index: number) => {
     return;
   }
 
-  await loadSubexpertises(expertiseId);
+  loadSubexpertises(expertiseId);
 };
 
 const createNewExpertise = (
@@ -294,33 +277,22 @@ const mapApiResponseToForm = (apiResponse: ExpertiseListing): ExpertiseItem => {
   };
 };
 
-onMounted(async () => {
-  try {
-    const response = await expertiseService.getParentExpertises();
-
-    if (response.success) {
-      fetchedExpertises.value = response.data.map(mapApiResponseToForm);
-
+const loadInitialData = () => {
+  expertiseService
+    .getParentExpertises()
+    .then((response) => {
+      fetchedExpertises.value = response.map(mapApiResponseToForm);
       expertiseItems.value.forEach((item) => {
         if (item.expertise?.expertiseId && !subexpertiseFilters.value[item.expertise.expertiseId]) {
-          void loadSubexpertises(item.expertise.expertiseId);
+          loadSubexpertises(item.expertise.expertiseId);
         }
       });
-    } else {
-      $q.notify({
-        type: 'negative',
-        message: 'Erro ao carregar especializações',
-        caption: response.message || 'Tente novamente mais tarde',
-      });
-    }
-  } catch (error) {
-    console.error('Erro ao carregar especializações:', error);
-    $q.notify({
-      type: 'negative',
-      message: 'Erro ao carregar dados',
-      caption: 'Verifique sua conexão e tente novamente',
-    });
-  }
+    })
+    .catch(notifyError);
+};
+
+onMounted(() => {
+  loadInitialData();
 });
 </script>
 

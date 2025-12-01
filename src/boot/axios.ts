@@ -27,6 +27,12 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
+      const problemDetail = error.response?.data;
+
+      if (problemDetail?.errorCode === 'INVALID_CREDENTIALS') {
+        return Promise.reject(error as Error);
+      }
+
       window.dispatchEvent(new CustomEvent('session-expired'));
     }
     return Promise.reject(error as Error);

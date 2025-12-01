@@ -93,7 +93,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { useQuasar } from 'quasar';
 import BasicDataCard from './components/BasicDataCard.vue';
 import ContactMethodsCard from './components/ContactMethodsCard.vue';
 import ExpertisesCard from './components/ExpertisesCard.vue';
@@ -111,10 +110,13 @@ import type { BusinessProfile, GainsProfile, Partner } from 'src/types/partner';
 import type { ContactMethod } from 'src/types/contactMethod';
 import type { Expertise } from 'src/types/expertise';
 import { partnerService } from 'src/services/partnerService';
+import { useApiError } from 'src/composables/useApiError';
+import { useNotification } from 'src/composables/useNotification';
 
+const { notifyError } = useApiError();
 const router = useRouter();
 const route = useRoute();
-const $q = useQuasar();
+const { showSuccess } = useNotification();
 
 const isEditing = computed(() => !!route.params.id);
 const isSubmitting = ref(false);
@@ -213,80 +215,68 @@ const formToPartner = (formData: PartnerForm): Partner => {
   };
 };
 
-const createParnter = async () => {
+const createParnter = () => {
   const partner = formToPartner(form.value);
-  await partnerService.createPartner(partner).then((result) => {
-    if (!result.success) {
-      console.log('erro', result);
-    } else {
-      $q.notify({
-        message: 'Parceiro cadastrado com sucesso!',
-        color: 'positive',
-        icon: 'check',
-      });
-    }
-  });
+  isSubmitting.value = true;
+
+  partnerService
+    .createPartner(partner)
+    .then(() => {
+      showSuccess('Parceiro criado com sucesso!');
+      void router.push('/parceiros');
+    })
+    .catch(notifyError)
+    .finally(() => (isSubmitting.value = false));
 };
 
-const updatePartner = async () => {
+const updatePartner = () => {
   const partner = formToPartner(form.value);
-  await partnerService.updatePartner(partner).then((result) => {
-    if (!result.success) {
-      console.log('erro', result);
-    } else {
-      $q.notify({
-        message: 'Parceiro atualizado com sucesso!',
-        color: 'positive',
-        icon: 'check',
-      });
-    }
-  });
+  isSubmitting.value = true;
+
+  partnerService
+    .updatePartner(partner)
+    .then(() => {
+      showSuccess('Parceiro atualizado com sucesso!');
+      void router.push('/parceiros');
+    })
+    .catch(notifyError)
+    .finally(() => (isSubmitting.value = false));
 };
 
-const deletePartner = async () => {
+const deletePartner = () => {
   if (!form.value.partnerId) {
     return;
   }
 
-  await partnerService.deletePartner(form.value.partnerId).then((result) => {
-    if (!result.success) {
-      console.log('erro', result);
-    } else {
-      $q.notify({
-        message: 'Parceiro excluído com sucesso!',
-        color: 'positive',
-        icon: 'check',
-      });
-
+  partnerService
+    .deletePartner(form.value.partnerId)
+    .then(() => {
+      showSuccess('Parceiro excluído com sucesso!');
       void router.push('/parceiros');
-    }
-  });
+    })
+    .catch(notifyError);
 };
 
-const onSubmit = async () => {
-  isSubmitting.value = true;
-
-  try {
-    if (isEditing.value) {
-      await updatePartner();
-    } else {
-      await createParnter();
-    }
-    void router.push('/parceiros');
-  } catch (error) {
-    console.log(error);
-    $q.notify({
-      message: 'Erro ao salvar parceiro',
-      color: 'negative',
-      icon: 'error',
-    });
-  } finally {
-    isSubmitting.value = false;
+const onSubmit = () => {
+  if (isEditing.value) {
+    updatePartner();
+  } else {
+    createParnter();
   }
 };
 
 const onCancel = () => {
   router.back();
+};
+
+const loadPartnerData = (partnerId: number) => {
+  partnerService
+    .getPartnerById(partnerId)
+    .then(loadFormData)
+    .catch((error) => {
+      notifyError(error);
+      void router.push('/parceiros');
+    });
 };
 
 const loadFormData = (partner: Partner) => {
@@ -341,22 +331,11 @@ const loadFormData = (partner: Partner) => {
   form.value.gainsProfile = partner.gainsProfile.map(mapGainsPRofile);
   form.value.businessProfile = partner.businessProfile.map(mapBusinessProfile);
 };
+
 onMounted(() => {
   if (isEditing.value) {
     const partnerId = Number(route.params.id);
-    void partnerService.getPartnerById(partnerId).then((result) => {
-      if (result.success && result.data) {
-        loadFormData(result.data);
-      } else {
-        console.log('erro', result);
-        $q.notify({
-          message: 'Parceiro não encontrado',
-          color: 'negative',
-          icon: 'error',
-        });
-        void router.push('/parceiros');
-      }
-    });
+    loadPartnerData(partnerId);
   }
 });
 </script>
