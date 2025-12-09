@@ -2,7 +2,7 @@ import type { ContactMethodType } from 'src/types/contactMethod';
 import type { BusinessProfileCategory, GainsCategory } from 'src/types/partner';
 
 export interface GroupForm {
-  groupId: number | null;
+  groupId?: number;
   name: string;
   isNew?: boolean;
 }

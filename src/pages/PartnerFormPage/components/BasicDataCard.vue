@@ -151,7 +151,7 @@ const createNewGroup = (
   val: string,
   done: (item: GroupForm, mode?: 'add' | 'add-unique' | 'toggle') => void,
 ) => {
-  done({ groupId: null, name: val, isNew: true }, 'add-unique');
+  done({ name: val, isNew: true }, 'add-unique');
 };
 
 const createNewCompany = (

@@ -1,8 +1,10 @@
 import type { BasePageableParams } from "./pageable";
 
 export interface Group {
-  groupId: number | null;
+  groupId?: number;
   name: string;
+  description?: string;
+  partners: GroupPartner[];
   isNew?: boolean
 }
 
@@ -15,4 +17,9 @@ export interface GroupListing {
 
 export interface GroupListParams extends BasePageableParams {
   search?: string;
+}
+
+export interface GroupPartner {
+  partnerId: number;
+  name: string;
 }
