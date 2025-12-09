@@ -15,6 +15,14 @@ export class GroupService {
 
     return apiService.get<PageResponse<GroupListing>>(`/group/listing?${queryParams.toString()}`);
   }
+
+  async fetchGroupById(groupId: number): Promise<Group> {
+    return apiService.get<Group>(`/group/${groupId}`);
+  }
+
+  async deleteGroup(groupId: number): Promise<void> {
+    return apiService.delete<void>(`/group/${groupId}`);
+  }
 }
 
 export const groupService = new GroupService();
