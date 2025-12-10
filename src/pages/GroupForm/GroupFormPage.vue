@@ -276,7 +276,7 @@ const onSubmit = () => {
   if (isEditing.value) {
     updateGroup();
   } else {
-    // TODO: implementar
+    createGroup();
   }
 };
 
@@ -285,6 +285,18 @@ const updateGroup = () => {
     .updateGroup(createGroupFormRequest(form.value))
     .then(() => {
       showSuccess('Grupo atualizado com sucesso');
+      void router.push('/grupos');
+    })
+    .catch((err) => notifyError(err))
+    .finally(() => (isLoading.value = false));
+};
+
+const createGroup = () => {
+  isLoading.value = true;
+  groupService
+    .createGroup(createGroupFormRequest(form.value))
+    .then(() => {
+      showSuccess('Grupo criado com sucesso');
       void router.push('/grupos');
     })
     .catch((err) => notifyError(err))

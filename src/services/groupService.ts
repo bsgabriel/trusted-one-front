@@ -27,6 +27,10 @@ export class GroupService {
   async updateGroup(group: GroupFormRequest): Promise<Group> {
     return apiService.put<Group>(`/group/${group.groupId}`, group);
   }
+
+  async createGroup(group: GroupFormRequest): Promise<Group> {
+    return apiService.post<Group>('/group', group);
+  }
 }
 
 export const groupService = new GroupService();
