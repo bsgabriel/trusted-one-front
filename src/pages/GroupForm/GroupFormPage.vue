@@ -133,13 +133,7 @@
               @click="router.back()"
               :disable="isLoading"
             />
-            <q-btn
-              label="Salvar"
-              type="submit"
-              color="primary"
-              :loading="isLoading"
-              unelevated
-            />
+            <q-btn label="Salvar" type="submit" color="primary" :loading="isLoading" unelevated />
           </div>
         </div>
       </div>
@@ -268,10 +262,11 @@ const createGroupFormRequest = (form: GroupForm): GroupFormRequest => {
   return {
     groupId: form.groupId,
     name: form.name,
-    description: form.description,
+    description: form.description?.trim() || undefined,
     partners: form.partners.map((p) => p.partnerId),
   };
 };
+
 const onSubmit = () => {
   if (isEditing.value) {
     updateGroup();
