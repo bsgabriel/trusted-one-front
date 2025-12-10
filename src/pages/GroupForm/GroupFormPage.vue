@@ -34,14 +34,14 @@
 
         <!-- Nome -->
         <q-input
-          :model-value="form.name"
+          v-model="form.name"
           label="Nome *"
           outlined
           :rules="[(val) => !!val || 'Nome é obrigatório']"
         />
 
         <!-- Descrição -->
-        <q-input :model-value="form.description" label="Descrição" outlined class="q-mt-md" />
+        <q-input v-model="form.description" label="Descrição" outlined class="q-mt-md" />
 
         <!-- Lista de Parceiros -->
         <q-expansion-item
@@ -131,13 +131,13 @@
               color="grey-7"
               flat
               @click="router.back()"
-              :disable="isSubmitting"
+              :disable="isLoading"
             />
             <q-btn
               label="Salvar"
               type="submit"
               color="primary"
-              :loading="isSubmitting"
+              :loading="isLoading"
               unelevated
             />
           </div>
@@ -170,7 +170,6 @@ const route = useRoute();
 const $q = useQuasar();
 const isEditing = computed(() => !!route.params.id);
 const isLoading = ref(false);
-const isSubmitting = ref(false);
 const selectedPartners = ref<number[]>([]);
 const showPartnerDialog = ref(false);
 const { notifyError } = useApiError();
