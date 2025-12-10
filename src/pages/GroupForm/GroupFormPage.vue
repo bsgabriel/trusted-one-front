@@ -54,7 +54,13 @@
           <!-- Botões no Topo -->
           <div class="q-pa-md bg-grey-2">
             <div v-if="selectedPartners.length === 0" class="q-gutter-sm">
-              <q-btn label="Associar Parceiro" icon="person_add" color="primary" unelevated />
+              <q-btn
+                label="Associar Parceiro"
+                icon="person_add"
+                color="primary"
+                unelevated
+                @click="showPartnerDialog = true"
+              />
               <q-btn
                 v-if="form.partners.length"
                 label="Remover Parceiros"
@@ -138,12 +144,18 @@
         </div>
       </div>
     </q-form>
+    <PartnerSelectionDialog
+      v-model="showPartnerDialog"
+      :exclude-partner-ids="form.partners.map((p) => p.partnerId)"
+      @confirm="onDialogPartnersSelected"
+    />
   </q-page>
 </template>
 
 <script setup lang="ts">
 import type { GroupPartner } from 'src/types/group';
 import type { GroupForm, GroupPartnerForm } from './types/formData';
+import type { PartnerListing } from 'src/types/partner';
 import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useQuasar } from 'quasar';
@@ -151,6 +163,7 @@ import { groupService } from 'src/services/groupService';
 import { useApiError } from 'src/composables/useApiError';
 import { useDialog } from 'src/composables/useDialog';
 import { useNotification } from 'src/composables/useNotification';
+import PartnerSelectionDialog from './components/PartnerSelectionDialog.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -159,6 +172,7 @@ const isEditing = computed(() => !!route.params.id);
 const isLoading = ref(false);
 const isSubmitting = ref(false);
 const selectedPartners = ref<number[]>([]);
+const showPartnerDialog = ref(false);
 const { notifyError } = useApiError();
 const { showConfirm } = useDialog();
 const { showSuccess } = useNotification();
@@ -239,6 +253,16 @@ const removePartners = () => {
 
 const goToPartnerDetails = (partnerId: number) => {
   void router.push(`/parceiros/${partnerId}`);
+};
+
+const onDialogPartnersSelected = (partners: PartnerListing[]) => {
+  const newPartners = partners.map((partner) => ({
+    partnerId: partner.partnerId,
+    name: partner.name,
+  }));
+
+  form.value.partners.push(...newPartners);
+  form.value.partners.sort((a, b) => a.name.localeCompare(b.name));
 };
 
 const onSubmit = () => {
