@@ -1,5 +1,5 @@
 import { apiService } from './apiUtils';
-import type { Group, GroupListing, GroupListParams } from 'src/types/group';
+import type { Group, GroupFormRequest, GroupListing, GroupListParams } from 'src/types/group';
 import type { PageResponse } from 'src/types/pageable';
 
 export class GroupService {
@@ -22,6 +22,10 @@ export class GroupService {
 
   async deleteGroup(groupId: number): Promise<void> {
     return apiService.delete<void>(`/group/${groupId}`);
+  }
+
+  async updateGroup(group: GroupFormRequest): Promise<Group> {
+    return apiService.put<Group>(`/group/${group.groupId}`, group);
   }
 }
 

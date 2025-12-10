@@ -23,3 +23,10 @@ export interface GroupPartner {
   partnerId: number;
   name: string;
 }
+
+export interface GroupFormRequest  {
+  groupId?: number;
+  name: string;
+  description?: string;
+  partners: number[];
+}

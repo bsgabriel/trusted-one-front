@@ -153,7 +153,7 @@
 </template>
 
 <script setup lang="ts">
-import type { GroupPartner } from 'src/types/group';
+import type { GroupFormRequest, GroupPartner } from 'src/types/group';
 import type { GroupForm, GroupPartnerForm } from './types/formData';
 import type { PartnerListing } from 'src/types/partner';
 import { ref, onMounted, computed } from 'vue';
@@ -265,22 +265,31 @@ const onDialogPartnersSelected = (partners: PartnerListing[]) => {
   form.value.partners.sort((a, b) => a.name.localeCompare(b.name));
 };
 
+const createGroupFormRequest = (form: GroupForm): GroupFormRequest => {
+  return {
+    groupId: form.groupId,
+    name: form.name,
+    description: form.description,
+    partners: form.partners.map((p) => p.partnerId),
+  };
+};
 const onSubmit = () => {
-  isLoading.value = true;
-  try {
-    if (isEditing.value) {
-      // TODO: Implementar chamada à API
-      showSuccess('Grupo atualizado com sucesso');
-    } else {
-      // TODO: Implementar chamada à API
-      showSuccess('Grupo criado com sucesso');
-    }
-    void router.push('/grupos');
-  } catch (error) {
-    notifyError(error);
-  } finally {
-    isLoading.value = false;
+  if (isEditing.value) {
+    updateGroup();
+  } else {
+    // TODO: implementar
   }
+};
+
+const updateGroup = () => {
+  groupService
+    .updateGroup(createGroupFormRequest(form.value))
+    .then(() => {
+      showSuccess('Grupo atualizado com sucesso');
+      void router.push('/grupos');
+    })
+    .catch((err) => notifyError(err))
+    .finally(() => (isLoading.value = false));
 };
 
 const deleteGroup = () => {
