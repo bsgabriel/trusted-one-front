@@ -302,10 +302,10 @@ const deleteGroup = () => {
   const partnerCount = form.value.partners.length;
   const message =
     partnerCount > 0
-      ? `Deseja realmente excluir este grupo?<br><br><small class="text-grey-7">Os ${partnerCount} parceiro${partnerCount === 1 ? '' : 's'} ficarão sem grupo vinculado.</small>`
-      : 'Deseja realmente excluir este grupo?';
+      ? `Os ${partnerCount} parceiro${partnerCount === 1 ? '' : 's'} ficarão sem grupo vinculado.`
+      : undefined;
 
-  showConfirm(message, 'Excluir Grupo').onOk(() => {
+  showConfirm('Deseja realmente excluir este grupo?', 'Excluir Grupo', message).onOk(() => {
     groupService
       .deleteGroup(form.value.groupId!)
       .then(() => {
