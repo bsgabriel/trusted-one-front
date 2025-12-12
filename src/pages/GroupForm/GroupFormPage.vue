@@ -106,12 +106,6 @@
                 />
               </q-item-section>
 
-              <q-item-section avatar>
-                <q-avatar color="primary" text-color="white" size="48px">
-                  {{ getInitials(partner.name) }}
-                </q-avatar>
-              </q-item-section>
-
               <q-item-section>
                 <q-item-label class="text-weight-medium text-body1">
                   {{ partner.name }}
@@ -206,15 +200,6 @@ const loadGroupData = (groupId: number) => {
     })
     .catch((err) => notifyError(err))
     .finally(() => (isLoading.value = false));
-};
-
-const getInitials = (name: string): string => {
-  return name
-    .split(' ')
-    .map((word) => word.charAt(0))
-    .slice(0, 2)
-    .join('')
-    .toUpperCase();
 };
 
 const togglePartnerSelection = (partnerId: number) => {
