@@ -123,7 +123,13 @@
 
         <!-- Botões de Ação -->
         <div class="row items-center q-mt-lg">
-          <q-btn v-if="isEditing" label="Excluir Grupo" color="negative" @click="deleteGroup" />
+          <q-btn
+            v-if="isEditing"
+            label="Excluir Grupo"
+            color="negative"
+            @click="deleteGroup"
+            :disable="isLoading"
+          />
           <q-space />
           <div class="row q-gutter-sm">
             <q-btn
