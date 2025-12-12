@@ -276,6 +276,7 @@ const onSubmit = () => {
 };
 
 const updateGroup = () => {
+  isLoading.value = true;
   groupService
     .updateGroup(createGroupFormRequest(form.value))
     .then(() => {
