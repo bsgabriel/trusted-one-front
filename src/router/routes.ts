@@ -44,7 +44,19 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'grupos',
         name: 'Grupos',
-        component: () => import('pages/PageUnderConstruction.vue'),
+        component: () => import('pages/GroupListing/GroupListingPage.vue'),
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'grupos/novo',
+        name: 'Cadastro de Grupo',
+        component: () => import('pages/GroupForm/GroupFormPage.vue'),
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'grupos/:id',
+        name: 'Dados do Grupo',
+        component: () => import('pages/GroupForm/GroupFormPage.vue'),
         meta: { requiresAuth: true },
       },
       {
