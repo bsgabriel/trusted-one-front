@@ -206,7 +206,7 @@ const formToPartner = (formData: PartnerForm): Partner => {
   return {
     partnerId: formData.partnerId,
     name: formData.basicData.name,
-    company: formData.basicData.company?.name ? formData.basicData.company : undefined,
+    company: formData.basicData.company?.name ? {...formData.basicData.company, partners: []} : undefined,
     group: formData.basicData.group?.name ? {...formData.basicData.group, partners: []} : undefined,
     contactMethods: formData.contactMethods.map(mapContactMethod),
     gainsProfile: formData.gainsProfile.map(mapGainsProfile),

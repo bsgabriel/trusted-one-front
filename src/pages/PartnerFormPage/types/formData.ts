@@ -8,7 +8,7 @@ export interface GroupForm {
 }
 
 export interface CompanyForm {
-  companyId: number | null;
+  companyId?: number;
   name: string;
   isNew?: boolean;
 }
