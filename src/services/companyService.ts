@@ -1,5 +1,5 @@
 import { apiService } from './apiUtils';
-import type { Company, CompanyListing, CompanyListParams } from 'src/types/company';
+import type { Company, CompanyFormRequest, CompanyListing, CompanyListParams } from 'src/types/company';
 import type { PageResponse } from 'src/types/pageable';
 
 export class CompanyService {
@@ -14,6 +14,22 @@ export class CompanyService {
     }
     
     return apiService.get<PageResponse<CompanyListing>>(`/company/listing?${queryParams.toString()}`);
+  }
+
+  async fetchCompanyById(companyId: number): Promise<Company> {
+    return apiService.get<Company>(`/company/${companyId}`);
+  }
+
+  async deleteCompany(groupId: number): Promise<void> {
+    return apiService.delete<void>(`/company/${groupId}`);
+  }
+
+  async updateCompany(company: CompanyFormRequest): Promise<Company> {
+    return apiService.put<Company>(`/company/${company.companyId}`, company);
+  }
+
+  async createCompany(company: CompanyFormRequest): Promise<Company> {
+    return apiService.post<Company>('/company', company);
   }
 }
 

@@ -68,13 +68,13 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'empresas/nova',
         name: 'Cadastro de Empresa',
-        component: () => import('pages/PageUnderConstruction.vue'),
+        component: () => import('pages/CompanyForm/CompanyFormPage.vue'),
         meta: { requiresAuth: true },
       },
       {
         path: 'empresas/:id',
         name: 'Dados da Empresa',
-        component: () => import('pages/PageUnderConstruction.vue'),
+        component: () => import('pages/CompanyForm/CompanyFormPage.vue'),
         meta: { requiresAuth: true },
       },
       {
