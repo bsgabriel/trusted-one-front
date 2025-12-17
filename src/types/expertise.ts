@@ -4,7 +4,7 @@ export interface ExpertiseListing {
   name: string;
 }
 
-export interface Expertise {
+export interface AssignedExpertise {
   expertiseId?: number;
   name: string;
   parentExpertiseId?: number;

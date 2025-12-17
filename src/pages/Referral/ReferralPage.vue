@@ -73,7 +73,7 @@
               :options="expertiseOptions"
               type="radio"
               color="primary"
-              :rules="[(val: Expertise | undefined) => !!val || 'Selecione uma especialização']"
+              :rules="[(val: AssignedExpertise | undefined) => !!val || 'Selecione uma especialização']"
             />
           </div>
         </div>
@@ -91,7 +91,7 @@
 <script setup lang="ts">
 import type { PartnerListing } from 'src/types/partner';
 import type { FormData } from './types/formData';
-import type { Expertise } from 'src/types/expertise';
+import type { AssignedExpertise } from 'src/types/expertise';
 import type { ReferralCreateParams } from 'src/types/referral';
 import { computed, ref } from 'vue';
 import { partnerService } from 'src/services/partnerService';
@@ -103,7 +103,7 @@ import { useNotification } from 'src/composables/useNotification';
 const form = ref<FormData>({});
 const partnerOptions = ref<PartnerListing[]>([]);
 const isLoading = ref<boolean>(false);
-const expertises = ref<Expertise[]>([]);
+const expertises = ref<AssignedExpertise[]>([]);
 const router = useRouter();
 const { notifyError } = useApiError();
 const { showSuccess } = useNotification();
