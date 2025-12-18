@@ -1,5 +1,5 @@
 export interface ExpertiseListing {
-  expertiseId?: number;
+  expertiseId: number;
   parentExpertiseId?: number;
   name: string;
 }
