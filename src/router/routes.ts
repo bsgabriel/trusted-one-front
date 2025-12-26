@@ -80,7 +80,31 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'especializacoes',
         name: 'Especializações',
-        component: () => import('pages/PageUnderConstruction.vue'),
+        component: () => import('pages/ExpertiseListing/ExpertiseListingPage.vue'),
+        meta: { requiresAuth: true },
+      },
+            {
+        path: 'especializacoes/nova',
+        name: 'Cadastro de Especialização',
+        component: () => import('pages/ExpertiseForm/ExpertiseFormPage.vue'),
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'especializacoes/:id',
+        name: 'Dados da Especialização',
+        component: () => import('pages/ExpertiseForm/ExpertiseFormPage.vue'),
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'especializacoes/:expertiseId/subespecializacao/:specializationId',
+        name: 'Dados da Subespecialização',
+        component: () => import('pages/SpecializationForm/SpecializationFormPage.vue'),
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'especializacoes/:expertiseId/subespecializacao/nova',
+        name: 'Nova Subespecialização',
+        component: () => import('pages/SpecializationForm/SpecializationFormPage.vue'),
         meta: { requiresAuth: true },
       },
     ],

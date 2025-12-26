@@ -115,7 +115,7 @@ import { computed, onMounted, ref } from 'vue';
 import { expertiseService } from 'src/services/expertiseService';
 import { compareNormalized, includesNormalized } from 'src/utils/stringUtils';
 import type { ExpertiseItem, ExpertiseForm } from '../types/formData';
-import type { ExpertiseListing } from 'src/types/expertise';
+import type { ExpertiseListing, SpecializationListing } from 'src/types/expertise';
 import { useApiError } from 'src/composables/useApiError';
 
 interface Props {
@@ -145,9 +145,9 @@ const loadSubexpertises = (parentId: number) => {
   }
 
   expertiseService
-    .getChildren(parentId)
+    .listSpecializations(parentId)
     .then((response) => {
-      const children = response.map(mapApiResponseToForm);
+      const children = response.map(mapSpecializationListingToForm);
       subexpertiseFilters.value[parentId] = new Map([[parentId, children]]);
     })
     .catch(notifyError);
@@ -268,7 +268,15 @@ const removeExpertise = (index: number) => {
   }
 };
 
-const mapApiResponseToForm = (apiResponse: ExpertiseListing): ExpertiseItem => {
+const mapExpertiseListingToForm = (apiResponse: ExpertiseListing): ExpertiseItem => {
+  return {
+    name: apiResponse.name,
+    expertiseId: apiResponse.expertiseId,
+    isNew: false,
+  };
+};
+
+const mapSpecializationListingToForm = (apiResponse: SpecializationListing): ExpertiseItem => {
   return {
     name: apiResponse.name,
     expertiseId: apiResponse.expertiseId,
@@ -279,9 +287,13 @@ const mapApiResponseToForm = (apiResponse: ExpertiseListing): ExpertiseItem => {
 
 const loadInitialData = () => {
   expertiseService
-    .getParentExpertises()
+    .listExpertises({
+      search: '',
+      page: 1,
+      size: 100,
+    })
     .then((response) => {
-      fetchedExpertises.value = response.map(mapApiResponseToForm);
+      fetchedExpertises.value = response.content.map(mapExpertiseListingToForm);
       expertiseItems.value.forEach((item) => {
         if (item.expertise?.expertiseId && !subexpertiseFilters.value[item.expertise.expertiseId]) {
           loadSubexpertises(item.expertise.expertiseId);

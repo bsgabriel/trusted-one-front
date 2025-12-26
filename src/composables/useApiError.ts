@@ -5,6 +5,7 @@ export function useApiError() {
   const { showError, showWarning } = useNotification();
 
   const notifyError = (error: unknown, defaultMessage?: string) => {
+    console.log('Error received in useApiError:', error);
     const problem = (error as ApiError).problem;
 
     if (problem.status === 401) {
