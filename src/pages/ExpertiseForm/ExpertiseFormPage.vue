@@ -41,14 +41,12 @@
 
         <!-- Lista de Especializações -->
         <q-expansion-item
-          v-if="isEditing"
           default-opened
           icon="category"
           label="Especializações"
           :caption="getSpecializationListCaption()"
           header-class="bg-grey-3 text-h6 q-mt-md"
         >
-          <!-- Botões no Topo -->
           <div class="q-pa-md bg-grey-2">
             <div v-if="selectedSpecializations.length === 0" class="q-gutter-sm">
               <q-btn
@@ -56,7 +54,7 @@
                 icon="add"
                 color="primary"
                 unelevated
-                @click="showSpecializationDialog"
+                @click="showSpecializationDialog = true"
               />
               <q-btn
                 v-if="form.specializations.length"
@@ -135,6 +133,11 @@
         </div>
       </div>
     </q-form>
+    <specializationDialog
+      v-model="showSpecializationDialog"
+      :exclude-specialization-ids="form.specializations.map((s) => s.expertiseId)"
+      @confirm="onDialogSpecializationsSelected"
+    />
   </q-page>
 </template>
 
@@ -156,6 +159,7 @@ const $q = useQuasar();
 const isEditing = computed(() => !!route.params.id);
 const isLoading = ref(false);
 const selectedSpecializations = ref<number[]>([]);
+const showSpecializationDialog = ref(false);
 const { notifyError } = useApiError();
 const { showConfirm } = useDialog();
 const { showSuccess } = useNotification();
@@ -191,17 +195,14 @@ const loadExpertiseData = (expertiseId: number) => {
     .finally(() => (isLoading.value = false));
 };
 
-const showSpecializationDialog = () => {
-  $q.dialog({
-    component: SpecializationDialog,
-  }).onOk((name: string) => {
-    const newSpec: SpecializationListItem = {
-      expertiseId: 0, // Temporário, será criado no backend
-      name,
-    };
-    form.value.specializations.push(newSpec);
-    form.value.specializations.sort((a, b) => a.name.localeCompare(b.name));
-  });
+const onDialogSpecializationsSelected = (specializations: SpecializationListItem[]) => {
+  const newSpecializations = specializations.map((spec) => ({
+    expertiseId: spec.expertiseId,
+    name: spec.name,
+  }));
+
+  form.value.specializations.push(...newSpecializations);
+  form.value.specializations.sort((a, b) => a.name.localeCompare(b.name));
 };
 
 const toggleSpecializationSelection = (expertiseId: number) => {
