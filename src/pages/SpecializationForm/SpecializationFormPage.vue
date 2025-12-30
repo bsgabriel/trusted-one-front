@@ -313,7 +313,7 @@ const updateSpecialization = () => {
     .updateSpecialization(form.value.expertiseId!, createSpecializationFormRequest(form.value))
     .then(() => {
       showSuccess('Especialização atualizada com sucesso');
-      void router.push(`/expertise/${form.value.parentExpertiseId}`);
+      void router.push(`/especializacoes/${form.value.parentExpertiseId}`);
     })
     .catch((err) => notifyError(err))
     .finally(() => (isLoading.value = false));
@@ -325,7 +325,7 @@ const createSpecialization = () => {
     .createSpecialization(createSpecializationFormRequest(form.value))
     .then(() => {
       showSuccess('Especialização criada com sucesso');
-      void router.push(`/expertise/${form.value.parentExpertiseId}`);
+      void router.push(`/especializacoes/${form.value.parentExpertiseId}`);
     })
     .catch((err) => notifyError(err))
     .finally(() => (isLoading.value = false));
@@ -347,7 +347,7 @@ const deleteSpecialization = () => {
       .deleteSpecialization(form.value.expertiseId!)
       .then(() => {
         showSuccess('Especialização excluída com sucesso');
-        void router.push(`/expertise/${form.value.parentExpertiseId}`);
+        void router.push(`/especializacoes/${form.value.parentExpertiseId}`);
       })
       .catch((err) => {
         notifyError(err);
