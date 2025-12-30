@@ -19,7 +19,7 @@ export interface PartnerExpertiseForm {
 export interface Expertise {
   expertiseId: number;
   name: string;
-  specializations: Specialization[];
+  specializations: SpecializationListing[];
 }
 
 export interface Specialization {

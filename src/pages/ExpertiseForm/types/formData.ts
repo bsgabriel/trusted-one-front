@@ -7,4 +7,5 @@ export interface ExpertiseForm {
 export interface SpecializationListItem {
   expertiseId: number;
   name: string;
+  partnerCount: number;
 }

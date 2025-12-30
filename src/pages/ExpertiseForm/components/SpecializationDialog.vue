@@ -110,6 +110,7 @@ const addSpecialization = () => {
   selectedSpecializations.value.push({
     expertiseId: nextTempId--,
     name: name,
+    partnerCount: 0,
   });
 
   newSpecializationName.value = '';

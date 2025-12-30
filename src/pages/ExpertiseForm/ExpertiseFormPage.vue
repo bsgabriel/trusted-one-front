@@ -105,6 +105,19 @@
                 <q-item-label class="text-weight-medium text-body1">
                   {{ specialization.name }}
                 </q-item-label>
+
+                <div class="q-mt-sm">
+                  <q-badge
+                    :color="specialization.partnerCount > 0 ? 'primary' : 'grey-3'"
+                    :text-color="specialization.partnerCount > 0 ? 'white' : 'grey-7'"
+                  >
+                    {{
+                      specialization.partnerCount > 0
+                        ? `${specialization.partnerCount} parceiro${specialization.partnerCount !== 1 ? 's' : ''}`
+                        : 'Nenhum parceiro'
+                    }}
+                  </q-badge>
+                </div>
               </q-item-section>
             </q-item>
           </q-list>
@@ -142,7 +155,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ExpertiseFormRequest, Specialization } from 'src/types/expertise';
+import type { ExpertiseFormRequest, SpecializationListing } from 'src/types/expertise';
 import type { ExpertiseForm, SpecializationListItem } from './types/formData';
 import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
@@ -178,9 +191,10 @@ const getSpecializationListCaption = () => {
 };
 
 const loadExpertiseData = (expertiseId: number) => {
-  const mapSpecialization = (spec: Specialization): SpecializationListItem => ({
+  const mapSpecialization = (spec: SpecializationListing): SpecializationListItem => ({
     expertiseId: spec.expertiseId,
     name: spec.name,
+    partnerCount: spec.partnerCount,
   });
 
   isLoading.value = true;
@@ -199,6 +213,7 @@ const onDialogSpecializationsSelected = (specializations: SpecializationListItem
   const newSpecializations = specializations.map((spec) => ({
     expertiseId: spec.expertiseId,
     name: spec.name,
+    partnerCount: spec.partnerCount,
   }));
 
   form.value.specializations.push(...newSpecializations);
