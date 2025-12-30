@@ -27,7 +27,7 @@
           </q-item-section>
           <q-item-section>
             <q-item-label class="text-h6">Dados da Especialização</q-item-label>
-            <q-item-label caption>Nome, expertise pai e parceiros</q-item-label>
+            <q-item-label caption>Nome e área de atuação</q-item-label>
           </q-item-section>
         </q-item>
 
@@ -35,7 +35,7 @@
         <q-input
           v-if="isEditing"
           :model-value="form.parentExpertiseName"
-          label="Expertise"
+          label="Área de Atuação"
           outlined
           readonly
           class="q-mb-md"
