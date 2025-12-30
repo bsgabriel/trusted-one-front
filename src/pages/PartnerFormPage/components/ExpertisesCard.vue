@@ -15,7 +15,7 @@
             <div class="col-12 col-md-5">
               <q-select
                 v-model="item.expertise"
-                label="Especialização *"
+                label="Área de atuação *"
                 outlined
                 dense
                 use-input
@@ -49,11 +49,11 @@
               </q-select>
             </div>
 
-            <!-- Sub-especialização (opcional) -->
+            <!-- Especialização (opcional) -->
             <div class="col-12 col-md-5">
               <q-select
                 v-model="item.subexpertise"
-                label="Sub-especialização (opcional)"
+                label="Especialização (opcional)"
                 outlined
                 dense
                 use-input
@@ -73,13 +73,13 @@
                 <template v-slot:no-option>
                   <q-item>
                     <q-item-section class="text-grey">
-                      Digite para buscar ou criar nova sub-especialização
+                      Digite para buscar ou criar nova especialização
                     </q-item-section>
                   </q-item>
                 </template>
                 <template v-slot:append>
                   <q-icon v-if="item.subexpertise?.isNew" name="fiber_new" color="positive">
-                    <q-tooltip>Nova sub-especialização</q-tooltip>
+                    <q-tooltip>Nova especializaçao</q-tooltip>
                   </q-icon>
                 </template>
               </q-select>

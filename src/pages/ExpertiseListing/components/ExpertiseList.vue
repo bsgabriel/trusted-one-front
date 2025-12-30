@@ -51,8 +51,8 @@
             >
               {{
                 item.specializationCount > 0
-                  ? `${item.specializationCount} sub-especializaç${item.specializationCount !== 1 ? 'ões' : 'ão'}`
-                  : 'Sem sub-especializações'
+                  ? `${item.specializationCount} especializaç${item.specializationCount !== 1 ? 'ões' : 'ão'}`
+                  : 'Sem especializações'
               }}
             </q-badge>
           </div>
