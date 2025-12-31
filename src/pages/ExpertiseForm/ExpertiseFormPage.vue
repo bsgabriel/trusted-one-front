@@ -254,9 +254,29 @@ const removeSpecializations = () => {
 };
 
 const goToSpecializationDetails = (specializationId: number) => {
-  void router.push(
-    `/especializacoes/${form.value.expertiseId}/subespecializacao/${specializationId}`,
-  );
+  const navigate = (expertiseid: number, specializationId: number) => {
+    void router.push(`/especializacoes/${expertiseid}/subespecializacao/${specializationId}`);
+  };
+
+  if (specializationId > 0) {
+    navigate(form.value.expertiseId!, specializationId);
+    return;
+  }
+
+  isLoading.value = true;
+  expertiseService
+    .createExpertise(createExpertiseFormRequest(form.value))
+    .then((response) => {
+      const temp = form.value.specializations.find((s) => s.expertiseId === specializationId);
+      const spec = !temp ? undefined : response.specializations.find((s) => s.name === temp.name);
+      if (!spec) {
+        navigate(form.value.expertiseId!, specializationId);
+      } else {
+        navigate(response.expertiseId, spec.expertiseId);
+      }
+    })
+    .catch((err) => notifyError(err))
+    .finally(() => (isLoading.value = false));
 };
 
 const createExpertiseFormRequest = (form: ExpertiseForm): ExpertiseFormRequest => {
