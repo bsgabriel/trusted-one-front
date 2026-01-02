@@ -4,17 +4,13 @@
       <div>
         <h4 class="text-h4 q-my-none q-mb-xs">
           <q-icon name="category" class="q-mr-sm gt-xs" />
-          {{ isEditing ? 'Editar Especialização' : 'Nova Especialização' }}
+          Editar Especialização
         </h4>
         <p
           class="text-grey-7 q-ma-none"
           :class="$q.screen.gt.sm ? 'text-subtitle1' : 'text-caption'"
         >
-          {{
-            isEditing
-              ? 'Atualize as informações da especialização'
-              : 'Cadastre uma nova especialização'
-          }}
+          'Atualize as informações da especialização'
         </p>
       </div>
     </div>
@@ -33,7 +29,6 @@
 
         <!-- Expertise Pai (readonly) -->
         <q-input
-          v-if="isEditing"
           :model-value="form.parentExpertiseName"
           label="Área de Atuação"
           outlined
@@ -143,7 +138,6 @@
         <!-- Botões de Ação -->
         <div class="row items-center q-mt-lg">
           <q-btn
-            v-if="isEditing"
             label="Excluir Especialização"
             color="negative"
             @click="deleteSpecialization"
@@ -176,7 +170,7 @@
 import type { SpecializationFormRequest, PartnerExpertise } from 'src/types/expertise';
 import type { SpecializationForm, SpecializationPartnerForm } from './types/formData';
 import type { PartnerListing } from 'src/types/partner';
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useQuasar } from 'quasar';
 import { expertiseService } from 'src/services/expertiseService';
@@ -188,7 +182,6 @@ import PartnerSelectionDialog from './components/PartnerSelectionDialog.vue';
 const router = useRouter();
 const route = useRoute();
 const $q = useQuasar();
-const isEditing = computed(() => !!route.params.specializationId);
 const isLoading = ref(false);
 const selectedPartners = ref<number[]>([]);
 const showPartnerDialog = ref(false);
@@ -300,31 +293,11 @@ const createSpecializationFormRequest = (form: SpecializationForm): Specializati
 };
 
 const onSubmit = () => {
-  if (isEditing.value) {
-    updateSpecialization();
-  } else {
-    createSpecialization();
-  }
-};
-
-const updateSpecialization = () => {
   isLoading.value = true;
   expertiseService
     .updateSpecialization(form.value.expertiseId!, createSpecializationFormRequest(form.value))
     .then(() => {
       showSuccess('Especialização atualizada com sucesso');
-      void router.push(`/especializacoes/${form.value.parentExpertiseId}`);
-    })
-    .catch((err) => notifyError(err))
-    .finally(() => (isLoading.value = false));
-};
-
-const createSpecialization = () => {
-  isLoading.value = true;
-  expertiseService
-    .createSpecialization(createSpecializationFormRequest(form.value))
-    .then(() => {
-      showSuccess('Especialização criada com sucesso');
       void router.push(`/especializacoes/${form.value.parentExpertiseId}`);
     })
     .catch((err) => notifyError(err))
@@ -356,10 +329,8 @@ const deleteSpecialization = () => {
 };
 
 onMounted(() => {
-  if (isEditing.value) {
-    const expertiseId = Number(route.params.expertiseId);
-    const specializationId = Number(route.params.specializationId);
-    loadSpecializationData(expertiseId, specializationId);
-  }
+  const expertiseId = Number(route.params.expertiseId);
+  const specializationId = Number(route.params.specializationId);
+  loadSpecializationData(expertiseId, specializationId);
 });
 </script>

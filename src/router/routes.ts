@@ -101,12 +101,6 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/SpecializationForm/SpecializationFormPage.vue'),
         meta: { requiresAuth: true },
       },
-      {
-        path: 'especializacoes/:expertiseId/subespecializacao/nova',
-        name: 'Nova Subespecialização',
-        component: () => import('pages/SpecializationForm/SpecializationFormPage.vue'),
-        meta: { requiresAuth: true },
-      },
     ],
   },
   {

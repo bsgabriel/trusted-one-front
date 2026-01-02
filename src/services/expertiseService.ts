@@ -45,10 +45,6 @@ export class ExpertiseService {
     return apiService.get<Specialization>(`/expertise/specialization/${specializationId}`);
   }
 
-  async createSpecialization(form: SpecializationFormRequest): Promise<Specialization> {
-    return apiService.post<Specialization>('/expertise/specialization', form);
-  }
-
   async updateSpecialization(specializationId: number, form: SpecializationFormRequest): Promise<Specialization> {
     return apiService.put<Specialization>(`/expertise/specialization/${specializationId}`, form);
   }
