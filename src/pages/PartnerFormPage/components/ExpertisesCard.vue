@@ -1,17 +1,10 @@
-<!-- Template -->
 <template>
   <q-card>
     <q-card-section>
-      <div v-if="expertiseItems.length === 0" class="text-center q-py-md text-grey-6">
-        <q-icon name="school" size="3rem" color="grey-4" />
-        <div class="q-mt-sm">Nenhuma especialização adicionada</div>
-        <div class="text-caption">Adicione pelo menos uma especialização</div>
-      </div>
-
-      <div v-else class="q-gutter-md">
+      <div class="q-gutter-md">
         <q-card v-for="(item, index) in expertiseItems" :key="index" flat bordered class="q-pa-md">
           <div class="row q-col-gutter-md items-start">
-            <!-- Especialização Principal -->
+            <!-- Área de atuação -->
             <div class="col-12 col-md-5">
               <q-select
                 v-model="item.expertise"
@@ -27,7 +20,7 @@
                 @input-value="(val) => onParentInputChange(val, index)"
                 new-value-mode="add-unique"
                 @new-value="(val, done) => createNewExpertise(val, done)"
-                :rules="[(val) => !!val || 'Especialização é obrigatória']"
+                :rules="[(val) => !!val || 'Área de atuação é obrigatória']"
                 clearable
                 lazy-rules
               >
@@ -37,23 +30,23 @@
                 <template v-slot:no-option>
                   <q-item>
                     <q-item-section class="text-grey">
-                      Digite para buscar ou criar nova especialização
+                      Digite para buscar ou criar nova área de atuação
                     </q-item-section>
                   </q-item>
                 </template>
                 <template v-slot:append>
                   <q-icon v-if="item.expertise?.isNew" name="fiber_new" color="positive">
-                    <q-tooltip>Nova especialização</q-tooltip>
+                    <q-tooltip>Nova área de atuação</q-tooltip>
                   </q-icon>
                 </template>
               </q-select>
             </div>
 
-            <!-- Especialização (opcional) -->
+            <!-- Especialização -->
             <div class="col-12 col-md-5">
               <q-select
                 v-model="item.subexpertise"
-                label="Especialização (opcional)"
+                label="Especialização *"
                 outlined
                 dense
                 use-input
@@ -65,6 +58,7 @@
                 :disable="!item.expertise"
                 new-value-mode="add-unique"
                 @new-value="(val, done) => createNewSubexpertise(val, done, index)"
+                :rules="[(val) => !!val || 'Especialização é obrigatória']"
                 clearable
               >
                 <template v-slot:prepend>
