@@ -17,12 +17,12 @@
         <q-btn
           color="primary"
           icon="add"
-          :label="$q.screen.gt.xs ? 'Área de Atuação' : ''"
+          :label="$q.screen.gt.xs ? 'Nova Área de Atuação' : ''"
           @click="showAddExpertise"
           unelevated
           :round="$q.screen.xs"
         >
-          <q-tooltip v-if="$q.screen.xs">Área de Atuação</q-tooltip>
+          <q-tooltip v-if="$q.screen.xs">Nova Área de Atuação</q-tooltip>
         </q-btn>
       </div>
     </div>
