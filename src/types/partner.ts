@@ -1,6 +1,6 @@
 import type { Company } from './company';
 import type { ContactMethod } from './contactMethod';
-import type { Expertise } from './expertise';
+import type { AssignedExpertise } from './expertise';
 import type { Group } from './group';
 import type { BasePageableParams } from './pageable';
 
@@ -57,7 +57,7 @@ export interface Partner {
   company?: Company;
   group?: Group;
   contactMethods: ContactMethod[];
-  expertises: Expertise[];
+  expertises: AssignedExpertise[];
   gainsProfile: GainsProfile[];
   businessProfile: BusinessProfile[];
 }

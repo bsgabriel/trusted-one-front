@@ -28,6 +28,7 @@ class ApiService {
         });
       }
 
+      console.log('objeto error', error)
       if (error.request) {
         throw new ApiError({
           title: 'Erro de Conexão',

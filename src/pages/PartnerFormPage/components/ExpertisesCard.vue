@@ -1,21 +1,14 @@
-<!-- Template -->
 <template>
   <q-card>
     <q-card-section>
-      <div v-if="expertiseItems.length === 0" class="text-center q-py-md text-grey-6">
-        <q-icon name="school" size="3rem" color="grey-4" />
-        <div class="q-mt-sm">Nenhuma especialização adicionada</div>
-        <div class="text-caption">Adicione pelo menos uma especialização</div>
-      </div>
-
-      <div v-else class="q-gutter-md">
+      <div class="q-gutter-md">
         <q-card v-for="(item, index) in expertiseItems" :key="index" flat bordered class="q-pa-md">
           <div class="row q-col-gutter-md items-start">
-            <!-- Especialização Principal -->
+            <!-- Área de atuação -->
             <div class="col-12 col-md-5">
               <q-select
                 v-model="item.expertise"
-                label="Especialização *"
+                label="Área de atuação *"
                 outlined
                 dense
                 use-input
@@ -27,7 +20,7 @@
                 @input-value="(val) => onParentInputChange(val, index)"
                 new-value-mode="add-unique"
                 @new-value="(val, done) => createNewExpertise(val, done)"
-                :rules="[(val) => !!val || 'Especialização é obrigatória']"
+                :rules="[(val) => !!val || 'Área de atuação é obrigatória']"
                 clearable
                 lazy-rules
               >
@@ -37,23 +30,23 @@
                 <template v-slot:no-option>
                   <q-item>
                     <q-item-section class="text-grey">
-                      Digite para buscar ou criar nova especialização
+                      Digite para buscar ou criar nova área de atuação
                     </q-item-section>
                   </q-item>
                 </template>
                 <template v-slot:append>
                   <q-icon v-if="item.expertise?.isNew" name="fiber_new" color="positive">
-                    <q-tooltip>Nova especialização</q-tooltip>
+                    <q-tooltip>Nova área de atuação</q-tooltip>
                   </q-icon>
                 </template>
               </q-select>
             </div>
 
-            <!-- Sub-especialização (opcional) -->
+            <!-- Especialização -->
             <div class="col-12 col-md-5">
               <q-select
                 v-model="item.subexpertise"
-                label="Sub-especialização (opcional)"
+                label="Especialização *"
                 outlined
                 dense
                 use-input
@@ -65,6 +58,7 @@
                 :disable="!item.expertise"
                 new-value-mode="add-unique"
                 @new-value="(val, done) => createNewSubexpertise(val, done, index)"
+                :rules="[(val) => !!val || 'Especialização é obrigatória']"
                 clearable
               >
                 <template v-slot:prepend>
@@ -73,13 +67,13 @@
                 <template v-slot:no-option>
                   <q-item>
                     <q-item-section class="text-grey">
-                      Digite para buscar ou criar nova sub-especialização
+                      Digite para buscar ou criar nova especialização
                     </q-item-section>
                   </q-item>
                 </template>
                 <template v-slot:append>
                   <q-icon v-if="item.subexpertise?.isNew" name="fiber_new" color="positive">
-                    <q-tooltip>Nova sub-especialização</q-tooltip>
+                    <q-tooltip>Nova especializaçao</q-tooltip>
                   </q-icon>
                 </template>
               </q-select>
@@ -115,7 +109,7 @@ import { computed, onMounted, ref } from 'vue';
 import { expertiseService } from 'src/services/expertiseService';
 import { compareNormalized, includesNormalized } from 'src/utils/stringUtils';
 import type { ExpertiseItem, ExpertiseForm } from '../types/formData';
-import type { ExpertiseListing } from 'src/types/expertise';
+import type { ExpertiseListing, SpecializationListing } from 'src/types/expertise';
 import { useApiError } from 'src/composables/useApiError';
 
 interface Props {
@@ -145,9 +139,9 @@ const loadSubexpertises = (parentId: number) => {
   }
 
   expertiseService
-    .getChildren(parentId)
+    .listSpecializations(parentId)
     .then((response) => {
-      const children = response.map(mapApiResponseToForm);
+      const children = response.map(mapSpecializationListingToForm);
       subexpertiseFilters.value[parentId] = new Map([[parentId, children]]);
     })
     .catch(notifyError);
@@ -268,7 +262,15 @@ const removeExpertise = (index: number) => {
   }
 };
 
-const mapApiResponseToForm = (apiResponse: ExpertiseListing): ExpertiseItem => {
+const mapExpertiseListingToForm = (apiResponse: ExpertiseListing): ExpertiseItem => {
+  return {
+    name: apiResponse.name,
+    expertiseId: apiResponse.expertiseId,
+    isNew: false,
+  };
+};
+
+const mapSpecializationListingToForm = (apiResponse: SpecializationListing): ExpertiseItem => {
   return {
     name: apiResponse.name,
     expertiseId: apiResponse.expertiseId,
@@ -279,9 +281,13 @@ const mapApiResponseToForm = (apiResponse: ExpertiseListing): ExpertiseItem => {
 
 const loadInitialData = () => {
   expertiseService
-    .getParentExpertises()
+    .listExpertises({
+      search: '',
+      page: 1,
+      size: 100,
+    })
     .then((response) => {
-      fetchedExpertises.value = response.map(mapApiResponseToForm);
+      fetchedExpertises.value = response.content.map(mapExpertiseListingToForm);
       expertiseItems.value.forEach((item) => {
         if (item.expertise?.expertiseId && !subexpertiseFilters.value[item.expertise.expertiseId]) {
           loadSubexpertises(item.expertise.expertiseId);

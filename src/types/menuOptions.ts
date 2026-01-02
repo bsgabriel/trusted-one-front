@@ -43,9 +43,9 @@ export const menuOptions: MenuOption[] = [
     route: '/empresas',
   },
   {
-    id: 'listagem-especializacoes',
+    id: 'listagem-areas-atuacao',
     icon: 'work',
-    description: 'Especializações',
-    route: '/especializacoes',
+    description: 'Áreas de Atuação',
+    route: '/especializacoes', // TODO: trocar para /areas-atuacao
   },
 ];

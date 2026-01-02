@@ -108,7 +108,7 @@ import type {
 } from './types/formData';
 import type { BusinessProfile, GainsProfile, Partner } from 'src/types/partner';
 import type { ContactMethod } from 'src/types/contactMethod';
-import type { Expertise } from 'src/types/expertise';
+import type { AssignedExpertise } from 'src/types/expertise';
 import { partnerService } from 'src/services/partnerService';
 import { useApiError } from 'src/composables/useApiError';
 import { useNotification } from 'src/composables/useNotification';
@@ -181,7 +181,7 @@ const formToPartner = (formData: PartnerForm): Partner => {
     };
   };
 
-  const mapExpertises = (form: ExpertiseForm): Expertise | undefined => {
+  const mapExpertises = (form: ExpertiseForm): AssignedExpertise | undefined => {
     if (!form.expertise) {
       return undefined;
     }
@@ -280,7 +280,7 @@ const loadPartnerData = (partnerId: number) => {
 };
 
 const loadFormData = (partner: Partner) => {
-  const toFormExpertise = (expertise: Expertise): ExpertiseForm => {
+  const toFormExpertise = (expertise: AssignedExpertise): ExpertiseForm => {
     return {
       expertise: {
         expertiseId: expertise.parentExpertiseId || expertise.expertiseId,
