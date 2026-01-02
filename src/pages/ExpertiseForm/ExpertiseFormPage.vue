@@ -165,6 +165,7 @@ import { useApiError } from 'src/composables/useApiError';
 import { useDialog } from 'src/composables/useDialog';
 import { useNotification } from 'src/composables/useNotification';
 import SpecializationDialog from './components/SpecializationDialog.vue';
+import { compareNormalized } from 'src/utils/stringUtils';
 
 const router = useRouter();
 const route = useRoute();
@@ -214,10 +215,10 @@ const onDialogSpecializationsSelected = (specializations: SpecializationListItem
     expertiseId: spec.expertiseId,
     name: spec.name,
     partnerCount: spec.partnerCount,
-  }));
+  })).filter((spec) => !form.value.specializations.some((existing) => existing.name.toLowerCase() === spec.name.toLowerCase()));
 
   form.value.specializations.push(...newSpecializations);
-  form.value.specializations.sort((a, b) => a.name.localeCompare(b.name));
+  form.value.specializations.sort((a, b) => compareNormalized(a.name, b.name));
 };
 
 const toggleSpecializationSelection = (expertiseId: number) => {
