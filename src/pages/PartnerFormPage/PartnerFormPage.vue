@@ -112,11 +112,13 @@ import type { AssignedExpertise } from 'src/types/expertise';
 import { partnerService } from 'src/services/partnerService';
 import { useApiError } from 'src/composables/useApiError';
 import { useNotification } from 'src/composables/useNotification';
+import { useDialog } from 'src/composables/useDialog';
 
 const { notifyError } = useApiError();
 const router = useRouter();
 const route = useRoute();
 const { showSuccess } = useNotification();
+const { showConfirm } = useDialog();
 
 const isEditing = computed(() => !!route.params.id);
 const isSubmitting = ref(false);
@@ -248,13 +250,15 @@ const deletePartner = () => {
     return;
   }
 
-  partnerService
-    .deletePartner(form.value.partnerId)
-    .then(() => {
-      showSuccess('Parceiro excluído com sucesso!');
-      void router.push('/parceiros');
-    })
-    .catch(notifyError);
+  showConfirm('Deseja remover esse contato?', 'Excluir Parceiro').onOk(() => {
+    partnerService
+      .deletePartner(form.value.partnerId!)
+      .then(() => {
+        showSuccess('Parceiro excluído com sucesso!');
+        void router.push('/parceiros');
+      })
+      .catch(notifyError);
+  });
 };
 
 const onSubmit = () => {
