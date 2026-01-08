@@ -50,7 +50,7 @@ export class ExpertiseService {
   }
 
   async deleteSpecialization(specializationId: number): Promise<void> {
-    return apiService.delete<void>(`/expertise/specializations/${specializationId}`);
+    return apiService.delete<void>(`/expertise/specialization/${specializationId}`);
   }
 }
 
