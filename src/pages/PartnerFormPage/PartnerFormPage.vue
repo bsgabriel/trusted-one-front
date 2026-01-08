@@ -331,7 +331,10 @@ const loadFormData = (partner: Partner) => {
   form.value.basicData.company = partner.company;
   form.value.basicData.group = partner.group;
   form.value.contactMethods = partner.contactMethods.map(mapContactMethod);
-  form.value.expertises = partner.expertises.map(toFormExpertise);
+  form.value.expertises =
+    partner.expertises.length > 0
+      ? partner.expertises.map(toFormExpertise)
+      : [{ availableForReferral: false }];
   form.value.gainsProfile = partner.gainsProfile.map(mapGainsPRofile);
   form.value.businessProfile = partner.businessProfile.map(mapBusinessProfile);
 };
