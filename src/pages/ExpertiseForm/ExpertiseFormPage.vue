@@ -305,7 +305,7 @@ const updateExpertise = () => {
   expertiseService
     .updateExpertise(form.value.expertiseId!, createExpertiseFormRequest(form.value))
     .then(() => {
-      showSuccess('Expertise atualizada com sucesso');
+      showSuccess('Área de atuação atualizada com sucesso');
       void router.push('/especializacoes');
     })
     .catch((err) => notifyError(err))
