@@ -18,7 +18,7 @@
           color="primary"
           icon="add"
           :label="$q.screen.gt.xs ? 'Novo Grupo' : ''"
-          @click="showAddGrupo"
+          @click="showAddGroup"
           unelevated
           :round="$q.screen.xs"
         >
@@ -39,7 +39,7 @@ import { useRouter } from 'vue-router';
 const $q = useQuasar();
 const router = useRouter();
 
-const showAddGrupo = () => {
+const showAddGroup = () => {
   void router.push(`/grupos/novo`);
 };
 </script>
