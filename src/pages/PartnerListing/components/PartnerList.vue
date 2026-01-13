@@ -104,13 +104,14 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
 import { partnerService } from 'src/services/partnerService';
 import type { PartnerListing } from 'src/types/partner';
 import PaginatedList from 'src/components/PaginatedList.vue';
 import { useApiError } from 'src/composables/useApiError';
+import { useAppRouter } from 'src/composables/useAppRouter';
+import { PAGES } from 'src/constants/pages';
 
-const router = useRouter();
+const { navigate } = useAppRouter();
 const partners = ref<PartnerListing[]>([]);
 const isLoading = ref(false);
 const error = ref<string | null>(null);
@@ -195,7 +196,7 @@ const hasReferrals = (partner: PartnerListing): boolean => {
 };
 
 const goToPartnerDetails = (partnerId: number) => {
-  void router.push(`/parceiros/${partnerId}`);
+  navigate(PAGES.EDIT_PARTNER, { id: partnerId });
 };
 
 onMounted(() => {

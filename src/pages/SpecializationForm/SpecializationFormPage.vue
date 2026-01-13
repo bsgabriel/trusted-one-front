@@ -171,15 +171,17 @@ import type { SpecializationFormRequest, PartnerExpertise } from 'src/types/expe
 import type { SpecializationForm, SpecializationPartnerForm } from './types/formData';
 import type { PartnerListing } from 'src/types/partner';
 import { ref, onMounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { useQuasar } from 'quasar';
 import { expertiseService } from 'src/services/expertiseService';
 import { useApiError } from 'src/composables/useApiError';
 import { useDialog } from 'src/composables/useDialog';
 import { useNotification } from 'src/composables/useNotification';
 import PartnerSelectionDialog from './components/PartnerSelectionDialog.vue';
+import { useAppRouter } from 'src/composables/useAppRouter';
+import { PAGES } from 'src/constants/pages';
 
-const router = useRouter();
+const { navigate, router } = useAppRouter();
 const route = useRoute();
 const $q = useQuasar();
 const isLoading = ref(false);
@@ -266,7 +268,7 @@ const removePartners = () => {
 };
 
 const goToPartnerDetails = (partnerId: number) => {
-  void router.push(`/parceiros/${partnerId}`);
+  navigate(PAGES.EDIT_PARTNER, { id: partnerId });
 };
 
 const onDialogPartnersSelected = (partners: PartnerListing[]) => {
@@ -298,7 +300,7 @@ const onSubmit = () => {
     .updateSpecialization(form.value.expertiseId!, createSpecializationFormRequest(form.value))
     .then(() => {
       showSuccess('Especialização atualizada com sucesso');
-      void router.push(`/especializacoes/${form.value.parentExpertiseId}`);
+      navigate(PAGES.EDIT_EXPERTISE, { id: form.value.parentExpertiseId });
     })
     .catch((err) => notifyError(err))
     .finally(() => (isLoading.value = false));
@@ -320,7 +322,7 @@ const deleteSpecialization = () => {
       .deleteSpecialization(form.value.expertiseId!)
       .then(() => {
         showSuccess('Especialização excluída com sucesso');
-        void router.push(`/especializacoes/${form.value.parentExpertiseId}`);
+        navigate(PAGES.EDIT_EXPERTISE, { id: form.value.parentExpertiseId });
       })
       .catch((err) => {
         notifyError(err);

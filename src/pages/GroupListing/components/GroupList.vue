@@ -75,12 +75,12 @@
 <script setup lang="ts">
 import type { GroupListing } from 'src/types/group';
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
 import PaginatedList from 'src/components/PaginatedList.vue';
 import { groupService } from 'src/services/groupService';
 import { useApiError } from 'src/composables/useApiError';
+import { useAppRouter } from 'src/composables/useAppRouter';
+import { PAGES } from 'src/constants/pages';
 
-const router = useRouter();
 const grupos = ref<GroupListing[]>([]);
 const isLoading = ref(false);
 const error = ref<string | null>(null);
@@ -90,6 +90,7 @@ const totalPages = ref(0);
 const totalElements = ref(0);
 const searchQuery = ref('');
 const { notifyError } = useApiError();
+const { navigate } = useAppRouter();
 
 let searchDebounceTimer: NodeJS.Timeout | null = null;
 
@@ -148,7 +149,7 @@ const clearSearch = () => {
 };
 
 const goToGroupDetails = (id: number) => {
-  void router.push(`/grupos/${id}`);
+  navigate(PAGES.EDIT_GROUP, { id: id });
 };
 
 onMounted(() => {

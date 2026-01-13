@@ -34,13 +34,14 @@
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
 import CompanyList from './components/CompanyList.vue';
-import { useRouter } from 'vue-router';
+import { useAppRouter } from 'src/composables/useAppRouter';
+import { PAGES } from 'src/constants/pages';
 
 const $q = useQuasar();
-const router = useRouter();
+const { navigate } = useAppRouter();
 
 const showAddCompany = () => {
-  void router.push(`/empresas/nova`);
+  navigate(PAGES.CREATE_COMPANY);
 };
 </script>
 

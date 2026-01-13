@@ -2,7 +2,8 @@ import { ref, computed, readonly } from 'vue';
 import { userService } from '../services/userService';
 import type { AccountCreationDto, UserDto } from 'src/types/user';
 import { useNotification } from './useNotification';
-import { useRouter } from 'vue-router';
+import { PAGES } from 'src/constants/pages';
+import { useAppRouter } from '../composables/useAppRouter';
 
 const currentUser = ref<UserDto | null>(null);
 const isLoading = ref(false);
@@ -10,7 +11,7 @@ const isInitialized = ref(false);
 
 export function useAuth() {
   const { showError } = useNotification();
-  const router = useRouter();
+  const { navigate } = useAppRouter();
 
   const isAuthenticated = computed(() => !!currentUser.value);
 
@@ -72,7 +73,7 @@ export function useAuth() {
     } finally {
       currentUser.value = null;
       isLoading.value = false;
-      await router.push({ name: 'login' });
+      navigate(PAGES.LOGIN);
     }
   };
 
@@ -84,7 +85,7 @@ export function useAuth() {
     currentUser.value = null;
     isInitialized.value = false;
     showError('Sua sessão expirou. Por favor, faça login novamente.');
-    void router.push({ name: 'login' });
+    navigate(PAGES.LOGIN);
   };
 
   return {

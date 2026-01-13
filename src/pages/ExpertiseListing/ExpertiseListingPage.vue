@@ -34,13 +34,14 @@
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
 import ExpertiseList from './components/ExpertiseList.vue';
-import { useRouter } from 'vue-router';
+import { PAGES } from 'src/constants/pages';
+import { useAppRouter } from 'src/composables/useAppRouter';
 
 const $q = useQuasar();
-const router = useRouter();
+const { navigate } = useAppRouter();
 
 const showAddExpertise = () => {
-  void router.push(`/especializacoes/nova`);
+  navigate(PAGES.CREATE_EXPERTISE);
 };
 </script>
 

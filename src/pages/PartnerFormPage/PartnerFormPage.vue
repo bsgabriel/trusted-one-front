@@ -113,12 +113,15 @@ import { partnerService } from 'src/services/partnerService';
 import { useApiError } from 'src/composables/useApiError';
 import { useNotification } from 'src/composables/useNotification';
 import { useDialog } from 'src/composables/useDialog';
+import { useAppRouter } from 'src/composables/useAppRouter';
+import { PAGES } from 'src/constants/pages';
 
 const { notifyError } = useApiError();
 const router = useRouter();
 const route = useRoute();
 const { showSuccess } = useNotification();
 const { showConfirm } = useDialog();
+const { navigate } = useAppRouter();
 
 const isEditing = computed(() => !!route.params.id);
 const isSubmitting = ref(false);
@@ -225,7 +228,7 @@ const createParnter = () => {
     .createPartner(partner)
     .then(() => {
       showSuccess('Parceiro criado com sucesso!');
-      void router.push('/parceiros');
+      navigate(PAGES.PARTNERS);
     })
     .catch(notifyError)
     .finally(() => (isSubmitting.value = false));
@@ -239,7 +242,7 @@ const updatePartner = () => {
     .updatePartner(partner)
     .then(() => {
       showSuccess('Parceiro atualizado com sucesso!');
-      void router.push('/parceiros');
+      navigate(PAGES.PARTNERS);
     })
     .catch(notifyError)
     .finally(() => (isSubmitting.value = false));
@@ -255,7 +258,7 @@ const deletePartner = () => {
       .deletePartner(form.value.partnerId!)
       .then(() => {
         showSuccess('Parceiro excluído com sucesso!');
-        void router.push('/parceiros');
+        navigate(PAGES.PARTNERS);
       })
       .catch(notifyError);
   });
@@ -279,7 +282,7 @@ const loadPartnerData = (partnerId: number) => {
     .then(loadFormData)
     .catch((error) => {
       notifyError(error);
-      void router.push('/parceiros');
+      navigate(PAGES.PARTNERS);
     });
 };
 

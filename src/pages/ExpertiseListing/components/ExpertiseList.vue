@@ -65,13 +65,14 @@
 <script setup lang="ts">
 import type { ExpertiseListing } from 'src/types/expertise';
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
 import { expertiseService } from 'src/services/expertiseService';
 import { useApiError } from 'src/composables/useApiError';
 import PaginatedList from 'src/components/PaginatedList.vue';
+import { PAGES } from 'src/constants/pages';
+import { useAppRouter } from 'src/composables/useAppRouter';
 
 const { notifyError } = useApiError();
-const router = useRouter();
+const { navigate } = useAppRouter();
 
 const currentPage = ref(1);
 const pageSize = ref(20);
@@ -111,7 +112,7 @@ const fetchParentExpertises = () => {
 };
 
 const goToExpertise = (expertiseId: number) => {
-  void router.push(`/especializacoes/${expertiseId}`);
+  navigate(PAGES.EDIT_EXPERTISE, { id: expertiseId });
 };
 
 const onPageChange = (page: number) => {
