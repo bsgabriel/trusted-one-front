@@ -187,14 +187,18 @@ const loadInitialData = () => {
     groupService.listGroups({
       page: 1,
       size: 100,
-  }),
-  companyService.getCompanies()])
+    }),
+    companyService.listCompanies({
+      page: 1,
+      size: 100,
+    }),
+  ])
     .then(([groupData, companyData]) => {
       fetchedGroups.value = groupData.content;
       groupOptions.value = groupData.content;
 
-      fetchedCompanies.value = companyData;
-      companyOptions.value = companyData;
+      fetchedCompanies.value = companyData.content;
+      companyOptions.value = companyData.content;
     })
     .catch(notifyError);
 };
