@@ -192,7 +192,10 @@ const loadCompanyData = (companyId: number) => {
       form.value.name = result.name;
       form.value.partners = result.partners.map(mapCompanyPartner);
     })
-    .catch((err) => notifyError(err))
+    .catch((error) => {
+      notifyError(error);
+      navigate(PAGES.COMPANIES);
+    })
     .finally(() => (isLoading.value = false));
 };
 
