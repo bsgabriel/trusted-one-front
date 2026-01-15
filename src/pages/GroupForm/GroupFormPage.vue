@@ -200,7 +200,10 @@ const loadGroupData = (groupId: number) => {
       form.value.description = result.description;
       form.value.partners = result.partners.map(mapGroupPartner);
     })
-    .catch((err) => notifyError(err))
+    .catch((error) => {
+      notifyError(error);
+      navigate(PAGES.GROUPS);
+    })
     .finally(() => (isLoading.value = false));
 };
 
