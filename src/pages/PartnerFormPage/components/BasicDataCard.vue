@@ -87,6 +87,7 @@ import { onMounted, ref } from 'vue';
 import type { GroupForm } from '../types/formData';
 import type { CompanyForm } from '../types/formData';
 import type { BasicDataForm } from '../types/formData';
+import type { GroupListing } from 'src/types/group';
 import { groupService } from 'src/services/groupService';
 import { includesNormalized } from 'src/utils/stringUtils';
 import { companyService } from 'src/services/companyService';
@@ -104,8 +105,8 @@ const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 const { notifyError } = useApiError();
 
-const fetchedGroups = ref<GroupForm[]>([]);
-const groupOptions = ref<GroupForm[]>([]);
+const fetchedGroups = ref<GroupListing[]>([]);
+const groupOptions = ref<GroupListing[]>([]);
 
 const fetchedCompanies = ref<CompanyForm[]>([]);
 const companyOptions = ref<CompanyForm[]>([]);
@@ -182,10 +183,15 @@ const onCompanyInputChange = (val: string) => {
 };
 
 const loadInitialData = () => {
-  Promise.all([groupService.getGroups(), companyService.getCompanies()])
+  Promise.all([
+    groupService.listGroups({
+      page: 1,
+      size: 100,
+  }),
+  companyService.getCompanies()])
     .then(([groupData, companyData]) => {
-      fetchedGroups.value = groupData;
-      groupOptions.value = groupData;
+      fetchedGroups.value = groupData.content;
+      groupOptions.value = groupData.content;
 
       fetchedCompanies.value = companyData;
       companyOptions.value = companyData;
