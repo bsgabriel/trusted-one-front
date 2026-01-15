@@ -186,7 +186,7 @@ const loadCompanyData = (companyId: number) => {
 
   isLoading.value = true;
   companyService
-    .fetchCompanyById(companyId)
+    .fetchCompany(companyId)
     .then((result) => {
       form.value.companyId = companyId;
       form.value.name = result.name;
