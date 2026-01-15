@@ -193,7 +193,7 @@ const loadGroupData = (groupId: number) => {
 
   isLoading.value = true;
   groupService
-    .fetchGroupById(groupId)
+    .fetchGroup(groupId)
     .then((result) => {
       form.value.groupId = groupId;
       form.value.name = result.name;
