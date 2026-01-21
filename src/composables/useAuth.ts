@@ -4,6 +4,7 @@ import type { AccountCreationDto, UserDto } from 'src/types/user';
 import { useNotification } from './useNotification';
 import { PAGES } from 'src/constants/pages';
 import { useAppRouter } from '../composables/useAppRouter';
+import { useApiError } from 'src/composables/useApiError';
 
 const currentUser = ref<UserDto | null>(null);
 const isLoading = ref(false);
@@ -12,7 +13,8 @@ const isInitialized = ref(false);
 export function useAuth() {
   const { showError } = useNotification();
   const { navigate } = useAppRouter();
-
+  const { notifyError } = useApiError();
+  
   const isAuthenticated = computed(() => !!currentUser.value);
 
   const checkAuth = async (): Promise<boolean> => {
@@ -40,8 +42,8 @@ export function useAuth() {
     try {
       await userService.createAccount(userData);
       return await login(userData.email, userData.password);
-    } catch {
-      showError('Erro ao registrar usuário');
+    } catch (error) {
+      notifyError(error);
       return { success: false };
     } finally {
       isLoading.value = false;
@@ -55,8 +57,8 @@ export function useAuth() {
       await userService.login({ email, password });
       currentUser.value = await userService.getProfile();
       return { success: true };
-    } catch {
-      showError('Erro ao fazer login. Verifique suas credenciais.');
+    } catch (error) {
+      notifyError(error);
       return { success: false };
     } finally {
       isLoading.value = false;

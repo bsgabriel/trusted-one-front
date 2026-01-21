@@ -10,8 +10,12 @@ class ApiService {
 
   private handleError(error: unknown): never {
     if (this.isAxiosError(error)) {
-      if (error.response?.status === 401) {
-        throw error;
+      if (error.response?.status === 401 && !error.response?.data) {
+        throw new ApiError({
+          title: 'Erro de autenticação',
+          status: error.response.status,
+          detail: 'Necessário autenticação para acessar este recurso.',
+        });
       }
 
       if (error.response?.data) {
@@ -28,7 +32,6 @@ class ApiService {
         });
       }
 
-      console.log('objeto error', error)
       if (error.request) {
         throw new ApiError({
           title: 'Erro de Conexão',

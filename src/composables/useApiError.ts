@@ -7,10 +7,6 @@ export function useApiError() {
   const notifyError = (error: unknown, defaultMessage?: string) => {
     const problem = (error as ApiError).problem;
 
-    if (problem.status === 401) {
-      return;
-    }
-
     showError(problem.title || defaultMessage || 'Ocorreu um erro', problem.detail);
 
     if (problem.errors && problem.errors.length > 0) {
