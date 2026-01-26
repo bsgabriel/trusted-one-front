@@ -11,10 +11,11 @@ class ApiService {
   private handleError(error: unknown): never {
     if (this.isAxiosError(error)) {
       if (error.response?.status === 401 && !error.response?.data) {
+        console.log('error', error)
         throw new ApiError({
           title: 'Erro de autenticação',
           status: error.response.status,
-          detail: 'Necessário autenticação para acessar este recurso.',
+          detail: 'Sua sessão expirou. Por favor, faça login novamente.',
         });
       }
 

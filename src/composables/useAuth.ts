@@ -1,7 +1,6 @@
 import { ref, computed, readonly } from 'vue';
 import { userService } from '../services/userService';
 import type { AccountCreationDto, UserDto } from 'src/types/user';
-import { useNotification } from './useNotification';
 import { PAGES } from 'src/constants/pages';
 import { useAppRouter } from '../composables/useAppRouter';
 import { useApiError } from 'src/composables/useApiError';
@@ -11,7 +10,6 @@ const isLoading = ref(false);
 const isInitialized = ref(false);
 
 export function useAuth() {
-  const { showError } = useNotification();
   const { navigate } = useAppRouter();
   const { notifyError } = useApiError();
   
@@ -86,7 +84,6 @@ export function useAuth() {
 
     currentUser.value = null;
     isInitialized.value = false;
-    showError('Sua sessão expirou. Por favor, faça login novamente.');
     navigate(PAGES.LOGIN);
   };
 
