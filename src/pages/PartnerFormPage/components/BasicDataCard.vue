@@ -87,10 +87,11 @@ import { onMounted, ref } from 'vue';
 import type { GroupForm } from '../types/formData';
 import type { CompanyForm } from '../types/formData';
 import type { BasicDataForm } from '../types/formData';
+import type { GroupListing } from 'src/types/group';
 import { groupService } from 'src/services/groupService';
 import { includesNormalized } from 'src/utils/stringUtils';
 import { companyService } from 'src/services/companyService';
-import { useQuasar } from 'quasar';
+import { useApiError } from 'src/composables/useApiError';
 
 interface Props {
   modelValue: BasicDataForm;
@@ -102,10 +103,10 @@ interface Emits {
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
-const $q = useQuasar();
+const { notifyError } = useApiError();
 
-const fetchedGroups = ref<GroupForm[]>([]);
-const groupOptions = ref<GroupForm[]>([]);
+const fetchedGroups = ref<GroupListing[]>([]);
+const groupOptions = ref<GroupListing[]>([]);
 
 const fetchedCompanies = ref<CompanyForm[]>([]);
 const companyOptions = ref<CompanyForm[]>([]);
@@ -151,14 +152,14 @@ const createNewGroup = (
   val: string,
   done: (item: GroupForm, mode?: 'add' | 'add-unique' | 'toggle') => void,
 ) => {
-  done({ groupId: null, name: val, isNew: true }, 'add-unique');
+  done({ name: val, isNew: true }, 'add-unique');
 };
 
 const createNewCompany = (
   val: string,
   done: (item: CompanyForm, mode?: 'add' | 'add-unique' | 'toggle') => void,
 ) => {
-  done({ companyId: null, name: val, isNew: true }, 'add-unique');
+  done({ name: val, isNew: true }, 'add-unique');
 };
 
 const onGroupInputChange = (val: string) => {
@@ -181,42 +182,28 @@ const onCompanyInputChange = (val: string) => {
   }
 };
 
-onMounted(async () => {
-  try {
-    const [groupData, companyData] = await Promise.all([
-      groupService.getGroups(),
-      companyService.getCompanies(),
-    ]);
+const loadInitialData = () => {
+  Promise.all([
+    groupService.listGroups({
+      page: 1,
+      size: 100,
+    }),
+    companyService.listCompanies({
+      page: 1,
+      size: 100,
+    }),
+  ])
+    .then(([groupData, companyData]) => {
+      fetchedGroups.value = groupData.content;
+      groupOptions.value = groupData.content;
 
-    if (groupData.success) {
-      fetchedGroups.value = groupData.data;
-      groupOptions.value = groupData.data;
-    } else {
-      $q.notify({
-        type: 'negative',
-        message: 'Erro ao carregar grupos',
-        caption: groupData.message || 'Tente novamente mais tarde',
-      });
-    }
+      fetchedCompanies.value = companyData.content;
+      companyOptions.value = companyData.content;
+    })
+    .catch(notifyError);
+};
 
-    if (companyData.success) {
-      fetchedCompanies.value = companyData.data;
-      companyOptions.value = companyData.data;
-    } else {
-      $q.notify({
-        type: 'negative',
-        message: 'Erro ao carregar empresas',
-        caption: companyData.message || 'Tente novamente mais tarde',
-      });
-    }
-  } catch (error) {
-    console.error('Erro ao carregar dados:', error);
-    $q.notify({
-      type: 'negative',
-      message: 'Erro ao carregar dados',
-      caption: 'Verifique sua conexão e tente novamente',
-      timeout: 3000,
-    });
-  }
+onMounted(() => {
+  loadInitialData();
 });
 </script>

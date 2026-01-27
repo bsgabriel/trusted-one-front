@@ -93,7 +93,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { useQuasar } from 'quasar';
 import BasicDataCard from './components/BasicDataCard.vue';
 import ContactMethodsCard from './components/ContactMethodsCard.vue';
 import ExpertisesCard from './components/ExpertisesCard.vue';
@@ -109,12 +108,20 @@ import type {
 } from './types/formData';
 import type { BusinessProfile, GainsProfile, Partner } from 'src/types/partner';
 import type { ContactMethod } from 'src/types/contactMethod';
-import type { Expertise } from 'src/types/expertise';
+import type { AssignedExpertise } from 'src/types/expertise';
 import { partnerService } from 'src/services/partnerService';
+import { useApiError } from 'src/composables/useApiError';
+import { useNotification } from 'src/composables/useNotification';
+import { useDialog } from 'src/composables/useDialog';
+import { useAppRouter } from 'src/composables/useAppRouter';
+import { PAGES } from 'src/constants/pages';
 
+const { notifyError } = useApiError();
 const router = useRouter();
 const route = useRoute();
-const $q = useQuasar();
+const { showSuccess } = useNotification();
+const { showConfirm } = useDialog();
+const { navigate } = useAppRouter();
 
 const isEditing = computed(() => !!route.params.id);
 const isSubmitting = ref(false);
@@ -179,7 +186,7 @@ const formToPartner = (formData: PartnerForm): Partner => {
     };
   };
 
-  const mapExpertises = (form: ExpertiseForm): Expertise | undefined => {
+  const mapExpertises = (form: ExpertiseForm): AssignedExpertise | undefined => {
     if (!form.expertise) {
       return undefined;
     }
@@ -204,8 +211,8 @@ const formToPartner = (formData: PartnerForm): Partner => {
   return {
     partnerId: formData.partnerId,
     name: formData.basicData.name,
-    company: formData.basicData.company?.name ? formData.basicData.company : undefined,
-    group: formData.basicData.group?.name ? formData.basicData.group : undefined,
+    company: formData.basicData.company?.name ? {...formData.basicData.company, partners: []} : undefined,
+    group: formData.basicData.group?.name ? {...formData.basicData.group, partners: []} : undefined,
     contactMethods: formData.contactMethods.map(mapContactMethod),
     gainsProfile: formData.gainsProfile.map(mapGainsProfile),
     businessProfile: formData.businessProfile.map(mapBusinessProfile),
@@ -213,75 +220,55 @@ const formToPartner = (formData: PartnerForm): Partner => {
   };
 };
 
-const createParnter = async () => {
+const createParnter = () => {
   const partner = formToPartner(form.value);
-  await partnerService.createPartner(partner).then((result) => {
-    if (!result.success) {
-      console.log('erro', result);
-    } else {
-      $q.notify({
-        message: 'Parceiro cadastrado com sucesso!',
-        color: 'positive',
-        icon: 'check',
-      });
-    }
-  });
+  isSubmitting.value = true;
+
+  partnerService
+    .createPartner(partner)
+    .then(() => {
+      showSuccess('Parceiro criado com sucesso!');
+      navigate(PAGES.PARTNERS);
+    })
+    .catch(notifyError)
+    .finally(() => (isSubmitting.value = false));
 };
 
-const updatePartner = async () => {
+const updatePartner = () => {
   const partner = formToPartner(form.value);
-  await partnerService.updatePartner(partner).then((result) => {
-    if (!result.success) {
-      console.log('erro', result);
-    } else {
-      $q.notify({
-        message: 'Parceiro atualizado com sucesso!',
-        color: 'positive',
-        icon: 'check',
-      });
-    }
-  });
+  isSubmitting.value = true;
+
+  partnerService
+    .updatePartner(partner)
+    .then(() => {
+      showSuccess('Parceiro atualizado com sucesso!');
+      navigate(PAGES.PARTNERS);
+    })
+    .catch(notifyError)
+    .finally(() => (isSubmitting.value = false));
 };
 
-const deletePartner = async () => {
+const deletePartner = () => {
   if (!form.value.partnerId) {
     return;
   }
 
-  await partnerService.deletePartner(form.value.partnerId).then((result) => {
-    if (!result.success) {
-      console.log('erro', result);
-    } else {
-      $q.notify({
-        message: 'Parceiro excluído com sucesso!',
-        color: 'positive',
-        icon: 'check',
-      });
-
-      void router.push('/parceiros');
-    }
+  showConfirm('Deseja remover esse contato?', 'Excluir Parceiro').onOk(() => {
+    partnerService
+      .deletePartner(form.value.partnerId!)
+      .then(() => {
+        showSuccess('Parceiro excluído com sucesso!');
+        navigate(PAGES.PARTNERS);
+      })
+      .catch(notifyError);
   });
 };
 
-const onSubmit = async () => {
-  isSubmitting.value = true;
-
-  try {
-    if (isEditing.value) {
-      await updatePartner();
-    } else {
-      await createParnter();
-    }
-    void router.push('/parceiros');
-  } catch (error) {
-    console.log(error);
-    $q.notify({
-      message: 'Erro ao salvar parceiro',
-      color: 'negative',
-      icon: 'error',
-    });
-  } finally {
-    isSubmitting.value = false;
+const onSubmit = () => {
+  if (isEditing.value) {
+    updatePartner();
+  } else {
+    createParnter();
   }
 };
 
@@ -289,8 +276,18 @@ const onCancel = () => {
   router.back();
 };
 
+const loadPartnerData = (partnerId: number) => {
+  partnerService
+    .getPartnerById(partnerId)
+    .then(loadFormData)
+    .catch((error) => {
+      notifyError(error);
+      navigate(PAGES.PARTNERS);
+    });
+};
+
 const loadFormData = (partner: Partner) => {
-  const toFormExpertise = (expertise: Expertise): ExpertiseForm => {
+  const toFormExpertise = (expertise: AssignedExpertise): ExpertiseForm => {
     return {
       expertise: {
         expertiseId: expertise.parentExpertiseId || expertise.expertiseId,
@@ -337,26 +334,18 @@ const loadFormData = (partner: Partner) => {
   form.value.basicData.company = partner.company;
   form.value.basicData.group = partner.group;
   form.value.contactMethods = partner.contactMethods.map(mapContactMethod);
-  form.value.expertises = partner.expertises.map(toFormExpertise);
+  form.value.expertises =
+    partner.expertises.length > 0
+      ? partner.expertises.map(toFormExpertise)
+      : [{ availableForReferral: false }];
   form.value.gainsProfile = partner.gainsProfile.map(mapGainsPRofile);
   form.value.businessProfile = partner.businessProfile.map(mapBusinessProfile);
 };
+
 onMounted(() => {
   if (isEditing.value) {
     const partnerId = Number(route.params.id);
-    void partnerService.getPartnerById(partnerId).then((result) => {
-      if (result.success && result.data) {
-        loadFormData(result.data);
-      } else {
-        console.log('erro', result);
-        $q.notify({
-          message: 'Parceiro não encontrado',
-          color: 'negative',
-          icon: 'error',
-        });
-        void router.push('/parceiros');
-      }
-    });
+    loadPartnerData(partnerId);
   }
 });
 </script>

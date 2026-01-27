@@ -1,6 +1,5 @@
 import { apiService } from './apiUtils';
 import type { AccountCreationDto, UserDto } from '../types/user';
-import type { ApiResult } from '../types/api';
 
 interface LoginRequest {
   email: string;
@@ -8,19 +7,19 @@ interface LoginRequest {
 }
 
 export class UserService {
-  async login(credentials: LoginRequest): Promise<ApiResult<void>> {
+  async login(credentials: LoginRequest): Promise<void> {
     return apiService.post<void, LoginRequest>('/user/login', credentials);
   }
 
-  async getProfile(): Promise<ApiResult<UserDto>> {
+  async getProfile(): Promise<UserDto> {
     return apiService.get<UserDto>('/user/me');
   }
 
-  async createAccount(userData: AccountCreationDto): Promise<ApiResult<UserDto>> {
-    return apiService.post<UserDto, AccountCreationDto>('/user/register', userData);
+  async createAccount(userData: AccountCreationDto): Promise<void> {
+    return apiService.post<void, AccountCreationDto>('/user/register', userData);
   }
 
-  async logout(): Promise<ApiResult<void>> {
+  async logout(): Promise<void> {
     return apiService.get<void>('/user/logout');
   }
 }

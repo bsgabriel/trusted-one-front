@@ -13,14 +13,17 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed } from 'vue';
+import { onMounted, computed, onUnmounted } from 'vue';
 import { useAuth } from './composables/useAuth';
 
-const { checkAuth, isInitialized } = useAuth();
-
+const { isInitialized, handleSessionExpired } = useAuth();
 const showInitLoading = computed(() => !isInitialized.value);
 
-onMounted(async () => {
-  await checkAuth();
+onMounted(() => {
+  window.addEventListener('session-expired', handleSessionExpired);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('session-expired', handleSessionExpired);
 });
 </script>

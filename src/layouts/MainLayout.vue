@@ -30,14 +30,14 @@
           <q-item
             clickable
             v-ripple
-            @click="navigateToPage(menu.route)"
-            :active="isMenuActive(menu.route)"
+            @click="navigateToPage(menu)"
+            :active="isMenuActive(menu.path)"
             active-class="menu-item-active"
           >
             <q-item-section avatar>
               <q-icon :name="menu.icon" />
             </q-item-section>
-            <q-item-section>{{ menu.description }}</q-item-section>
+            <q-item-section>{{ menu.title }}</q-item-section>
           </q-item>
         </q-list>
       </div>
@@ -66,15 +66,27 @@
 </template>
 
 <script setup lang="ts">
+import type { Page } from 'src/types/page';
 import { ref } from 'vue';
 import { useAuth } from '../composables/useAuth';
-import { menuOptions } from '../types/menuOptions';
-import { useRouter, useRoute } from 'vue-router';
+import { useRoute } from 'vue-router';
+import { PAGES } from 'src/constants/pages';
+import { useAppRouter } from '../composables/useAppRouter';
 
 const { currentUser, logout, isLoading } = useAuth();
 const leftDrawerOpen = ref(false);
-const router = useRouter();
 const $route = useRoute();
+const { navigate } = useAppRouter();
+
+const menuOptions: Page[] = [
+  PAGES.DASHBOARD,
+  PAGES.REFERRAL,
+  PAGES.REFERRAL_HISTORY,
+  PAGES.PARTNERS,
+  PAGES.GROUPS,
+  PAGES.COMPANIES,
+  PAGES.EXPERTISES,
+];
 
 const toggleLeftDrawer = () => {
   leftDrawerOpen.value = !leftDrawerOpen.value;
@@ -82,11 +94,11 @@ const toggleLeftDrawer = () => {
 
 const handleLogout = async () => {
   await logout();
-  void router.push('/login');
+  navigate(PAGES.LOGIN);
 };
 
-const navigateToPage = (route: string) => {
-  void router.push(route);
+const navigateToPage = (page: Page) => {
+  navigate(page);
   if (window.innerWidth < 1024) {
     leftDrawerOpen.value = false;
   }

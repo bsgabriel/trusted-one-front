@@ -1,29 +1,33 @@
 import { ref, computed, readonly } from 'vue';
 import { userService } from '../services/userService';
 import type { AccountCreationDto, UserDto } from 'src/types/user';
+import { PAGES } from 'src/constants/pages';
+import { useAppRouter } from '../composables/useAppRouter';
+import { useApiError } from 'src/composables/useApiError';
 
 const currentUser = ref<UserDto | null>(null);
 const isLoading = ref(false);
 const isInitialized = ref(false);
 
 export function useAuth() {
+  const { navigate } = useAppRouter();
+  const { notifyError } = useApiError();
+  
   const isAuthenticated = computed(() => !!currentUser.value);
 
-  const checkAuth = async (): Promise<void> => {
-    if (isInitialized.value) return;
+  const checkAuth = async (): Promise<boolean> => {
+    if (isInitialized.value) {
+      return isAuthenticated.value;
+    }
+
+    isLoading.value = true;
 
     try {
-      isLoading.value = true;
-      const result = await userService.getProfile();
-
-      if (result.success) {
-        currentUser.value = result.data;
-      } else {
-        currentUser.value = null;
-      }
-    } catch (error) {
-      console.error('Erro ao verificar autenticação:', error);
+      currentUser.value = await userService.getProfile();
+      return true;
+    } catch {
       currentUser.value = null;
+      return false;
     } finally {
       isLoading.value = false;
       isInitialized.value = true;
@@ -34,16 +38,11 @@ export function useAuth() {
     isLoading.value = true;
 
     try {
-      const result = await userService.createAccount(userData);
-
-      if (result.success) {
-        return await login(userData.email, userData.password);
-      }
-
-      return {
-        success: false,
-        message: result.message,
-      };
+      await userService.createAccount(userData);
+      return await login(userData.email, userData.password);
+    } catch (error) {
+      notifyError(error);
+      return { success: false };
     } finally {
       isLoading.value = false;
     }
@@ -53,25 +52,12 @@ export function useAuth() {
     isLoading.value = true;
 
     try {
-      const loginResult = await userService.login({ email, password });
-      if (!loginResult.success) {
-        return {
-          success: false,
-          message: loginResult.message,
-        };
-      }
-
-      const profileResult = await userService.getProfile();
-
-      if (profileResult.success) {
-        currentUser.value = profileResult.data;
-        return { success: true, message: '' };
-      } else {
-        return {
-          success: false,
-          message: 'Login realizado, mas erro ao carregar dados do usuário',
-        };
-      }
+      await userService.login({ email, password });
+      currentUser.value = await userService.getProfile();
+      return { success: true };
+    } catch (error) {
+      notifyError(error);
+      return { success: false };
     } finally {
       isLoading.value = false;
     }
@@ -87,13 +73,18 @@ export function useAuth() {
     } finally {
       currentUser.value = null;
       isLoading.value = false;
+      navigate(PAGES.LOGIN);
     }
   };
 
-  const initAuth = async (): Promise<void> => {
-    if (!isInitialized.value) {
-      await checkAuth();
+  const handleSessionExpired = (): void => {
+    if (!isAuthenticated.value) {
+      return;
     }
+
+    currentUser.value = null;
+    isInitialized.value = false;
+    navigate(PAGES.LOGIN);
   };
 
   return {
@@ -105,13 +96,6 @@ export function useAuth() {
     login,
     logout,
     register,
-    initAuth,
+    handleSessionExpired,
   };
 }
-
-// Para uso em eventos globais (como session-expired)
-export const authService = {
-  logout: () => {
-    currentUser.value = null;
-  },
-};

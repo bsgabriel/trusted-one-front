@@ -1,6 +1,5 @@
 <template>
   <PaginatedList
-    v-model:search-query="searchQuery"
     v-model:page-size="pageSize"
     v-model:current-page="currentPage"
     :items="partners"
@@ -9,22 +8,37 @@
     :total-pages="totalPages"
     :total-elements="totalElements"
     title="Lista de Parceiros"
-    search-placeholder="Buscar parceiros..."
     loading-text="Carregando parceiros..."
     error-title="Erro ao carregar parceiros"
     empty-icon="person_add"
     empty-text="Nenhum parceiro cadastrado"
     empty-hint="Clique em 'Novo Parceiro' para começar"
-    empty-search-text="Nenhum parceiro encontrado"
-    empty-search-hint="Tente buscar com outros termos"
     item-key="partnerId"
     entity-name="parceiro"
-    @update:search-query="onSearchChange"
     @update:page-size="onPageSizeChange"
     @update:current-page="onPageChange"
-    @clear-search="clearSearch"
     @retry="fetchPartners"
   >
+    <template #filters>
+      <!-- Busca -->
+      <div class="col-12">
+        <q-input
+          v-model="searchQuery"
+          outlined
+          dense
+          placeholder="Buscar parceiros..."
+          clearable
+          @update:model-value="onSearchChange"
+          @clear="clearSearch"
+        >
+          <template #prepend>
+            <q-icon name="search" />
+          </template>
+        </q-input>
+      </div>
+    </template>
+
+    <!-- Item do parceiro -->
     <template #item="{ item }">
       <q-item clickable v-ripple @click="goToPartnerDetails(item.partnerId)" class="q-py-md">
         <q-item-section avatar>
@@ -90,12 +104,14 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
 import { partnerService } from 'src/services/partnerService';
 import type { PartnerListing } from 'src/types/partner';
 import PaginatedList from 'src/components/PaginatedList.vue';
+import { useApiError } from 'src/composables/useApiError';
+import { useAppRouter } from 'src/composables/useAppRouter';
+import { PAGES } from 'src/constants/pages';
 
-const router = useRouter();
+const { navigate } = useAppRouter();
 const partners = ref<PartnerListing[]>([]);
 const isLoading = ref(false);
 const error = ref<string | null>(null);
@@ -104,6 +120,8 @@ const pageSize = ref(20);
 const totalPages = ref(0);
 const totalElements = ref(0);
 const searchQuery = ref('');
+const { notifyError } = useApiError();
+
 let searchDebounceTimer: NodeJS.Timeout | null = null;
 
 const fetchPartners = () => {
@@ -118,27 +136,18 @@ const fetchPartners = () => {
       search: searchQuery.value || undefined,
     })
     .then((result) => {
-      if (result.success) {
-        partners.value = result.data.content;
-        totalPages.value = result.data.totalPages;
-        totalElements.value = result.data.totalElements;
-      } else {
-        error.value = result.message || 'Erro ao carregar parceiros';
-        partners.value = [];
-        totalPages.value = 0;
-        totalElements.value = 0;
-      }
+      partners.value = result.content;
+      totalPages.value = result.totalPages;
+      totalElements.value = result.totalElements;
     })
     .catch((err) => {
-      error.value = 'Erro ao conectar com o servidor';
+      error.value = 'Erro ao carregar parceiros';
       partners.value = [];
       totalPages.value = 0;
       totalElements.value = 0;
-      console.error('Erro ao buscar parceiros:', err);
+      notifyError(err);
     })
-    .finally(() => {
-      isLoading.value = false;
-    });
+    .finally(() => (isLoading.value = false));
 };
 
 const onPageChange = (page: number) => {
@@ -187,7 +196,7 @@ const hasReferrals = (partner: PartnerListing): boolean => {
 };
 
 const goToPartnerDetails = (partnerId: number) => {
-  void router.push(`/parceiros/${partnerId}`);
+  navigate(PAGES.EDIT_PARTNER, { id: partnerId });
 };
 
 onMounted(() => {

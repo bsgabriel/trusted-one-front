@@ -2,13 +2,13 @@ import type { ContactMethodType } from 'src/types/contactMethod';
 import type { BusinessProfileCategory, GainsCategory } from 'src/types/partner';
 
 export interface GroupForm {
-  groupId: number | null;
+  groupId?: number;
   name: string;
   isNew?: boolean;
 }
 
 export interface CompanyForm {
-  companyId: number | null;
+  companyId?: number;
   name: string;
   isNew?: boolean;
 }

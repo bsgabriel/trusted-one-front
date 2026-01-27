@@ -1,0 +1,103 @@
+export const PAGES = {
+  DASHBOARD: {
+    path: '/',
+    id: 'dashboard',
+    icon: 'dashboard',
+    title: 'Indicadores',
+  },
+  REFERRAL: {
+    path: '/indicar',
+    id: 'referral',
+    icon: 'handshake',
+    title: 'Indicar Parceiro',
+  },
+  REFERRAL_HISTORY: {
+    path: '/historico',
+    id: 'referral-history',
+    icon: 'history',
+    title: 'Histórico de Indicações',
+  },
+  PARTNERS: {
+    path: '/parceiros',
+    id: 'partners',
+    title: 'Parceiros',
+    icon: 'people',
+  },
+  CREATE_PARTNER: {
+    path: '/parceiros/novo',
+    id: 'create-partner',
+    title: 'Novo Parceiro',
+    icon: 'people',
+  },
+  EDIT_PARTNER: {
+    path: '/parceiros/:id',
+    id: 'edit-partner',
+    title: 'Editar Parceiro',
+    icon: 'people',
+  },
+  GROUPS: {
+    path: '/grupos',
+    id: 'groups',
+    title: 'Grupos',
+    icon: 'groups',
+  },
+  CREATE_GROUP: {
+    path: '/grupos/novo',
+    id: 'create-group',
+    title: 'Novo Grupo',
+    icon: 'groups',
+  },
+  EDIT_GROUP: {
+    path: '/grupos/:id',
+    id: 'edit-group',
+    title: 'Editar Grupo',
+    icon: 'groups',
+  },
+  COMPANIES: {
+    path: '/empresas',
+    id: 'companies',
+    title: 'Empresas',
+    icon: 'domain',
+  },
+  CREATE_COMPANY: {
+    path: '/empresas/nova',
+    id: 'create-company',
+    title: 'Nova Empresa',
+    icon: 'domain',
+  },
+  EDIT_COMPANY: {
+    path: '/empresas/:id',
+    id: 'edit-company',
+    title: 'Editar Empresa',
+    icon: 'domain',
+  },
+  EXPERTISES: {
+    path: '/areas-atuacao',
+    id: 'expertises',
+    title: 'Áreas de Atuação',
+    icon: 'work',
+  },
+  CREATE_EXPERTISE: {
+    path: '/areas-atuacao/nova',
+    id: 'create-expertise',
+    title: 'Nova Área de Atuação',
+    icon: 'work',
+  },
+  EDIT_EXPERTISE: {
+    path: '/areas-atuacao/:id',
+    id: 'edit-expertise',
+    title: 'Editar Área de Atuação',
+    icon: 'work',
+  },
+  EDIT_SPECIALIZATION: {
+    path: '/areas-atuacao/:expertiseId/especializacao/:specializationId',
+    id: 'edit-specialization',
+    title: 'Editar Especialização',
+    icon: 'work',
+  },
+  LOGIN: {
+    path: '/login',
+    id: 'login',
+    title: 'Login',
+  },
+} as const;
