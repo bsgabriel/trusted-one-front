@@ -18,7 +18,7 @@
           color="primary"
           icon="add"
           :label="$q.screen.gt.xs ? 'Novo Grupo' : ''"
-          @click="showAddGrupo"
+          @click="showAddGroup"
           unelevated
           :round="$q.screen.xs"
         >
@@ -34,13 +34,14 @@
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
 import GroupList from './components/GroupList.vue';
-import { useRouter } from 'vue-router';
+import { useAppRouter } from 'src/composables/useAppRouter';
+import { PAGES } from 'src/constants/pages';
 
 const $q = useQuasar();
-const router = useRouter();
+const { navigate } = useAppRouter();
 
-const showAddGrupo = () => {
-  void router.push(`/grupos/novo`);
+const showAddGroup = () => {
+  navigate(PAGES.CREATE_GROUP);
 };
 </script>
 

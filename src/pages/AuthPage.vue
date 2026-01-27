@@ -18,15 +18,16 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
 import { useAuth } from '../composables/useAuth';
-import { useRouter } from 'vue-router';
 import AuthForm from '../components/AuthForm.vue';
+import { PAGES } from 'src/constants/pages';
+import { useAppRouter } from '../composables/useAppRouter';
 
 const { isAuthenticated } = useAuth();
-const router = useRouter();
+const { navigate } = useAppRouter();
 
 onMounted(() => {
   if (isAuthenticated.value) {
-    void router.push('/');
+    navigate(PAGES.DASHBOARD);
   }
 });
 </script>

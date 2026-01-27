@@ -151,15 +151,17 @@ import type { GroupFormRequest, GroupPartner } from 'src/types/group';
 import type { GroupForm, GroupPartnerForm } from './types/formData';
 import type { PartnerListing } from 'src/types/partner';
 import { ref, onMounted, computed } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { useQuasar } from 'quasar';
 import { groupService } from 'src/services/groupService';
 import { useApiError } from 'src/composables/useApiError';
 import { useDialog } from 'src/composables/useDialog';
 import { useNotification } from 'src/composables/useNotification';
 import PartnerSelectionDialog from './components/PartnerSelectionDialog.vue';
+import { PAGES } from 'src/constants/pages';
+import { useAppRouter } from 'src/composables/useAppRouter';
 
-const router = useRouter();
+const { navigate, router } = useAppRouter();
 const route = useRoute();
 const $q = useQuasar();
 const isEditing = computed(() => !!route.params.id);
@@ -191,14 +193,17 @@ const loadGroupData = (groupId: number) => {
 
   isLoading.value = true;
   groupService
-    .fetchGroupById(groupId)
+    .fetchGroup(groupId)
     .then((result) => {
       form.value.groupId = groupId;
       form.value.name = result.name;
       form.value.description = result.description;
       form.value.partners = result.partners.map(mapGroupPartner);
     })
-    .catch((err) => notifyError(err))
+    .catch((error) => {
+      notifyError(error);
+      navigate(PAGES.GROUPS);
+    })
     .finally(() => (isLoading.value = false));
 };
 
@@ -236,7 +241,7 @@ const removePartners = () => {
 };
 
 const goToPartnerDetails = (partnerId: number) => {
-  void router.push(`/parceiros/${partnerId}`);
+  navigate(PAGES.EDIT_PARTNER, { id: partnerId });
 };
 
 const onDialogPartnersSelected = (partners: PartnerListing[]) => {
@@ -272,7 +277,7 @@ const updateGroup = () => {
     .updateGroup(createGroupFormRequest(form.value))
     .then(() => {
       showSuccess('Grupo atualizado com sucesso');
-      void router.push('/grupos');
+      navigate(PAGES.GROUPS);
     })
     .catch((err) => notifyError(err))
     .finally(() => (isLoading.value = false));
@@ -284,7 +289,7 @@ const createGroup = () => {
     .createGroup(createGroupFormRequest(form.value))
     .then(() => {
       showSuccess('Grupo criado com sucesso');
-      void router.push('/grupos');
+      navigate(PAGES.GROUPS);
     })
     .catch((err) => notifyError(err))
     .finally(() => (isLoading.value = false));
@@ -302,7 +307,7 @@ const deleteGroup = () => {
       .deleteGroup(form.value.groupId!)
       .then(() => {
         showSuccess('Grupo excluído com sucesso');
-        void router.push('/grupos');
+        navigate(PAGES.GROUPS);
       })
       .catch((err) => {
         notifyError(err);

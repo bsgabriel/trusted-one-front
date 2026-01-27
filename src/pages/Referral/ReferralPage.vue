@@ -96,15 +96,16 @@ import type { ReferralCreateParams } from 'src/types/referral';
 import { computed, ref } from 'vue';
 import { partnerService } from 'src/services/partnerService';
 import { referralService } from 'src/services/referralService';
-import { useRouter } from 'vue-router';
 import { useApiError } from 'src/composables/useApiError';
 import { useNotification } from 'src/composables/useNotification';
+import { useAppRouter } from 'src/composables/useAppRouter';
+import { PAGES } from 'src/constants/pages';
 
 const form = ref<FormData>({});
 const partnerOptions = ref<PartnerListing[]>([]);
 const isLoading = ref<boolean>(false);
 const expertises = ref<AssignedExpertise[]>([]);
-const router = useRouter();
+const { navigate } = useAppRouter();
 const { notifyError } = useApiError();
 const { showSuccess } = useNotification();
 
@@ -170,7 +171,7 @@ const onSubmit = () => {
     .createReferral(params)
     .then(() => {
       showSuccess('Indicação realizada com sucesso!');
-      void router.push('/historico');
+      navigate(PAGES.REFERRAL_HISTORY);
     })
     .catch(notifyError);
 };

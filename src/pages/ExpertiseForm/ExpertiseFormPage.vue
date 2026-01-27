@@ -158,7 +158,7 @@
 import type { ExpertiseFormRequest, SpecializationListing } from 'src/types/expertise';
 import type { ExpertiseForm, SpecializationListItem } from './types/formData';
 import { ref, onMounted, computed } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { useQuasar } from 'quasar';
 import { expertiseService } from 'src/services/expertiseService';
 import { useApiError } from 'src/composables/useApiError';
@@ -166,8 +166,10 @@ import { useDialog } from 'src/composables/useDialog';
 import { useNotification } from 'src/composables/useNotification';
 import SpecializationDialog from './components/SpecializationDialog.vue';
 import { compareNormalized } from 'src/utils/stringUtils';
+import { PAGES } from 'src/constants/pages';
+import { useAppRouter } from 'src/composables/useAppRouter';
 
-const router = useRouter();
+const { navigate , router} = useAppRouter();
 const route = useRoute();
 const $q = useQuasar();
 const isEditing = computed(() => !!route.params.id);
@@ -255,12 +257,11 @@ const removeSpecializations = () => {
 };
 
 const goToSpecializationDetails = (specializationId: number) => {
-  const navigate = (expertiseid: number, specializationId: number) => {
-    void router.push(`/especializacoes/${expertiseid}/subespecializacao/${specializationId}`);
-  };
-
   if (specializationId > 0) {
-    navigate(form.value.expertiseId!, specializationId);
+    navigate(PAGES.EDIT_SPECIALIZATION, {
+      expertiseId: form.value.expertiseId!,
+      specializationId,
+    });
     return;
   }
 
@@ -271,9 +272,15 @@ const goToSpecializationDetails = (specializationId: number) => {
       const temp = form.value.specializations.find((s) => s.expertiseId === specializationId);
       const spec = !temp ? undefined : response.specializations.find((s) => s.name === temp.name);
       if (!spec) {
-        navigate(form.value.expertiseId!, specializationId);
+        navigate(PAGES.EDIT_SPECIALIZATION, {
+          expertiseId: form.value.expertiseId!,
+          specializationId,
+        });
       } else {
-        navigate(response.expertiseId, spec.expertiseId);
+        navigate(PAGES.EDIT_SPECIALIZATION, {
+          expertiseId: form.value.expertiseId!,
+          specializationId: spec.expertiseId,
+        });
       }
     })
     .catch((err) => notifyError(err))
@@ -306,7 +313,7 @@ const updateExpertise = () => {
     .updateExpertise(form.value.expertiseId!, createExpertiseFormRequest(form.value))
     .then(() => {
       showSuccess('Área de atuação atualizada com sucesso');
-      void router.push('/especializacoes');
+      navigate(PAGES.EXPERTISES);
     })
     .catch((err) => notifyError(err))
     .finally(() => (isLoading.value = false));
@@ -318,7 +325,7 @@ const createExpertise = () => {
     .createExpertise(createExpertiseFormRequest(form.value))
     .then(() => {
       showSuccess('Expertise criada com sucesso');
-      void router.push('/especializacoes');
+      navigate(PAGES.EXPERTISES);
     })
     .catch((err) => notifyError(err))
     .finally(() => (isLoading.value = false));
@@ -336,7 +343,7 @@ const deleteExpertise = () => {
       .deleteExpertise(form.value.expertiseId!)
       .then(() => {
         showSuccess('Expertise excluída com sucesso');
-        void router.push('/especializacoes');
+        navigate(PAGES.EXPERTISES);
       })
       .catch((err) => {
         notifyError(err);

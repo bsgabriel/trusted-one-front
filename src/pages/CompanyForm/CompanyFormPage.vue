@@ -10,11 +10,7 @@
           class="text-grey-7 q-ma-none"
           :class="$q.screen.gt.sm ? 'text-subtitle1' : 'text-caption'"
         >
-          {{
-            isEditing
-              ? 'Atualize as informações da empresa'
-              : 'Cadastre uma nova empresa'
-          }}
+          {{ isEditing ? 'Atualize as informações da empresa' : 'Cadastre uma nova empresa' }}
         </p>
       </div>
     </div>
@@ -148,15 +144,16 @@ import type { CompanyFormRequest, CompanyPartner } from 'src/types/company';
 import type { CompanyForm, CompanyPartnerForm } from './types/formData';
 import type { PartnerListing } from 'src/types/partner';
 import { ref, onMounted, computed } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { useQuasar } from 'quasar';
 import { companyService } from 'src/services/companyService';
 import { useApiError } from 'src/composables/useApiError';
 import { useDialog } from 'src/composables/useDialog';
 import { useNotification } from 'src/composables/useNotification';
 import PartnerSelectionDialog from './components/PartnerSelectionDialog.vue';
+import { useAppRouter } from 'src/composables/useAppRouter';
+import { PAGES } from 'src/constants/pages';
 
-const router = useRouter();
 const route = useRoute();
 const $q = useQuasar();
 const isEditing = computed(() => !!route.params.id);
@@ -166,6 +163,7 @@ const showPartnerDialog = ref(false);
 const { notifyError } = useApiError();
 const { showConfirm } = useDialog();
 const { showSuccess } = useNotification();
+const { navigate, router } = useAppRouter();
 
 const form = ref<CompanyForm>({
   name: '',
@@ -188,13 +186,16 @@ const loadCompanyData = (companyId: number) => {
 
   isLoading.value = true;
   companyService
-    .fetchCompanyById(companyId)
+    .fetchCompany(companyId)
     .then((result) => {
       form.value.companyId = companyId;
       form.value.name = result.name;
       form.value.partners = result.partners.map(mapCompanyPartner);
     })
-    .catch((err) => notifyError(err))
+    .catch((error) => {
+      notifyError(error);
+      navigate(PAGES.COMPANIES);
+    })
     .finally(() => (isLoading.value = false));
 };
 
@@ -232,7 +233,7 @@ const removePartners = () => {
 };
 
 const goToPartnerDetails = (partnerId: number) => {
-  void router.push(`/parceiros/${partnerId}`);
+  navigate(PAGES.EDIT_PARTNER, { id: partnerId });
 };
 
 const onDialogPartnersSelected = (partners: PartnerListing[]) => {
@@ -267,7 +268,7 @@ const updateCompany = () => {
     .updateCompany(createCompanyFormRequest(form.value))
     .then(() => {
       showSuccess('Empresa atualizada com sucesso');
-      void router.push('/empresas');
+      navigate(PAGES.COMPANIES);
     })
     .catch((err) => notifyError(err))
     .finally(() => (isLoading.value = false));
@@ -279,7 +280,7 @@ const createCompany = () => {
     .createCompany(createCompanyFormRequest(form.value))
     .then(() => {
       showSuccess('Empresa criada com sucesso');
-      void router.push('/empresas');
+      navigate(PAGES.COMPANIES);
     })
     .catch((err) => notifyError(err))
     .finally(() => (isLoading.value = false));
@@ -297,7 +298,7 @@ const deleteCompany = () => {
       .deleteCompany(form.value.companyId!)
       .then(() => {
         showSuccess('Empresa excluída com sucesso');
-        void router.push('/empresas');
+        navigate(PAGES.COMPANIES);
       })
       .catch((err) => {
         notifyError(err);

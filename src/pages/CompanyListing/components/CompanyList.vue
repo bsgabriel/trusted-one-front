@@ -71,12 +71,13 @@
 <script setup lang="ts">
 import type { CompanyListing } from 'src/types/company';
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
 import PaginatedList from 'src/components/PaginatedList.vue';
 import { companyService } from 'src/services/companyService';
 import { useApiError } from 'src/composables/useApiError';
+import { PAGES } from 'src/constants/pages';
+import { useAppRouter } from 'src/composables/useAppRouter';
 
-const router = useRouter();
+const { navigate } = useAppRouter();
 const companies = ref<CompanyListing[]>([]);
 const isLoading = ref(false);
 const error = ref<string | null>(null);
@@ -144,7 +145,7 @@ const clearSearch = () => {
 };
 
 const goToCompanyDetails = (id: number) => {
-  void router.push(`/empresas/${id}`);
+  navigate(PAGES.EDIT_COMPANY, { id });
 };
 
 onMounted(() => {

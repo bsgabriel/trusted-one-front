@@ -93,7 +93,8 @@ import { ref, reactive, computed } from 'vue';
 import { useAuth } from '../composables/useAuth';
 import BaseInput from './BaseInput.vue';
 import BaseButton from './BaseButton.vue';
-import { useRouter } from 'vue-router';
+import { PAGES } from 'src/constants/pages';
+import { useAppRouter } from '../composables/useAppRouter';
 
 interface FormData {
   name: string;
@@ -108,7 +109,7 @@ const isLogin = ref(true);
 const showPassword = ref(false);
 const showConfirmPassword = ref(false);
 const errorMessage = ref('');
-const router = useRouter();
+const { navigate } = useAppRouter();
 
 const formData = reactive<FormData>({
   name: '',
@@ -165,7 +166,7 @@ const handleSubmit = async () => {
       password: formData.password,
     });
   }
-  void router.push('/');
+  navigate(PAGES.DASHBOARD);
 };
 </script>
 

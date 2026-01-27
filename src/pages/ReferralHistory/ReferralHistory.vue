@@ -8,7 +8,12 @@
         </h4>
       </div>
       <q-space />
-      <q-btn label="Nova Indicação" color="primary" icon="add" @click="router.push('/indicar')" />
+      <q-btn
+        label="Nova Indicação"
+        color="primary"
+        icon="add"
+        @click="navigate(PAGES.REFERRAL)"
+      />
     </div>
 
     <PaginatedList
@@ -229,14 +234,15 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
 import { referralService } from 'src/services/referralService';
 import type { Referral, ReferralStatus } from 'src/types/referral';
 import PaginatedList from 'src/components/PaginatedList.vue';
 import { useApiError } from 'src/composables/useApiError';
 import { useNotification } from 'src/composables/useNotification';
+import { useAppRouter } from 'src/composables/useAppRouter';
+import { PAGES } from 'src/constants/pages';
 
-const router = useRouter();
+const { navigate } = useAppRouter();
 const referrals = ref<Referral[]>([]);
 const isLoading = ref(false);
 const error = ref<string | null>(null);
