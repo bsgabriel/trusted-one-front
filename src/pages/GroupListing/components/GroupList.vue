@@ -10,7 +10,6 @@
     title="Lista de Grupos"
     loading-text="Carregando grupos..."
     error-title="Erro ao carregar grupos"
-    empty-icon="group_work"
     empty-text="Nenhum grupo cadastrado"
     empty-hint="Clique em 'Novo Grupo' para começar"
     item-key="id"

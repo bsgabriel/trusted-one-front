@@ -27,7 +27,6 @@
       title="Indicações"
       loading-text="Carregando indicações..."
       error-title="Erro ao carregar indicações"
-      empty-icon="inbox"
       empty-text="Nenhuma indicação encontrada"
       empty-hint="Faça sua primeira indicação!"
       item-key="referralId"

@@ -10,7 +10,6 @@
     title="Lista de Empresas"
     loading-text="Carregando empresas..."
     error-title="Erro ao carregar empresas"
-    empty-icon="domain_disabled"
     empty-text="Nenhuma empresa cadastrada"
     empty-hint="Clique em 'Nova Empresa' para começar"
     item-key="id"

@@ -10,7 +10,6 @@
     title="Lista de Especializações"
     loading-text="Carregando especializações..."
     error-title="Erro ao carregar especializações"
-    empty-icon="group_work"
     empty-text="Nenhuma área de atuação cadastrada"
     empty-hint="Clique em 'Nova Área de Atuação' para começar"
     item-key="expertiseId"
