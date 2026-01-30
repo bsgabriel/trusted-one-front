@@ -1,5 +1,6 @@
 import { defineBoot } from '#q-app/wrappers';
 import axios, { type AxiosInstance } from 'axios';
+import { apiService } from 'src/services/apiUtils';
 
 declare module 'vue' {
   interface ComponentCustomProperties {
@@ -16,12 +17,23 @@ declare module 'vue' {
 // for each client)
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  withCredentials: true,
+  withCredentials: false,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
+
+api.interceptors.request.use(
+  (config) => {
+    const token = apiService.getToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error as Error),
+);
 
 api.interceptors.response.use(
   (response) => response,
@@ -33,6 +45,7 @@ api.interceptors.response.use(
         return Promise.reject(error as Error);
       }
 
+      apiService.clearToken();
       window.dispatchEvent(new CustomEvent('session-expired'));
     }
     return Promise.reject(error as Error);

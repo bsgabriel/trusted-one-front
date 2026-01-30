@@ -10,18 +10,25 @@ class ApiService {
 
   private handleError(error: unknown): never {
     if (this.isAxiosError(error)) {
-      if (error.response?.status === 401 && !error.response?.data) {
-        console.log('error', error)
+      if (error.response?.status === 401) {
+        this.clearToken();
+
+        if (error.response?.data) {
+          const data = error.response.data;
+          if (this.isProblemDetail(data)) {
+            throw new ApiError(data as ProblemDetail);
+          }
+        }
+
         throw new ApiError({
-          title: 'Erro de autenticação',
-          status: error.response.status,
+          title: 'Sessão expirada',
+          status: 401,
           detail: 'Sua sessão expirou. Por favor, faça login novamente.',
         });
       }
 
       if (error.response?.data) {
         const data = error.response.data;
-
         if (this.isProblemDetail(data)) {
           throw new ApiError(data as ProblemDetail);
         }
@@ -58,6 +65,18 @@ class ApiService {
       'detail' in data &&
       'status' in data
     );
+  }
+
+  setToken(token: string): void {
+    localStorage.setItem('authToken', token);
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem('authToken');
+  }
+
+  clearToken(): void {
+    localStorage.removeItem('authToken');
   }
 
   async get<T>(endpoint: string): Promise<T> {

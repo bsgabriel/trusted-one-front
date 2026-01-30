@@ -4,6 +4,7 @@ import type { AccountCreationDto, UserDto } from 'src/types/user';
 import { PAGES } from 'src/constants/pages';
 import { useAppRouter } from '../composables/useAppRouter';
 import { useApiError } from 'src/composables/useApiError';
+import { apiService } from '../services/apiUtils';
 
 const currentUser = ref<UserDto | null>(null);
 const isLoading = ref(false);
@@ -12,12 +13,18 @@ const isInitialized = ref(false);
 export function useAuth() {
   const { navigate } = useAppRouter();
   const { notifyError } = useApiError();
-  
+
   const isAuthenticated = computed(() => !!currentUser.value);
 
   const checkAuth = async (): Promise<boolean> => {
     if (isInitialized.value) {
       return isAuthenticated.value;
+    }
+
+    const token = apiService.getToken();
+    if (!token) {
+      isInitialized.value = true;
+      return false;
     }
 
     isLoading.value = true;
@@ -26,6 +33,7 @@ export function useAuth() {
       currentUser.value = await userService.getProfile();
       return true;
     } catch {
+      apiService.clearToken();
       currentUser.value = null;
       return false;
     } finally {
@@ -52,8 +60,10 @@ export function useAuth() {
     isLoading.value = true;
 
     try {
-      await userService.login({ email, password });
+      const response = await userService.login({ email, password });
+      apiService.setToken(response.token);
       currentUser.value = await userService.getProfile();
+
       return { success: true };
     } catch (error) {
       notifyError(error);
@@ -63,18 +73,10 @@ export function useAuth() {
     }
   };
 
-  const logout = async (): Promise<void> => {
-    isLoading.value = true;
-
-    try {
-      await userService.logout();
-    } catch (error) {
-      console.error('Erro ao fazer logout:', error);
-    } finally {
-      currentUser.value = null;
-      isLoading.value = false;
-      navigate(PAGES.LOGIN);
-    }
+  const logout = (): void => {
+    apiService.clearToken();
+    currentUser.value = null;
+    navigate(PAGES.LOGIN);
   };
 
   const handleSessionExpired = (): void => {
@@ -82,6 +84,7 @@ export function useAuth() {
       return;
     }
 
+    apiService.clearToken();
     currentUser.value = null;
     isInitialized.value = false;
     navigate(PAGES.LOGIN);
