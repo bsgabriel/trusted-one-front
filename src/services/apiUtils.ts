@@ -11,7 +11,7 @@ class ApiService {
   private handleError(error: unknown): never {
     if (this.isAxiosError(error)) {
       if (error.response?.status === 401) {
-        this.clearToken();
+        this.clearTokens();
 
         if (error.response?.data) {
           const data = error.response.data;
@@ -67,16 +67,22 @@ class ApiService {
     );
   }
 
-  setToken(token: string): void {
-    localStorage.setItem('authToken', token);
+  setTokens(accessToken: string, refreshToken: string): void {
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
   }
 
-  getToken(): string | null {
-    return localStorage.getItem('authToken');
+  getAccessToken(): string | null {
+    return localStorage.getItem('accessToken');
   }
 
-  clearToken(): void {
-    localStorage.removeItem('authToken');
+  getRefreshToken(): string | null {
+    return localStorage.getItem('refreshToken');
+  }
+
+  clearTokens(): void {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
   }
 
   async get<T>(endpoint: string): Promise<T> {

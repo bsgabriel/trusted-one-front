@@ -92,8 +92,8 @@ const toggleLeftDrawer = () => {
   leftDrawerOpen.value = !leftDrawerOpen.value;
 };
 
-const handleLogout = () => {
-  logout();
+const handleLogout = async () => {
+  await logout();
 };
 
 const navigateToPage = (page: Page) => {

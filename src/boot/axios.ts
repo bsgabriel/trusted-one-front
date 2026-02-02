@@ -1,5 +1,7 @@
+import type { ProblemDetail } from 'src/types/api';
+import type { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import { defineBoot } from '#q-app/wrappers';
-import axios, { type AxiosInstance } from 'axios';
+import axios from 'axios';
 import { apiService } from 'src/services/apiUtils';
 
 declare module 'vue' {
@@ -26,7 +28,7 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token = apiService.getToken();
+    const token = apiService.getAccessToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -36,19 +38,40 @@ api.interceptors.request.use(
 );
 
 api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      const problemDetail = error.response?.data;
+  (res) => res,
+  async (error: AxiosError) => {
+    const status = error.response?.status;
+    const problemDetail = error.response?.data as ProblemDetail;
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-      if (problemDetail?.errorCode === 'INVALID_CREDENTIALS') {
-        return Promise.reject(error as Error);
-      }
-
-      apiService.clearToken();
-      window.dispatchEvent(new CustomEvent('session-expired'));
+    if (problemDetail?.errorCode === 'INVALID_CREDENTIALS') {
+      return Promise.reject(error);
     }
-    return Promise.reject(error as Error);
+
+    if (status === 401 && problemDetail?.errorCode === 'SESSION_EXPIRED') {
+      apiService.clearTokens();
+      window.dispatchEvent(new CustomEvent('session-expired'));
+      return Promise.reject(error);
+    }
+
+    if (status === 401 && !originalRequest._retry && !originalRequest.url?.includes('/refresh')) {
+      originalRequest._retry = true;
+
+      try {
+        const { data } = await api.post('/user/refresh', {
+          refreshToken: apiService.getRefreshToken(),
+        });
+
+        apiService.setTokens(data.accessToken, data.refreshToken);
+        originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+
+        return api(originalRequest);
+      } catch (e) {
+        return Promise.reject(e as Error);
+      }
+    }
+
+    return Promise.reject(error);
   },
 );
 

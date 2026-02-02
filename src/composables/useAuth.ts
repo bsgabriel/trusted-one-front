@@ -21,7 +21,7 @@ export function useAuth() {
       return isAuthenticated.value;
     }
 
-    const token = apiService.getToken();
+    const token = apiService.getAccessToken();
     if (!token) {
       isInitialized.value = true;
       return false;
@@ -33,7 +33,7 @@ export function useAuth() {
       currentUser.value = await userService.getProfile();
       return true;
     } catch {
-      apiService.clearToken();
+      apiService.clearTokens();
       currentUser.value = null;
       return false;
     } finally {
@@ -61,7 +61,7 @@ export function useAuth() {
 
     try {
       const response = await userService.login({ email, password });
-      apiService.setToken(response.token);
+      apiService.setTokens(response.accessToken, response.refreshToken);
       currentUser.value = await userService.getProfile();
 
       return { success: true };
@@ -73,10 +73,22 @@ export function useAuth() {
     }
   };
 
-  const logout = (): void => {
-    apiService.clearToken();
-    currentUser.value = null;
-    navigate(PAGES.LOGIN);
+  const logout = async (): Promise<void> => {
+    isLoading.value = true;
+
+    try {
+      const refreshToken = apiService.getRefreshToken();
+      if (refreshToken) {
+        await userService.logout(refreshToken);
+      }
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+    } finally {
+      apiService.clearTokens();
+      currentUser.value = null;
+      isLoading.value = false;
+      navigate(PAGES.LOGIN);
+    }
   };
 
   const handleSessionExpired = (): void => {
@@ -84,7 +96,7 @@ export function useAuth() {
       return;
     }
 
-    apiService.clearToken();
+    apiService.clearTokens();
     currentUser.value = null;
     isInitialized.value = false;
     navigate(PAGES.LOGIN);
