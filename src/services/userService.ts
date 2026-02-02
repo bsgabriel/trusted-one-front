@@ -7,7 +7,8 @@ interface LoginRequest {
 }
 
 interface LoginResponse {
-  token: string;
+  accessToken: string;
+  refreshToken: string;
   type: string;
   expiresIn: number;
 }
@@ -25,6 +26,13 @@ export class UserService {
     return apiService.post<void, AccountCreationDto>('/user/register', userData);
   }
 
+  async logout(refreshToken: string): Promise<void> {
+    try {
+      await apiService.post<void>('/user/logout', { refreshToken });
+    } finally {
+      apiService.clearTokens();
+    }
+  }
 }
 
 export const userService = new UserService();
