@@ -6,9 +6,15 @@ interface LoginRequest {
   password: string;
 }
 
+interface LoginResponse {
+  token: string;
+  type: string;
+  expiresIn: number;
+}
+
 export class UserService {
-  async login(credentials: LoginRequest): Promise<void> {
-    return apiService.post<void, LoginRequest>('/user/login', credentials);
+  async login(credentials: LoginRequest): Promise<LoginResponse> {
+    return apiService.post<LoginResponse, LoginRequest>('/user/login', credentials);
   }
 
   async getProfile(): Promise<UserDto> {
@@ -19,9 +25,6 @@ export class UserService {
     return apiService.post<void, AccountCreationDto>('/user/register', userData);
   }
 
-  async logout(): Promise<void> {
-    return apiService.get<void>('/user/logout');
-  }
 }
 
 export const userService = new UserService();
