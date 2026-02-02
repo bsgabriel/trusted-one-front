@@ -1,4 +1,5 @@
-import type { InternalAxiosRequestConfig, AxiosError, AxiosInstance } from 'axios';
+import type { ProblemDetail } from 'src/types/api';
+import type { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import { defineBoot } from '#q-app/wrappers';
 import axios from 'axios';
 import { apiService } from 'src/services/apiUtils';
@@ -25,24 +26,6 @@ const api = axios.create({
   },
 });
 
-let isRefreshing = false;
-let failedQueue: Array<{
-  resolve: (value?: unknown) => void;
-  reject: (reason?: unknown) => void;
-}> = [];
-
-const processQueue = (error: Error | null = null) => {
-  failedQueue.forEach((prom) => {
-    if (error) {
-      prom.reject(error);
-    } else {
-      prom.resolve();
-    }
-  });
-
-  failedQueue = [];
-};
-
 api.interceptors.request.use(
   (config) => {
     const token = apiService.getAccessToken();
@@ -55,63 +38,40 @@ api.interceptors.request.use(
 );
 
 api.interceptors.response.use(
-  (response) => response,
+  (res) => res,
   async (error: AxiosError) => {
+    const status = error.response?.status;
+    const problemDetail = error.response?.data as ProblemDetail;
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-    if (
-      error.response?.status === 401 &&
-      originalRequest &&
-      !originalRequest._retry &&
-      !originalRequest.url?.includes('/login') &&
-      !originalRequest.url?.includes('/refresh')
-    ) {
+    if (problemDetail?.errorCode === 'INVALID_CREDENTIALS') {
+      return Promise.reject(error);
+    }
 
-      const problemDetail = error.response?.data as { errorCode?: string };
+    if (status === 401 && problemDetail?.errorCode === 'SESSION_EXPIRED') {
+      apiService.clearTokens();
+      window.dispatchEvent(new CustomEvent('session-expired'));
+      return Promise.reject(error);
+    }
 
-      if (problemDetail?.errorCode === 'INVALID_CREDENTIALS') {
-        return Promise.reject(error);
-      }
-
-      if (isRefreshing) {
-        return new Promise((resolve, reject) => failedQueue.push({ resolve, reject }))
-          .then(() => api(originalRequest))
-          .catch((err) => Promise.reject(err as Error));
-      }
-
+    if (status === 401 && !originalRequest._retry && !originalRequest.url?.includes('/refresh')) {
       originalRequest._retry = true;
-      isRefreshing = true;
-
-      const refreshToken = apiService.getRefreshToken();
-
-      if (!refreshToken) {
-        apiService.clearTokens();
-        window.dispatchEvent(new CustomEvent('session-expired'));
-        isRefreshing = false;
-        return Promise.reject(error as Error);
-      }
 
       try {
-        const response = await axios.post(`${api.defaults.baseURL}/user/refresh`, { refreshToken });
+        const { data } = await api.post('/user/refresh', {
+          refreshToken: apiService.getRefreshToken(),
+        });
 
-        const { accessToken, refreshToken: newRefreshToken } = response.data;
-
-        apiService.setTokens(accessToken, newRefreshToken);
-        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-        processQueue();
-
-        isRefreshing = false;
+        apiService.setTokens(data.accessToken, data.refreshToken);
+        originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
 
         return api(originalRequest);
-      } catch (refreshError) {
-        processQueue(refreshError as Error);
-        apiService.clearTokens();
-        window.dispatchEvent(new CustomEvent('session-expired'));
-        isRefreshing = false;
-        return Promise.reject(refreshError as Error);
+      } catch (e) {
+        return Promise.reject(e as Error);
       }
     }
-    return Promise.reject(error as Error);
+
+    return Promise.reject(error);
   },
 );
 
