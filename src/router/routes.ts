@@ -107,7 +107,12 @@ const routes: RouteRecordRaw[] = [
   {
     path: PAGES.LOGIN.path,
     name: PAGES.LOGIN.id,
-    component: () => import('pages/AuthPage.vue'),
+    component: () => import('pages/Auth/AuthPage.vue'),
+  },
+  {
+    path: PAGES.PASSWORD_RESET.path,
+    name: PAGES.PASSWORD_RESET.id,
+    component: () => import('pages/Auth/AuthPage.vue'),
   },
   // Página 404
   {

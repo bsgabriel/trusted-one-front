@@ -1,5 +1,5 @@
 import { apiService } from './apiUtils';
-import type { AccountCreationDto, UserDto } from '../types/user';
+import type { AccountCreationDto, PasswordResetRequest, UserDto } from '../types/user';
 
 interface LoginRequest {
   email: string;
@@ -32,6 +32,21 @@ export class UserService {
     } finally {
       apiService.clearTokens();
     }
+  }
+
+  async requestPasswordChange(email: string): Promise<void> {
+    return apiService.post<void, { email: string }>('/user/forgot-password', { email });
+  }
+
+  async validateResetToken(token: string): Promise<void> {
+    const queryParams = new URLSearchParams();
+    queryParams.append('token', token);
+
+    return apiService.get<void>(`/user/reset-password/validate?${queryParams.toString()}`);
+  }
+
+  async resetPassword(request: PasswordResetRequest): Promise<void> {
+    return apiService.post<void, PasswordResetRequest>('/user/reset-password', request);
   }
 }
 

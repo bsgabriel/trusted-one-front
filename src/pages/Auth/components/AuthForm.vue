@@ -76,6 +76,14 @@
 
         <div class="text-center">
           <q-btn
+            v-if="isLogin"
+            flat
+            no-caps
+            color="primary"
+            label="Esqueci minha senha"
+            @click="requestPasswordChange"
+          />
+          <q-btn
             flat
             no-caps
             color="primary"
@@ -90,11 +98,15 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue';
-import { useAuth } from '../composables/useAuth';
-import BaseInput from './BaseInput.vue';
-import BaseButton from './BaseButton.vue';
+import { useAuth } from 'src/composables/useAuth';
+import BaseInput from 'src/components/BaseInput.vue';
+import BaseButton from 'src/components/BaseButton.vue';
 import { PAGES } from 'src/constants/pages';
-import { useAppRouter } from '../composables/useAppRouter';
+import { useAppRouter } from 'src/composables/useAppRouter';
+import { useNotification } from 'src/composables/useNotification';
+import { userService } from 'src/services/userService';
+
+const { showSuccess, showError } = useNotification();
 
 interface FormData {
   name: string;
@@ -152,6 +164,19 @@ const toggleMode = () => {
     formData.name = '';
     formData.confirmPassword = '';
   }
+};
+
+const requestPasswordChange = () => {
+  formData.email = formData.email.trim();
+  if (!emailRules.every((rule) => rule(formData.email) === true)) {
+    showError('Por favor, insira um email válido para solicitar a redefinição de senha.')
+    return;
+  }
+
+  userService
+    .requestPasswordChange(formData.email)
+    .then(() => showSuccess('Instruções para redefinição de senha foram enviadas para seu email.'))
+    .catch(() => showError('Erro ao solicitar redefinição de senha. Tente novamente.'));
 };
 
 const handleSubmit = async () => {

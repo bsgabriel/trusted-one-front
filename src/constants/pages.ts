@@ -100,4 +100,9 @@ export const PAGES = {
     id: 'login',
     title: 'Login',
   },
+  PASSWORD_RESET: {
+    path: '/nova-senha',
+    id: 'password-reset',
+    title: 'Redefinir Senha',
+  },
 } as const;
