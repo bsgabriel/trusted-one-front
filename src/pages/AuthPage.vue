@@ -5,7 +5,8 @@
         <div class="text-h4 text-weight-bold text-primary q-mb-md">Agenda Profissional</div>
         <div class="text-subtitle1">Sua lista de recomendação de profissionais</div>
       </div>
-      <AuthForm />
+      <PasswordResetForm v-if="isPasswordResetPage" />
+      <AuthForm v-else />
     </div>
 
     <div class="auth-background">
@@ -16,17 +17,21 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onMounted, computed } from 'vue';
+import { useRoute } from 'vue-router';
 import { useAuth } from '../composables/useAuth';
 import AuthForm from '../components/AuthForm.vue';
+import PasswordResetForm from '../components/PasswordResetForm.vue';
 import { PAGES } from 'src/constants/pages';
 import { useAppRouter } from '../composables/useAppRouter';
 
+const route = useRoute();
 const { isAuthenticated } = useAuth();
 const { navigate } = useAppRouter();
+const isPasswordResetPage = computed(() => route.path === PAGES.PASSWORD_RESET.path);
 
 onMounted(() => {
-  if (isAuthenticated.value) {
+  if (isAuthenticated.value && !isPasswordResetPage.value) {
     navigate(PAGES.DASHBOARD);
   }
 });

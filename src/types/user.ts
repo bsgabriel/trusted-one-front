@@ -14,3 +14,9 @@ export interface UserDto {
   name: string;
   email: string;
 }
+
+export interface PasswordResetRequest {
+  token: string;
+  password: string;
+  confirmPassword: string;
+}
