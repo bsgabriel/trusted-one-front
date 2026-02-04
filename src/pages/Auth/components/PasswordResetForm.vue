@@ -72,10 +72,10 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { useNotification } from '../composables/useNotification';
-import { userService } from '../services/userService';
-import BaseInput from './BaseInput.vue';
-import BaseButton from './BaseButton.vue';
+import { useNotification } from 'src/composables/useNotification';
+import { userService } from 'src/services/userService';
+import BaseInput from 'src/components/BaseInput.vue';
+import BaseButton from 'src/components/BaseButton.vue';
 
 const route = useRoute();
 const { showSuccess, showError } = useNotification();

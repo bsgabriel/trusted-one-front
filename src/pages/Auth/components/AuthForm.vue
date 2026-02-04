@@ -98,13 +98,13 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue';
-import { useAuth } from '../composables/useAuth';
-import BaseInput from './BaseInput.vue';
-import BaseButton from './BaseButton.vue';
+import { useAuth } from 'src/composables/useAuth';
+import BaseInput from 'src/components/BaseInput.vue';
+import BaseButton from 'src/components/BaseButton.vue';
 import { PAGES } from 'src/constants/pages';
-import { useAppRouter } from '../composables/useAppRouter';
+import { useAppRouter } from 'src/composables/useAppRouter';
 import { useNotification } from 'src/composables/useNotification';
-import { userService } from '../services/userService';
+import { userService } from 'src/services/userService';
 
 const { showSuccess, showError } = useNotification();
 

@@ -19,11 +19,11 @@
 <script setup lang="ts">
 import { onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
-import { useAuth } from '../composables/useAuth';
-import AuthForm from '../components/AuthForm.vue';
-import PasswordResetForm from '../components/PasswordResetForm.vue';
+import { useAuth } from 'src/composables/useAuth';
+import AuthForm from './components/AuthForm.vue';
+import PasswordResetForm from './components/PasswordResetForm.vue';
 import { PAGES } from 'src/constants/pages';
-import { useAppRouter } from '../composables/useAppRouter';
+import { useAppRouter } from 'src/composables/useAppRouter';
 
 const route = useRoute();
 const { isAuthenticated } = useAuth();
