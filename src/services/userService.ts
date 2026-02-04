@@ -33,6 +33,10 @@ export class UserService {
       apiService.clearTokens();
     }
   }
+
+  async requestPasswordChange(email: string): Promise<void> {
+    return apiService.post<void, { email: string }>('/user/forgot-password', { email });
+  }
 }
 
 export const userService = new UserService();
