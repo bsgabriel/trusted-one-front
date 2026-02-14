@@ -54,7 +54,7 @@
     <!-- Estado: Lista vazia -->
     <q-card-section v-else-if="items.length === 0">
       <div class="text-center q-py-lg">
-        <q-icon :name="emptyIcon" size="4rem" color="grey-5" />
+        <q-icon name="inbox" size="4rem" color="grey-5" />
         <div class="text-h6 q-mt-md text-grey-6">{{ emptyText }}</div>
         <div class="text-body2 text-grey-5 q-mt-sm">{{ emptyHint }}</div>
       </div>
@@ -98,7 +98,6 @@ interface Props {
   title?: string;
   loadingText?: string;
   errorTitle?: string;
-  emptyIcon?: string;
   emptyText?: string;
   emptyHint?: string;
   pageSizeOptions?: number[];

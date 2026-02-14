@@ -10,7 +10,6 @@
     title="Lista de Parceiros"
     loading-text="Carregando parceiros..."
     error-title="Erro ao carregar parceiros"
-    empty-icon="person_add"
     empty-text="Nenhum parceiro cadastrado"
     empty-hint="Clique em 'Novo Parceiro' para começar"
     item-key="partnerId"
