@@ -13,6 +13,7 @@
       <div class="bg-shape-1"></div>
       <div class="bg-shape-2"></div>
     </div>
+    <div class="watermark">Made by Design & Dev Solutions LTDA</div>
   </div>
 </template>
 
@@ -72,6 +73,20 @@ onMounted(() => {
   overflow: hidden;
 }
 
+.watermark {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 3;
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 0.75rem;
+  pointer-events: none;
+  user-select: none;
+
+  @media (max-width: 600px) {
+  }
+}
+
 .bg-shape-1,
 .bg-shape-2 {
   position: absolute;
@@ -113,6 +128,13 @@ onMounted(() => {
 
   .auth-header .text-h4 {
     font-size: 1.5rem;
+  }
+
+  .watermark {
+    position: static;
+    text-align: center;
+    margin-top: 24px;
+    padding-bottom: 16px;
   }
 
   .bg-shape-1 {
